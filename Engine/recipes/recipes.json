@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "recipes": [
+    {
+      "id": "two_group_continuous",
+      "title": "2群比較（連続） Welch t-test",
+      "description": "Welch t-test（標準）で2群の平均差を比較します。",
+      "variables": { "y": "連続（目的変数）", "group": "2値（群）" }
+    },
+    {
+      "id": "two_group_categorical",
+      "title": "2群比較（カテゴリ） χ²/Fisher",
+      "description": "2×2表の比率差を比較（原則χ²、必要ならFisher）。",
+      "variables": { "outcome": "2値（目的変数）", "group": "2値（群）" }
+    },
+    {
+      "id": "anova_continuous",
+      "title": "3群以上（ANOVA）",
+      "description": "一元配置ANOVAで3群以上の平均差を検定します。",
+      "variables": { "y": "連続（目的変数）", "group": "カテゴリ（群）" }
+    },
+    {
+      "id": "linear_regression",
+      "title": "線形回帰（単回帰）",
+      "description": "目的変数yに対する単回帰（最小二乗）です。",
+      "variables": { "y": "連続（目的変数）", "x": "連続/2値（説明変数）" }
+    },
+    {
+      "id": "multiple_regression",
+      "title": "重回帰",
+      "description": "複数の説明変数でyを回帰します。",
+      "variables": { "y": "連続（目的変数）", "x": "複数（説明変数・カンマ区切り）" }
+    },
+    {
+      "id": "logistic_regression",
+      "title": "ロジスティック回帰（2値）",
+      "description": "2値アウトカムに対するロジスティック回帰です。",
+      "variables": { "outcome": "2値（目的変数）", "x": "複数（説明変数・カンマ区切り）" }
+    },
+    {
+      "id": "mixed_model",
+      "title": "混合効果モデル（ランダム切片）",
+      "description": "ランダム切片付きの線形混合モデル（lme4）想定。",
+      "variables": { "y": "連続（目的変数）", "x": "固定効果（説明変数）", "cluster": "クラスターID" }
+    },
+    {
+      "id": "propensity_score",
+      "title": "傾向スコア（PS）推定",
+      "description": "ロジスティック回帰で傾向スコアを推定し、分布と重なりを確認します。",
+      "variables": { "treatment": "2値（介入）", "x": "共変量（カンマ区切り）" }
+    },
+    {
+      "id": "meta_analysis",
+      "title": "メタ解析（固定効果）",
+      "description": "固定効果モデルのメタ解析（データ形式はレシピ側仕様）。",
+      "variables": { "effect": "効果量", "se": "標準誤差" }
+    },
+    {
+      "id": "survival_km",
+      "title": "生存解析（KM）",
+      "description": "Kaplan–Meier曲線とログランク検定。",
+      "variables": { "time": "時間", "event": "イベント(0/1)", "group": "群" }
+    },
+    {
+      "id": "cox_regression",
+      "title": "Cox回帰",
+      "description": "Cox比例ハザードモデル。",
+      "variables": { "time": "時間", "event": "イベント(0/1)", "x": "説明変数（カンマ区切り）" }
+    },
+    {
+      "id": "iptw_ate",
+      "title": "IPTW（ATE推定）",
+      "description": "傾向スコアからIPTW重みを作り、ATE（平均処置効果）を推定します。",
+      "variables": { "y": "連続（アウトカム）", "treatment": "2値（介入）", "x": "共変量（カンマ区切り）" }
+    },
+    {
+      "id": "iv_2sls",
+      "title": "操作変数（IV）2SLS",
+      "description": "AER::ivreg による2段階最小二乗（2SLS）。weak IV指標も出します。",
+      "variables": { "y": "連続（アウトカム）", "treatment": "介入", "z": "操作変数", "x": "共変量（任意・カンマ区切り）" }
+    },
+    {
+      "id": "pca_analysis",
+      "title": "主成分分析（PCA）",
+      "description": "prcompでPCA。寄与率・負荷量・スコアを出力します。",
+      "variables": { "x": "数値列（カンマ区切り）" }
+    },
+    {
+      "id": "pls_regression",
+      "title": "PLS回帰",
+      "description": "pls::plsr でPLS回帰（CVで成分数）。係数や予測性能を出します。",
+      "variables": { "y": "連続（目的変数）", "x": "説明変数（カンマ区切り）" }
+    }
+  ]
+}

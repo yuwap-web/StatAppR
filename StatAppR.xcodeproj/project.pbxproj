@@ -16,6 +16,28 @@
 			path = StatAppR;
 			sourceTree = "<group>";
 		};
+		3E294DE42F5884A50060BCF4 /* Engine */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+				recipes/anova_continuous.R = text;
+				recipes/cox_regression.R = text;
+				recipes/iptw_ate.R = text;
+				recipes/iv_2sls.R = text;
+				recipes/linear_regression.R = text;
+				recipes/logistic_regression.R = text;
+				recipes/meta_analysis.R = text;
+				recipes/mixed_model.R = text;
+				recipes/multiple_regression.R = text;
+				recipes/pca_analysis.R = text;
+				recipes/pls_regression.R = text;
+				recipes/propensity_score.R = text;
+				recipes/survival_km.R = text;
+				recipes/two_group_categorical.R = text;
+				recipes/two_group_continuous.R = text;
+			};
+			path = Engine;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +56,7 @@
 			children = (
 				3E294D982F57CA050060BCF4 /* StatAppR */,
 				3E294D972F57CA050060BCF4 /* Products */,
+				3E294DE42F5884A50060BCF4 /* Engine */,
 			);
 			sourceTree = "<group>";
 		};
@@ -62,6 +85,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				3E294D982F57CA050060BCF4 /* StatAppR */,
+				3E294DE42F5884A50060BCF4 /* Engine */,
 			);
 			name = StatAppR;
 			packageProductDependencies = (
@@ -254,10 +278,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 62B3DAL83Z;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -286,10 +309,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 62B3DAL83Z;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
-				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
