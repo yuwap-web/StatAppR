@@ -336,9 +336,11 @@ struct RecipeSelectionView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
-            .padding(20)
-            .background(Color(.controlBackgroundColor))
             .frame(maxWidth: .infinity, alignment: .center)
+            .padding(16)
+            .background(Color(.controlBackgroundColor))
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
 
             Divider()
 
