@@ -360,7 +360,7 @@ struct RecipeSelectionView: View {
                     .padding(16)
                     .background(Color(.controlBackgroundColor).opacity(0.5))
                     .cornerRadius(8)
-                    .padding(.horizontal, 12)
+                    .padding(.horizontal, 20)
                     .padding(.top, 20)
 
                     Divider()
