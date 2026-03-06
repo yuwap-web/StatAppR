@@ -598,7 +598,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Causal Forest",
-                    nameJapanese: "因果森",
+                    nameJapanese: "因果フォレスト",
                     description: "異質な処置効果の推定",
                     recipeName: "causal_forest",
                     requiredColumns: ["処置", "アウトカム", "特徴量"],

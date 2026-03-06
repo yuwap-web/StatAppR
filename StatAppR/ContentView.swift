@@ -58,7 +58,6 @@ struct ContentView: View {
                                 Text("データタイプを選択")
                                     .font(.title3)
                                     .fontWeight(.semibold)
-                                    .frame(maxWidth: .infinity, alignment: .center)
 
                                 VStack(spacing: 8) {
                                     ForEach(DataType.allCases) { dataType in
@@ -69,9 +68,8 @@ struct ContentView: View {
                                         )
                                     }
                                 }
-                                .frame(maxWidth: .infinity)
                             }
-                            .frame(maxWidth: .infinity)
+                            .frame(maxWidth: .infinity, alignment: .center)
 
                             Spacer()
                         }
@@ -84,7 +82,7 @@ struct ContentView: View {
                         Divider()
                             .padding(.vertical, 4)
 
-                        VStack(spacing: 10) {
+                        HStack(spacing: 12) {
                             Button(action: { showingFileImporter = true }) {
                                 HStack(spacing: 8) {
                                     Image(systemName: "folder.badge.plus")
@@ -92,13 +90,12 @@ struct ContentView: View {
                                     Text("CSVをロード")
                                         .fontWeight(.semibold)
                                         .font(.headline)
-                                    Spacer()
                                 }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(14)
+                                .frame(maxWidth: .infinity)
+                                .padding(12)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
-                                .cornerRadius(8)
+                                .cornerRadius(6)
                             }
 
                             Button(action: { showingPackageManager = true }) {
@@ -108,18 +105,18 @@ struct ContentView: View {
                                     Text("パッケージ")
                                         .fontWeight(.semibold)
                                         .font(.headline)
-                                    Spacer()
                                 }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(14)
+                                .frame(maxWidth: .infinity)
+                                .padding(12)
                                 .background(Color.orange)
                                 .foregroundColor(.white)
-                                .cornerRadius(8)
+                                .cornerRadius(6)
                             }
                         }
-                        .padding(12)
+                        .padding(10)
+                        .background(Color(.controlBackgroundColor))
+                        .cornerRadius(8)
                     }
-                    .background(Color(.controlBackgroundColor))
                 }
                 .frame(minWidth: 280, maxWidth: 380)
                 .background(Color(.windowBackgroundColor))
