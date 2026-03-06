@@ -323,7 +323,7 @@ struct RecipeSelectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .center, spacing: 8) {
                 HStack(spacing: 12) {
                     Text(dataType.emoji)
                         .font(.title)
@@ -337,7 +337,7 @@ struct RecipeSelectionView: View {
             }
             .padding(20)
             .background(Color(.controlBackgroundColor))
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
 
             Divider()
 
