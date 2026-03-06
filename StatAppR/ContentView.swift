@@ -25,7 +25,7 @@ struct ContentView: View {
                                     .fontWeight(.bold)
 
                                 Text("このアプリケーションでは、CSVデータを読み込んで、様々な統計分析を実行できます。")
-                                    .font(.caption)
+                                    .font(.body)
                                     .foregroundColor(.secondary)
                                     .lineLimit(nil)
                             }
@@ -74,14 +74,15 @@ struct ContentView: View {
                     VStack(spacing: 8) {
                         Divider()
 
-                        HStack(spacing: 8) {
+                        HStack(spacing: 12) {
                             Button(action: { showingFileImporter = true }) {
                                 HStack {
                                     Image(systemName: "folder.badge.plus")
                                     Text("CSVをロード")
+                                        .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(8)
+                                .padding(12)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(6)
@@ -91,9 +92,10 @@ struct ContentView: View {
                                 HStack {
                                     Image(systemName: "box.truck")
                                     Text("パッケージ")
+                                        .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(8)
+                                .padding(12)
                                 .background(Color.orange)
                                 .foregroundColor(.white)
                                 .cornerRadius(6)
@@ -180,10 +182,10 @@ struct StepView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.subheadline)
+                    .font(.headline)
                     .fontWeight(.semibold)
                 Text(description)
-                    .font(.caption)
+                    .font(.body)
                     .foregroundColor(.secondary)
             }
 
@@ -205,14 +207,14 @@ struct DataTypeButton: View {
                 Text(dataType.emoji)
                     .font(.title3)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(dataType.rawValue)
-                        .font(.subheadline)
+                        .font(.headline)
                         .fontWeight(.semibold)
                         .lineLimit(1)
 
                     Text(dataType.description)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(2)
                 }
@@ -326,10 +328,11 @@ struct RecipeSelectionView: View {
                     // Detailed Information Section
                     VStack(alignment: .leading, spacing: 12) {
                         Text("📋 詳細情報")
-                            .font(.headline)
+                            .font(.title3)
+                            .fontWeight(.semibold)
 
                         Text(dataType.detailedDescription)
-                            .font(.caption)
+                            .font(.body)
                             .foregroundColor(.secondary)
                             .lineLimit(nil)
                             .textSelection(.enabled)
@@ -379,13 +382,13 @@ struct RecipeCardView: View {
                     .fontWeight(.semibold)
 
                 Text(recipe.description)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("必要な列:")
-                        .font(.caption)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
 
@@ -395,7 +398,7 @@ struct RecipeCardView: View {
                                 Image(systemName: "circle.fill")
                                     .font(.system(size: 4))
                                 Text(column)
-                                    .font(.caption2)
+                                    .font(.caption)
                             }
                             .foregroundColor(.secondary)
                         }
@@ -407,7 +410,7 @@ struct RecipeCardView: View {
 
                 HStack {
                     Text("例: \(recipe.example)")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
 
