@@ -1,58 +1,214 @@
 # recipes/multiple_regression.R
+
+`%||%` <- function(a, b) {
+  if (is.null(a)) return(b)
+  if (length(a) == 0) return(b)
+  if (is.atomic(a) && all(is.na(a))) return(b)
+  a
+}
+
 run_recipe_impl <- function(request, data) {
+
   ycol <- request$variables$y
-  xcols <- request$variables$x  # comma-separated e.g. "age,bmi,sex"
+  xraw <- request$variables$x   # vector or comma-separated string
+
+  # optional (advanced)
+  compute_vif <- request$variables$compute_vif %||% FALSE
 
   if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
-  if (is.null(xcols) || xcols == "") stop("variables.x（カンマ区切り）が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("variables.x（説明変数）が必要です")
 
-  xs <- trimws(unlist(strsplit(xcols, ",")))
+  # x normalization
+  xs <- NULL
+  if (is.character(xraw) && length(xraw) == 1) {
+    xs <- trimws(unlist(strsplit(xraw, ",")))
+  } else if (is.character(xraw) && length(xraw) >= 1) {
+    xs <- xraw
+  } else if (is.list(xraw)) {
+    xs <- unlist(xraw)
+  } else {
+    xs <- as.character(xraw)
+  }
+
+  xs <- trimws(xs)
   xs <- xs[xs != ""]
-  if (length(xs) < 2) stop("multiple_regression は x を2つ以上指定してください（例: age,bmi,sex）")
+
+  # y が混ざる事故防止
+  xs <- setdiff(xs, ycol)
+
+  if (length(xs) < 2) stop("multiple_regression は x を2つ以上指定してください")
 
   for (cname in c(ycol, xs)) {
     if (!(cname %in% names(data))) stop(paste0("column not found: ", cname))
   }
 
   df <- data[, c(ycol, xs), drop = FALSE]
+
+  # y numeric coercion
+  if (!is.numeric(df[[ycol]])) {
+    y0 <- df[[ycol]]
+    suppressWarnings(
+      df[[ycol]] <- as.numeric(gsub(",", "", as.character(df[[ycol]])))
+    )
+    if (all(is.na(df[[ycol]])) && any(!is.na(y0))) {
+      stop("y は数値列である必要があります")
+    }
+  }
+
+  # x numeric coercion（factorはそのまま）
+  for (nm in xs) {
+
+    if (is.character(df[[nm]])) {
+
+      x0 <- df[[nm]]
+
+      suppressWarnings(
+        df[[nm]] <- as.numeric(gsub(",", "", df[[nm]]))
+      )
+
+      if (all(is.na(df[[nm]])) && any(!is.na(x0))) {
+        df[[nm]] <- as.factor(x0)
+      }
+
+    }
+
+  }
+
   df <- df[stats::complete.cases(df), , drop = FALSE]
 
-  fml <- stats::as.formula(paste0(ycol, " ~ ", paste(xs, collapse = " + ")))
+  if (nrow(df) < 5) stop("有効データが少なすぎます")
+
+  # formula
+  fml <- stats::as.formula(
+    paste0(ycol, " ~ ", paste(xs, collapse = " + "))
+  )
+
   fit <- stats::lm(fml, data = df)
   sm <- summary(fit)
 
-  coefs <- as.data.frame(sm$coefficients)
+  coef_mat <- sm$coefficients
+
+  if (is.null(coef_mat) || nrow(coef_mat) < 1) {
+    stop("lm coefficients not available")
+  }
+
+  coefs <- as.data.frame(coef_mat)
+
   coefs$term <- rownames(coefs)
   rownames(coefs) <- NULL
-  names(coefs) <- c("estimate", "std_error", "t_value", "p_value", "term")
-  coefs <- coefs[, c("term","estimate","std_error","t_value","p_value")]
 
-  metrics <- data.frame(
-    n = nrow(df),
-    r_squared = sm$r.squared,
-    adj_r_squared = sm$adj.r.squared,
-    sigma = sm$sigma,
+  cn <- colnames(coefs)
+
+  est_col <- cn[grepl("^Estimate", cn)][1]
+  se_col  <- cn[grepl("Std", cn)][1]
+  t_col   <- cn[grepl("t", cn)][1]
+  p_col   <- cn[grepl("Pr", cn)][1]
+
+  coefs <- data.frame(
+    term = coefs$term,
+    estimate = coefs[[est_col]],
+    std_error = coefs[[se_col]],
+    t_value = coefs[[t_col]],
+    p_value = coefs[[p_col]],
     stringsAsFactors = FALSE
   )
+
+  metrics <- data.frame(
+    n_used = nrow(df),
+    r_squared = unname(sm$r.squared),
+    adj_r_squared = unname(sm$adj.r.squared),
+    sigma = unname(sm$sigma),
+    aic = unname(stats::AIC(fit)),
+    stringsAsFactors = FALSE
+  )
+
+  warnings_out <- list()
+  vif_tbl <- NULL
+
+  # VIF
+  if (isTRUE(compute_vif)) {
+
+    if (requireNamespace("car", quietly = TRUE)) {
+
+      v <- try(car::vif(fit), silent = TRUE)
+
+      if (!inherits(v, "try-error")) {
+
+        if (is.matrix(v)) {
+
+          vif_tbl <- data.frame(
+            term = rownames(v),
+            v,
+            row.names = NULL,
+            check.names = FALSE
+          )
+
+        } else {
+
+          vif_tbl <- data.frame(
+            term = names(v),
+            vif = as.numeric(v),
+            row.names = NULL
+          )
+
+        }
+
+      } else {
+
+        warnings_out <- c(warnings_out, list(list(
+          code = "VIF_FAILED",
+          severity = "info",
+          message = "VIF計算に失敗しました"
+        )))
+
+      }
+
+    } else {
+
+      warnings_out <- c(warnings_out, list(list(
+        code = "CAR_NOT_INSTALLED",
+        severity = "info",
+        message = "VIF計算には car パッケージが必要です"
+      )))
+
+    }
+
+  }
+
+  tables_out <- list(
+    list(id = "model_metrics", title = "モデル指標", data = metrics),
+    list(id = "coefficients", title = "回帰係数", data = coefs)
+  )
+
+  if (!is.null(vif_tbl)) {
+
+    tables_out <- c(tables_out, list(list(
+      id = "vif",
+      title = "VIF（多重共線性の指標）",
+      data = vif_tbl
+    )))
+
+  }
 
   list(
     summary = list(
       headline = paste0("重回帰: adj R² = ", signif(sm$adj.r.squared, 3)),
       method_used = "最小二乗法（lm）",
       key_metrics = list(
-        list(name="adj_r_squared", value = unname(sm$adj.r.squared)),
-        list(name="r_squared", value = unname(sm$r.squared))
+        adj_r_squared = unname(sm$adj.r.squared),
+        r_squared = unname(sm$r.squared),
+        aic = unname(stats::AIC(fit)),
+        n_used = nrow(df)
       ),
       interpretation_notes = list(
         "多重共線性（VIF）や外れ値の影響に注意してください。",
         "カテゴリ変数は自動的にダミー化されます。"
       )
     ),
-    tables = list(
-      list(id="model_metrics", title="モデル指標", data=metrics),
-      list(id="coefficients", title="回帰係数", data=coefs)
-    ),
-    figures = list()
+    tables = tables_out,
+    figures = list(),
+    warnings = warnings_out
   )
 }
+
 run <- run_recipe_impl

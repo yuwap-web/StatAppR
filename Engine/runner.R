@@ -8,6 +8,7 @@
 # - ALWAYS writes analysis_result.json (even on error)
 # =========================================
 
+
 suppressWarnings(suppressMessages({
   # Minimal dependencies (you can expand as needed)
   library(jsonlite)
@@ -100,6 +101,13 @@ run_recipe <- function(recipe_id, request, data) {
   runner_dir <- dirname(normalizePath(runner_file, winslash = "/", mustWork = FALSE))
   recipes_dir <- normalizePath(file.path(runner_dir, "recipes"), winslash = "/", mustWork = FALSE)
 
+  # Try to source utility functions (non-fatal if missing)
+  tryCatch({
+    source(file.path(runner_dir, "utils", "forest_plot.R"), local = TRUE)
+  }, error = function(e) {
+    # Silently continue if forest_plot is not available
+  })
+
   candidates <- c(
     file.path(recipes_dir, paste0(recipe_id, ".R")),
     file.path(recipes_dir, recipe_id),                 # just in case (no extension)
@@ -115,6 +123,28 @@ run_recipe <- function(recipe_id, request, data) {
   env <- new.env(parent = globalenv())
   env$request <- request
   env$data <- data
+  env$runner_dir <- runner_dir  # 各レシピから絶対パスを構築できるように
+  env$workdir <- workdir        # 図表/テーブル生成時に必要
+
+  # 図表生成用のユーティリティ関数をレシピ環境にロード
+  tryCatch({
+    sys.source(file.path(runner_dir, "utils", "plot_utils.R"), envir = env)
+  }, error = function(e) {
+    # plot_utils.Rが存在しない場合は続行
+  })
+
+  tryCatch({
+    sys.source(file.path(runner_dir, "utils", "km_plot.R"), envir = env)
+  }, error = function(e) {
+    # km_plot.Rが存在しない場合は続行
+  })
+
+  tryCatch({
+    sys.source(file.path(runner_dir, "utils", "balance_plot.R"), envir = env)
+  }, error = function(e) {
+    # balance_plot.Rが存在しない場合は続行
+  })
+
   sys.source(recipe_path, envir = env)
 
   # Expect recipe to define `run_recipe_impl(request, data)` OR `run(request, data)`
@@ -294,19 +324,20 @@ if (!exists("write_tables", mode = "function")) {
 }
 }
 if (!exists("write_figures", mode = "function")) {
-  write_figures <- function(workdir, figures, width = 7, height = 5, dpi = 150) {
+  write_figures <- function(workdir, figures) {
+    # figures は既にレシピで保存済みのリスト
+    # 形式: list(list(id="...", title="...", path="..."), ...)
     out <- list()
     if (length(figures) == 0) return(out)
-    ensure_dir(file.path(workdir, "figures"))
+
     for (f in figures) {
-      id <- f$id
-      title <- f$title
-      p <- f$plot
-      path <- file.path(workdir, "figures", paste0(id, ".png"))
-      # Try ggsave if ggplot2 is available; else error
-      if (!requireNamespace("ggplot2", quietly = TRUE)) stop("ggplot2 required to save figures")
-      ggplot2::ggsave(filename = path, plot = p, width = width, height = height, dpi = dpi)
-      out <- c(out, list(list(id = id, title = title, path = rel_path(workdir, path))))
+      id <- f$id %||% "figure"
+      title <- f$title %||% ""
+      path <- f$path %||% ""
+
+      # path を相対パスに変換
+      rel <- rel_path(workdir, path)
+      out <- c(out, list(list(id = id, title = title, path = rel)))
     }
     out
   }
@@ -426,6 +457,8 @@ result <- list(
 )
 
 # Capture stdout/stderr to files (avoid leaking data; keep it minimal)
+ensure_dir(file.path(workdir, "logs"))
+
 stdout_tmp <- file.path(workdir, "logs", "stdout.txt")
 stderr_tmp <- file.path(workdir, "logs", "stderr.txt")
 

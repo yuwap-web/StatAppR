@@ -21,11 +21,11 @@ struct ContentView: View {
                             // Welcome Section
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("StatAppRへようこそ")
-                                    .font(.title3)
+                                    .font(.headline)
                                     .fontWeight(.bold)
 
                                 Text("このアプリケーションでは、CSVデータを読み込んで、様々な統計分析を実行できます。")
-                                    .font(.title3)
+                                    .font(.caption)
                                     .foregroundColor(.secondary)
                                     .lineLimit(nil)
                             }
@@ -37,8 +37,7 @@ struct ContentView: View {
                             // Step-by-step Guide
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("手順")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
+                                    .font(.headline)
 
                                 StepView(number: 1, title: "データタイプを選択", description: "あなたのデータの種類を選んでください")
                                 StepView(number: 2, title: "CSVをロード", description: "コンピュータからCSVファイルを選択")
@@ -52,8 +51,7 @@ struct ContentView: View {
                             // Data Type Selection
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("データタイプを選択")
-                                    .font(.title3)
-                                    .fontWeight(.semibold)
+                                    .font(.headline)
 
                                 VStack(spacing: 8) {
                                     ForEach(DataType.allCases) { dataType in
@@ -76,16 +74,14 @@ struct ContentView: View {
                     VStack(spacing: 8) {
                         Divider()
 
-                        HStack(spacing: 12) {
+                        HStack(spacing: 8) {
                             Button(action: { showingFileImporter = true }) {
                                 HStack {
                                     Image(systemName: "folder.badge.plus")
                                     Text("CSVをロード")
-                                        .fontWeight(.semibold)
-                                        .font(.headline)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(12)
+                                .padding(8)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(6)
@@ -95,11 +91,9 @@ struct ContentView: View {
                                 HStack {
                                     Image(systemName: "box.truck")
                                     Text("パッケージ")
-                                        .fontWeight(.semibold)
-                                        .font(.headline)
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding(12)
+                                .padding(8)
                                 .background(Color.orange)
                                 .foregroundColor(.white)
                                 .cornerRadius(6)
@@ -186,10 +180,10 @@ struct StepView: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.title3)
+                    .font(.subheadline)
                     .fontWeight(.semibold)
                 Text(description)
-                    .font(.headline)
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
 
@@ -211,14 +205,14 @@ struct DataTypeButton: View {
                 Text(dataType.emoji)
                     .font(.title3)
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(dataType.rawValue)
-                        .font(.title3)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
                         .lineLimit(1)
 
                     Text(dataType.description)
-                        .font(.subheadline)
+                        .font(.caption2)
                         .foregroundColor(.secondary)
                         .lineLimit(2)
                 }
@@ -250,7 +244,7 @@ struct WelcomeView: View {
                     .fontWeight(.bold)
 
                 Text("CSVデータを使って、統計分析を簡単に実行できます")
-                    .font(.title3)
+                    .font(.body)
                     .foregroundColor(.secondary)
                     .lineLimit(3)
             }
@@ -332,11 +326,10 @@ struct RecipeSelectionView: View {
                     // Detailed Information Section
                     VStack(alignment: .leading, spacing: 12) {
                         Text("📋 詳細情報")
-                            .font(.title2)
-                            .fontWeight(.semibold)
+                            .font(.headline)
 
                         Text(dataType.detailedDescription)
-                            .font(.headline)
+                            .font(.caption)
                             .foregroundColor(.secondary)
                             .lineLimit(nil)
                             .textSelection(.enabled)
@@ -351,8 +344,7 @@ struct RecipeSelectionView: View {
                         .padding(.horizontal, 20)
 
                     Text("実行可能な分析")
-                        .font(.title2)
-                        .fontWeight(.semibold)
+                        .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 20)
                         .padding(.top, 12)
@@ -383,17 +375,17 @@ struct RecipeCardView: View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 12) {
                 Text(recipe.name)
-                    .font(.title3)
+                    .font(.headline)
                     .fontWeight(.semibold)
 
                 Text(recipe.description)
-                    .font(.headline)
+                    .font(.subheadline)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("必要な列:")
-                        .font(.headline)
+                        .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
 
@@ -403,7 +395,7 @@ struct RecipeCardView: View {
                                 Image(systemName: "circle.fill")
                                     .font(.system(size: 4))
                                 Text(column)
-                                    .font(.subheadline)
+                                    .font(.caption2)
                             }
                             .foregroundColor(.secondary)
                         }
@@ -415,7 +407,7 @@ struct RecipeCardView: View {
 
                 HStack {
                     Text("例: \(recipe.example)")
-                        .font(.headline)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
 
@@ -459,17 +451,17 @@ struct RecipeExecutionView: View {
                         Image(systemName: "chevron.left")
                         Text("戻る")
                     }
-                    .font(.headline)
+                    .font(.subheadline)
                 }
 
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(recipe.name)
-                        .font(.title3)
+                        .font(.headline)
                         .fontWeight(.semibold)
                     Text("レシピ: \(recipe.recipeName)")
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
@@ -485,21 +477,20 @@ struct RecipeExecutionView: View {
                     if let csvPath = csvPath {
                         VStack(alignment: .leading, spacing: 12) {
                             Label("ロード済みファイル", systemImage: "checkmark.circle.fill")
-                                .font(.title3)
-                                .fontWeight(.semibold)
+                                .font(.headline)
 
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(csvPath.lastPathComponent)
-                                    .font(.headline)
+                                    .font(.subheadline)
                                     .fontWeight(.semibold)
 
                                 HStack(spacing: 16) {
                                     Label("\(csvColumns.count) 列", systemImage: "square.split.2x1")
-                                        .font(.subheadline)
+                                        .font(.caption)
                                         .foregroundColor(.secondary)
 
                                     Label("データ準備完了", systemImage: "checkmark.circle")
-                                        .font(.subheadline)
+                                        .font(.caption)
                                         .foregroundColor(.green)
                                 }
                             }
@@ -511,7 +502,7 @@ struct RecipeExecutionView: View {
                             if !recipe.parameters.isEmpty && !csvColumns.isEmpty {
                                 VStack(alignment: .leading, spacing: 16) {
                                     Text("分析パラメータ")
-                                        .font(.headline)
+                                        .font(.subheadline)
                                         .fontWeight(.semibold)
 
                                     // Display parameters based on recipe requirements
@@ -519,12 +510,12 @@ struct RecipeExecutionView: View {
                                         VStack(alignment: .leading, spacing: 8) {
                                             HStack {
                                                 Text(param.name)
-                                                    .font(.headline)
+                                                    .font(.subheadline)
                                                     .fontWeight(.semibold)
 
                                                 if param.required {
                                                     Text("※必須")
-                                                        .font(.caption)
+                                                        .font(.caption2)
                                                         .foregroundColor(.red)
                                                 }
 
@@ -532,7 +523,7 @@ struct RecipeExecutionView: View {
                                             }
 
                                             Text(param.description)
-                                                .font(.subheadline)
+                                                .font(.caption)
                                                 .foregroundColor(.secondary)
 
                                             // Parameter Selection UI based on type
@@ -541,7 +532,7 @@ struct RecipeExecutionView: View {
                                                     ForEach(csvColumns) { column in
                                                         HStack {
                                                             Text(column.name)
-                                                                .font(.subheadline)
+                                                                .font(.caption)
                                                             Spacer()
                                                             Image(systemName: selectedColumns.contains(column.name) ? "checkmark.square.fill" : "square")
                                                                 .foregroundColor(selectedColumns.contains(column.name) ? .blue : .gray)
