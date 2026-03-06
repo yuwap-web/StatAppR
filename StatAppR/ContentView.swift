@@ -357,6 +357,7 @@ struct RecipeSelectionView: View {
                             .lineLimit(nil)
                             .textSelection(.enabled)
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(16)
                     .background(Color(.controlBackgroundColor).opacity(0.5))
                     .cornerRadius(8)
