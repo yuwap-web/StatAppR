@@ -33,6 +33,10 @@ struct ContentView: View {
                             .padding(.horizontal, 12)
                             .background(Color(.controlBackgroundColor))
                             .cornerRadius(8)
+                            .onChange(of: selectedDataType) { _ in
+                                // Reset recipe selection when data type changes
+                                selectedRecipe = nil
+                            }
 
                             // Step-by-step Guide
                             VStack(alignment: .leading, spacing: 12) {
@@ -109,32 +113,35 @@ struct ContentView: View {
                     }
                     .background(Color(.controlBackgroundColor))
                 }
-                .frame(minWidth: 280, maxWidth: 300)
+                .frame(minWidth: 280, maxWidth: 380)
                 .background(Color(.windowBackgroundColor))
 
                 // MARK: - Main Content Area
-                ZStack {
-                    if selectedDataType == nil {
-                        WelcomeView()
-                    } else if selectedRecipe == nil {
-                        RecipeSelectionView(
-                            dataType: selectedDataType!,
-                            onSelectRecipe: { recipe in
-                                selectedRecipe = recipe
-                            }
-                        )
-                    } else {
-                        RecipeExecutionView(
-                            recipe: selectedRecipe!,
-                            csvPath: $selectedCSVPath,
-                            isRunning: $isRunningAnalysis,
-                            results: $analysisResults,
-                            rEnvironment: rEnvironment,
-                            onBack: { selectedRecipe = nil }
-                        )
+                VStack {
+                    ZStack {
+                        if selectedDataType == nil {
+                            WelcomeView()
+                        } else if selectedRecipe == nil {
+                            RecipeSelectionView(
+                                dataType: selectedDataType!,
+                                onSelectRecipe: { recipe in
+                                    selectedRecipe = recipe
+                                }
+                            )
+                        } else {
+                            RecipeExecutionView(
+                                recipe: selectedRecipe!,
+                                csvPath: $selectedCSVPath,
+                                isRunning: $isRunningAnalysis,
+                                results: $analysisResults,
+                                rEnvironment: rEnvironment,
+                                onBack: { selectedRecipe = nil }
+                            )
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.windowBackgroundColor))
             }
 
             // Loading Overlay
@@ -336,15 +343,15 @@ struct RecipeSelectionView: View {
                             .fontWeight(.semibold)
 
                         Text(dataType.detailedDescription)
-                            .font(.headline)
+                            .font(.body)
                             .foregroundColor(.secondary)
                             .lineLimit(nil)
                             .textSelection(.enabled)
                     }
-                    .padding(12)
+                    .padding(16)
                     .background(Color(.controlBackgroundColor).opacity(0.5))
                     .cornerRadius(8)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 12)
                     .padding(.top, 20)
 
                     Divider()
