@@ -113,10 +113,11 @@ struct ContentView: View {
                                 .cornerRadius(6)
                             }
                         }
-                        .padding(10)
+                        .padding(12)
                         .background(Color(.controlBackgroundColor))
                         .cornerRadius(8)
                     }
+                    .padding(.horizontal, 12)
                 }
                 .frame(minWidth: 280, maxWidth: 380)
                 .background(Color(.windowBackgroundColor))
