@@ -54,10 +54,11 @@ struct ContentView: View {
                                 .padding(.vertical, 8)
 
                             // Data Type Selection
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .center, spacing: 12) {
                                 Text("データタイプを選択")
                                     .font(.title3)
                                     .fontWeight(.semibold)
+                                    .frame(maxWidth: .infinity, alignment: .center)
 
                                 VStack(spacing: 8) {
                                     ForEach(DataType.allCases) { dataType in
@@ -68,7 +69,9 @@ struct ContentView: View {
                                         )
                                     }
                                 }
+                                .frame(maxWidth: .infinity)
                             }
+                            .frame(maxWidth: .infinity)
 
                             Spacer()
                         }
@@ -77,36 +80,41 @@ struct ContentView: View {
                     .background(Color(.windowBackgroundColor))
 
                     // Bottom Action Buttons
-                    VStack(spacing: 8) {
+                    VStack(spacing: 12) {
                         Divider()
+                            .padding(.vertical, 4)
 
-                        HStack(spacing: 12) {
+                        VStack(spacing: 10) {
                             Button(action: { showingFileImporter = true }) {
-                                HStack {
+                                HStack(spacing: 8) {
                                     Image(systemName: "folder.badge.plus")
+                                        .font(.title3)
                                     Text("CSVをロード")
                                         .fontWeight(.semibold)
                                         .font(.headline)
+                                    Spacer()
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding(12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(14)
                                 .background(Color.blue)
                                 .foregroundColor(.white)
-                                .cornerRadius(6)
+                                .cornerRadius(8)
                             }
 
                             Button(action: { showingPackageManager = true }) {
-                                HStack {
+                                HStack(spacing: 8) {
                                     Image(systemName: "box.truck")
+                                        .font(.title3)
                                     Text("パッケージ")
                                         .fontWeight(.semibold)
                                         .font(.headline)
+                                    Spacer()
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding(12)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(14)
                                 .background(Color.orange)
                                 .foregroundColor(.white)
-                                .cornerRadius(6)
+                                .cornerRadius(8)
                             }
                         }
                         .padding(12)
@@ -263,34 +271,37 @@ struct WelcomeView: View {
             }
             .multilineTextAlignment(.center)
 
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
                     Label("7つのデータタイプに対応", systemImage: "checkmark.circle.fill")
-                        .font(.subheadline)
+                        .font(.headline)
+                        .fontWeight(.semibold)
                     Text("基本統計からAI応用まで、幅広い分析に対応")
-                        .font(.caption)
+                        .font(.body)
                         .foregroundColor(.secondary)
                 }
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 12) {
                     Label("複数の分析手法", systemImage: "checkmark.circle.fill")
-                        .font(.subheadline)
+                        .font(.headline)
+                        .fontWeight(.semibold)
                     Text("各データタイプに複数の統計手法を用意")
-                        .font(.caption)
+                        .font(.body)
                         .foregroundColor(.secondary)
                 }
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 12) {
                     Label("サンプルデータ付き", systemImage: "checkmark.circle.fill")
-                        .font(.subheadline)
+                        .font(.headline)
+                        .fontWeight(.semibold)
                     Text("すぐに試せるサンプルCSVファイルを用意")
-                        .font(.caption)
+                        .font(.body)
                         .foregroundColor(.secondary)
                 }
             }
-            .padding(20)
+            .padding(28)
             .background(Color(.controlBackgroundColor))
-            .cornerRadius(8)
+            .cornerRadius(12)
 
             Spacer()
 
