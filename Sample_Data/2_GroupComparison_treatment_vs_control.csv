@@ -1,0 +1,16 @@
+patient_id,group,treatment,baseline_score,final_score,age,gender
+P001,treatment,yes,45.2,62.5,42,M
+P002,treatment,yes,48.3,65.8,38,F
+P003,treatment,yes,46.1,64.2,45,M
+P004,treatment,yes,49.5,68.1,41,F
+P005,treatment,yes,47.8,66.4,39,M
+P006,treatment,yes,48.9,67.3,43,F
+P007,control,no,45.5,48.2,40,M
+P008,control,no,46.8,49.5,44,F
+P009,control,no,47.2,50.1,42,M
+P010,control,no,46.9,49.8,41,F
+P011,control,no,47.5,50.6,43,M
+P012,control,no,46.3,49.2,39,F
+P013,treatment,yes,48.1,65.9,44,M
+P014,treatment,yes,47.4,64.7,40,F
+P015,control,no,46.7,50.3,38,M
