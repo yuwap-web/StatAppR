@@ -2,11 +2,11 @@
 
 run_recipe_impl <- function(request, data) {
 
-  gcol <- request$variables$group
-  ycol <- request$variables$y
+  gcol <- request$variables$group_column
+  ycol <- request$variables$outcome_column
 
-  if (is.null(gcol) || gcol == "") stop("variables.group が必要です")
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
+  if (is.null(gcol) || gcol == "") stop("request$variables$group_column が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
 
   if (!(gcol %in% names(data))) stop(paste0("group column not found: ", gcol))
   if (!(ycol %in% names(data))) stop(paste0("y column not found: ", ycol))
@@ -142,7 +142,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "tukey_hsd", title = "Tukey多重比較（参考）", data = tuk_tbl)
     ),
     figures = list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

@@ -4,6 +4,15 @@
 # Helper functions
 # ============================================================
 
+# Create persistent results directory (respects STATAPPR_RESULTS_FOLDER env var)
+.ensure_results_dir <- function() {
+  results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+  if (!dir.exists(results_dir)) {
+    dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  results_dir
+}
+
 safe_require <- function(pkg) {
   # Try to load package, return TRUE if successful
   tryCatch({
@@ -17,11 +26,10 @@ save_plot <- function(p, filename, width = 7, height = 5) {
   # Save a ggplot object to PNG file
   # Returns file path or NULL if save fails
 
-  # Create output directory if needed
-  output_dir <- file.path(workdir, "figures")
-  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  # Use persistent results directory
+  output_dir <- .ensure_results_dir()
 
-  filepath <- file.path(output_dir, paste0(filename, ".png"))
+  filepath <- file.path(output_dir, sprintf("%s_%s.png", filename, format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
 
   tryCatch({
     ggplot2::ggsave(
@@ -49,9 +57,10 @@ if (!requireNamespace("ggplot2", quietly = TRUE)) {
 
 library(ggplot2)
 
-# safe temp file
+# safe persistent file (not temp)
 make_plot_file <- function(prefix="plot") {
-  f <- tempfile(pattern = prefix, fileext = ".png")
+  results_dir <- .ensure_results_dir()
+  f <- file.path(results_dir, sprintf("%s_%s.png", prefix, format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
   return(f)
 }
 

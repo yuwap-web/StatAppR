@@ -1,6 +1,15 @@
 # recipes/difference_in_differences.R
 # Difference-in-Differences with optional event study
 
+# Create persistent results directory (respects STATAPPR_RESULTS_FOLDER env var)
+.ensure_results_dir <- function() {
+  results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+  if (!dir.exists(results_dir)) {
+    dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  results_dir
+}
+
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (length(a) == 0) return(b)
@@ -10,17 +19,17 @@
 
 run_recipe_impl <- function(request, data) {
 
-  y_col <- request$variables$y
-  t_col <- request$variables$time
-  g_col <- request$variables$treat
+  y_col <- request$variables$outcome_column
+  t_col <- request$variables$time_column
+  g_col <- request$variables$treatment_column
   id_col <- request$variables$id %||% NULL
 
   event_plot <- request$variables$event_study %||% TRUE
   seed <- request$variables$seed %||% 1
 
-  if (is.null(y_col) || y_col == "") stop("variables.y が必要です")
-  if (is.null(t_col) || t_col == "") stop("variables.time が必要です")
-  if (is.null(g_col) || g_col == "") stop("variables.treat が必要です")
+  if (is.null(y_col) || y_col == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(t_col) || t_col == "") stop("request$variables$time_column が必要です")
+  if (is.null(g_col) || g_col == "") stop("request$variables$treatment_column が必要です")
 
   for (cname in c(y_col, t_col, g_col)) {
     if (!(cname %in% names(data))) stop(paste0("column not found: ", cname))
@@ -185,7 +194,9 @@ run_recipe_impl <- function(request, data) {
           y="Treatment Effect"
         )
 
-      file <- tempfile(fileext=".png")
+      # Save to persistent directory (not temp)
+      results_dir <- .ensure_results_dir()
+      file <- file.path(results_dir, sprintf("event_study_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
 
       ggplot2::ggsave(
         file,
@@ -240,7 +251,8 @@ run_recipe_impl <- function(request, data) {
       )
     ),
     figures=figures,
-    warnings=list()
+    warnings=list(),
+    errors = list()
   )
 
 }

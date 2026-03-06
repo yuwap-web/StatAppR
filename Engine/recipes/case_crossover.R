@@ -11,10 +11,10 @@
 
 run_recipe_impl <- function(request, data) {
 
-  person_id_col <- request$variables$person_id
-  outcome_col   <- request$variables$outcome
-  exposure_col  <- request$variables$exposure
-  event_time_col <- request$variables$event_time
+  person_id_col <- request$variables$case_id
+  outcome_col   <- request$variables$outcome_column
+  exposure_col  <- request$variables$exposure_column
+  event_time_col <- request$variables$time_column
   case_window   <- request$variables$case_window %||% 1
   control_window <- request$variables$control_window %||% 28
   xraw          <- request$variables$x
@@ -26,10 +26,10 @@ run_recipe_impl <- function(request, data) {
   if (is.na(control_window) || control_window <= 0) control_window <- 28
 
   # ---- validation ----
-  if (is.null(person_id_col) || person_id_col == "") stop("variables.person_id（個人ID）が必要です")
-  if (is.null(outcome_col) || outcome_col == "") stop("variables.outcome（アウトカム）が必要です")
-  if (is.null(exposure_col) || exposure_col == "") stop("variables.exposure（曝露変数）が必要です")
-  if (is.null(event_time_col) || event_time_col == "") stop("variables.event_time（イベント時刻）が必要です")
+  if (is.null(person_id_col) || person_id_col == "") stop("request$variables$case_id（個人ID）が必要です")
+  if (is.null(outcome_col) || outcome_col == "") stop("request$variables$outcome_column（アウトカム）が必要です")
+  if (is.null(exposure_col) || exposure_col == "") stop("request$variables$exposure_column（曝露変数）が必要です")
+  if (is.null(event_time_col) || event_time_col == "") stop("request$variables$time_column（イベント時刻）が必要です")
 
   # ---- x normalization (optional covariates) ----
   xs <- character(0)
@@ -145,6 +145,9 @@ run_recipe_impl <- function(request, data) {
       ))
     ),
     figures = list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
+
+run <- run_recipe_impl

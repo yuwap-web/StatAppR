@@ -1,0 +1,41 @@
+{
+  "" : {
+    "const-values" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppR-primary.swiftconstvalues",
+    "dependencies" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppR-primary.d",
+    "diagnostics" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppR-primary.dia",
+    "emit-module-dependencies" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppR-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppR-primary-emit-module.dia",
+    "pch" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppR-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppR-primary.swiftdeps"
+  },
+  "/Users/uts/StatAppR/StatAppR/CSVManager.swift" : {
+    "index-unit-output-path" : "/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/CSVManager.o",
+    "llvm-bc" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/CSVManager.bc",
+    "object" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/CSVManager.o"
+  },
+  "/Users/uts/StatAppR/StatAppR/ContentView.swift" : {
+    "index-unit-output-path" : "/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/ContentView.o"
+  },
+  "/Users/uts/StatAppR/StatAppR/Models.swift" : {
+    "index-unit-output-path" : "/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/Models.o",
+    "llvm-bc" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/Models.bc",
+    "object" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/Models.o"
+  },
+  "/Users/uts/StatAppR/StatAppR/RecipeRunner.swift" : {
+    "index-unit-output-path" : "/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/RecipeRunner.o",
+    "llvm-bc" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/RecipeRunner.bc",
+    "object" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/RecipeRunner.o"
+  },
+  "/Users/uts/StatAppR/StatAppR/StatAppRApp.swift" : {
+    "index-unit-output-path" : "/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppRApp.o",
+    "llvm-bc" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppRApp.bc",
+    "object" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/StatAppRApp.o"
+  },
+  "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/uts/StatAppR/build/StatAppR.build/Release/StatAppR.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  }
+}

@@ -14,13 +14,13 @@ run_recipe_impl <- function(request, data) {
   use_fallback <- !requireNamespace("AER", quietly = TRUE)
   fallback_warning <- NULL
 
-  y_col <- request$variables$y
-  d_col <- request$variables$treatment
+  y_col <- request$variables$outcome_column
+  d_col <- request$variables$treatment_column
   z_col <- request$variables$instrument
   xraw  <- request$variables$x %||% NULL
 
-  if (is.null(y_col) || y_col == "") stop("variables.y が必要です")
-  if (is.null(d_col) || d_col == "") stop("variables.treatment が必要です")
+  if (is.null(y_col) || y_col == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(d_col) || d_col == "") stop("request$variables$treatment_column が必要です")
   if (is.null(z_col) || z_col == "") stop("variables.instrument が必要です")
 
   for (cname in c(y_col, d_col, z_col)) {
@@ -301,7 +301,8 @@ run_recipe_impl <- function(request, data) {
       )
     ),
     figures=list(),
-    warnings=warnings_out
+    warnings=warnings_out,
+    errors = list()
   )
 
 }

@@ -18,16 +18,16 @@ if (exists("runner_dir")) {
 
 run_recipe_impl <- function(request,data){
 
-  treat_col <- request$variables$treat
-  y_col     <- request$variables$y
-  xraw      <- request$variables$x
+  treat_col <- request$variables$treatment_column
+  y_col     <- request$variables$outcome_column
+  xraw      <- request$variables$covariates
 
   caliper <- request$variables$caliper %||% 1.0
   smd_thr <- request$variables$balance_threshold %||% 0.1
 
-  if(is.null(treat_col)) stop("variables.treat required")
-  if(is.null(y_col)) stop("variables.y required")
-  if(is.null(xraw)) stop("variables.x required")
+  if(is.null(treat_col)) stop("request$variables$treatment_column required")
+  if(is.null(y_col)) stop("request$variables$outcome_column required")
+  if(is.null(xraw)) stop("request$variables$covariates required")
 
   # ---- normalize x ----
   if(is.character(xraw) && length(xraw)==1){
@@ -271,8 +271,8 @@ run_recipe_impl <- function(request,data){
 
     figures=figures_out,
 
-    warnings=list()
-
+    warnings=list(),
+    errors = list()
   )
 
 }

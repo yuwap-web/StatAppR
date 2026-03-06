@@ -106,7 +106,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "ps_model_coef", title = "PSモデル係数（glm）", data = coef_tbl)
     ),
     figures = list(),
-    warnings = list()
+    warnings = list(),
+    errors = list()
   )
 }
 

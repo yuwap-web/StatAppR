@@ -17,13 +17,13 @@ run_recipe_impl <- function(request, data) {
   }
   library(survival)
 
-  ycol     <- request$variables$y
-  stratumcol <- request$variables$stratum
+  ycol     <- request$variables$outcome_column
+  stratumcol <- request$variables$matchset_column
   exposurecol <- request$variables$exposure
-  xraw     <- request$variables$x
+  xraw     <- request$variables$covariates
 
-  if (is.null(ycol) || ycol == "") stop("variables.y（アウトカム 0/1）が必要です")
-  if (is.null(stratumcol) || stratumcol == "") stop("variables.stratum（マッチング層）が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column（アウトカム 0/1）が必要です")
+  if (is.null(stratumcol) || stratumcol == "") stop("request$variables$matchset_column（マッチング層）が必要です")
   if (is.null(exposurecol) || exposurecol == "") stop("variables.exposure（曝露変数）が必要です")
 
   # ---- x normalization (array or "a,b") ----
@@ -94,20 +94,37 @@ run_recipe_impl <- function(request, data) {
   n_cases <- sum(df[[ycol]] == 1, na.rm = TRUE)
   n_controls <- sum(df[[ycol]] == 0, na.rm = TRUE)
 
-  result <- list(
-    model_type = "Conditional Logistic Regression",
-    n_cases = n_cases,
-    n_controls = n_controls,
-    model_summary = list(
-      coefficients = as.data.frame(coef_table),
-      loglik = model$loglik,
-      concordance = model$concordance,
-      call = paste(deparse(model$call), collapse = " ")
+  # Prepare coefficient table for output
+  coef_df <- as.data.frame(coef_table)
+  coef_df$term <- rownames(coef_df)
+  rownames(coef_df) <- NULL
+
+  list(
+    summary = list(
+      headline = "Conditional Logistic Regression（マッチングケース対照研究用）",
+      method_used = "Conditional Logistic Regression (clogit)",
+      key_metrics = list(
+        n_cases = n_cases,
+        n_controls = n_controls,
+        n_strata = length(unique(df[[stratumcol]]))
+      ),
+      interpretation_notes = list(
+        "マッチング層（strata）を考慮した条件付きロジスティック回帰分析です。",
+        "オッズ比（OR）の解釈：各変数の単位上昇あたりのオッズ比です。",
+        "95%信頼区間（95% CI）をご確認ください。"
+      )
     ),
     tables = list(
-      coef_table = as.data.frame(coef_table)
-    )
+      list(id = "coef_table", title = "係数（条件付きロジスティック回帰）", data = coef_df),
+      list(id = "summary_stats", title = "ケース・コントロール数", data = data.frame(
+        category = c("ケース数", "コントロール数"),
+        count = c(n_cases, n_controls)
+      ))
+    ),
+    figures = list(),
+    warnings = list(),
+    errors = list()
   )
-
-  result
 }
+
+run <- run_recipe_impl

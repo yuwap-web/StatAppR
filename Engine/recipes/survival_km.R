@@ -8,16 +8,16 @@ run_recipe_impl <- function(request, data) {
     stop("survival パッケージが必要です")
   }
 
-  time_col   <- request$variables$time
-  status_col <- request$variables$status
-  gcol       <- request$variables$group
+  time_col   <- request$variables$time_column
+  status_col <- request$variables$event_column
+  gcol       <- request$variables$group_column
 
   conf_int <- request$variables$conf_int
   if (is.null(conf_int)) conf_int <- TRUE
 
-  if (is.null(time_col) || time_col == "") stop("variables.time が必要です")
-  if (is.null(status_col) || status_col == "") stop("variables.status が必要です")
-  if (is.null(gcol) || gcol == "") stop("variables.group が必要です")
+  if (is.null(time_col) || time_col == "") stop("variables.time_column が必要です")
+  if (is.null(status_col) || status_col == "") stop("variables.event_column が必要です")
+  if (is.null(gcol) || gcol == "") stop("variables.group_column が必要です")
 
   for (cname in c(time_col, status_col, gcol)) {
     if (!(cname %in% names(data))) stop(paste0("column not found: ", cname))
@@ -231,8 +231,8 @@ run_recipe_impl <- function(request, data) {
 
     figures=figures_out,
 
-    warnings=list()
-
+    warnings=list(),
+    errors = list()
   )
 
 }

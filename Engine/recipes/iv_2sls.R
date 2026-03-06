@@ -213,7 +213,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "iv_diagnostics", title = "IV diagnostics", data = diag_tbl)
     ),
     figures = list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

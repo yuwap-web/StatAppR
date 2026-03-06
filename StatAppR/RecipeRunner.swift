@@ -3,7 +3,46 @@ import Foundation
 class RecipeRunner {
     static let shared = RecipeRunner()
 
-    let rScriptPath = "/usr/bin/Rscript"
+    var rScriptPath: String {
+        // 複数のパスを試す
+        let possiblePaths = [
+            "/usr/bin/Rscript",           // デフォルト
+            "/usr/local/bin/Rscript",     // Intel Mac
+            "/opt/homebrew/bin/Rscript"   // Apple Silicon Mac
+        ]
+
+        for path in possiblePaths {
+            if FileManager.default.fileExists(atPath: path) {
+                return path
+            }
+        }
+
+        // which コマンドで検索
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
+        process.arguments = ["Rscript"]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            if let path = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !path.isEmpty {
+                return path
+            }
+        } catch {
+            // which コマンド失敗
+        }
+
+        // デフォルトに戻す
+        return "/usr/bin/Rscript"
+    }
+
     let recipesDirectory = "/Users/uts/StatAppR/Engine/recipes"
 
     // MARK: - Recipe Execution
@@ -11,7 +50,8 @@ class RecipeRunner {
     func executeRecipe(
         name: String,
         csvPath: String,
-        parameters: [String: Any]
+        parameters: [String: Any],
+        resultsFolder: String? = nil
     ) -> Result<RecipeOutput, RecipeError> {
         let recipePath = "\(recipesDirectory)/\(name).R"
 
@@ -24,17 +64,32 @@ class RecipeRunner {
         let tempDir = NSTemporaryDirectory()
         let outputFile = "\(tempDir)/recipe_output_\(UUID().uuidString).json"
 
+        // Use provided results folder or default
+        let customResultsFolder = resultsFolder ?? "/tmp/StatAppR_results"
+
         // Build R command
         let rCommand = buildRCommand(
             recipePath: recipePath,
             csvPath: csvPath,
             parameters: parameters,
-            outputFile: outputFile
+            outputFile: outputFile,
+            resultsFolder: customResultsFolder
         )
 
         // Execute R command
         do {
             let output = try executeRScript(rCommand)
+            print("🔍 [DEBUG] R実行完了。出力: \(output)")
+
+            // Check if output file exists
+            print("🔍 [DEBUG] JSON出力ファイル確認: \(outputFile)")
+            let fileExists = FileManager.default.fileExists(atPath: outputFile)
+            print("🔍 [DEBUG] ファイル存在: \(fileExists)")
+
+            if fileExists {
+                let fileSize = try FileManager.default.attributesOfItem(atPath: outputFile)[.size] as? Int ?? 0
+                print("🔍 [DEBUG] ファイルサイズ: \(fileSize) bytes")
+            }
 
             // Parse output
             if let result = try parseRecipeOutput(at: outputFile) {
@@ -43,6 +98,7 @@ class RecipeRunner {
                 return .failure(.invalidOutput)
             }
         } catch {
+            print("🔍 [DEBUG] エラー: \(error)")
             return .failure(.executionError(error.localizedDescription))
         }
     }
@@ -53,16 +109,23 @@ class RecipeRunner {
         recipePath: String,
         csvPath: String,
         parameters: [String: Any],
-        outputFile: String
+        outputFile: String,
+        resultsFolder: String = "/tmp/StatAppR_results"
     ) -> String {
         // Load recipe source
+        let runnerDir = "/Users/uts/StatAppR/Engine"
         let commandLines = [
+            // Set up environment variables
+            "Sys.setenv(STATAPPR_RESULTS_FOLDER = '\(resultsFolder)')",
+            "runner_dir <- '\(runnerDir)'",
+            "dir.create('\(resultsFolder)', recursive = TRUE, showWarnings = FALSE)",
+
             "source('\(recipePath)')",
             "df <- read.csv('\(csvPath)', stringsAsFactors = FALSE)",
             buildParametersList(parameters),
             "result <- run(request, df)",
             "library(jsonlite)",
-            "result_json <- toJSON(result, pretty = TRUE)",
+            "result_json <- toJSON(result, pretty = TRUE, auto_unbox = TRUE)",
             "write(result_json, '\(outputFile)')",
             "cat('SUCCESS')"
         ]
@@ -74,7 +137,8 @@ class RecipeRunner {
         var lines: [String] = []
 
         if !parameters.isEmpty {
-            lines.append("request <- list(")
+            // Build nested structure: request$variables$[key]
+            lines.append("request <- list(variables = list(")
 
             let parameterLines = parameters.map { key, value in
                 if let value = value as? String {
@@ -88,9 +152,9 @@ class RecipeRunner {
             }
 
             lines.append(parameterLines.joined(separator: ",\n"))
-            lines.append(")")
+            lines.append("))")
         } else {
-            lines.append("request <- list()")
+            lines.append("request <- list(variables = list())")
         }
 
         return lines.joined(separator: "\n")
@@ -99,6 +163,9 @@ class RecipeRunner {
     // MARK: - R Script Execution
 
     private func executeRScript(_ command: String) throws -> String {
+        // DEBUG: Log the R command
+        print("🔍 [DEBUG R Command]:\n\(command)\n")
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rScriptPath)
         process.arguments = ["-e", command]
@@ -154,13 +221,14 @@ struct RecipeOutput: Codable {
     struct TableInfo: Codable {
         let id: String
         let title: String
-        let data: [[String: String]]
+        let data: [[String: AnyCodable]]
     }
 
     struct FigureInfo: Codable {
         let id: String
         let title: String
-        let type: String
+        let type: String?
+        let path: String?
     }
 
     struct WarningInfo: Codable {

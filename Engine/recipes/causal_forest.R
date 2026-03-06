@@ -1,6 +1,15 @@
 # recipes/causal_forest.R
 # Heterogeneous Treatment Effect estimation using Generalized Random Forest
 
+# Create persistent results directory (respects STATAPPR_RESULTS_FOLDER env var)
+.ensure_results_dir <- function() {
+  results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+  if (!dir.exists(results_dir)) {
+    dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  results_dir
+}
+
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (length(a) == 0) return(b)
@@ -14,17 +23,17 @@ run_recipe_impl <- function(request, data) {
   use_fallback <- !requireNamespace("grf", quietly = TRUE)
   fallback_warning <- NULL
 
-  y_col <- request$variables$y
-  w_col <- request$variables$w
-  xraw  <- request$variables$x
+  y_col <- request$variables$outcome_column
+  w_col <- request$variables$treatment_column
+  xraw  <- request$variables$features
 
   n_trees <- request$variables$n_trees %||% 2000
   seed    <- request$variables$seed %||% 1
   plot    <- request$variables$plot %||% TRUE
 
-  if (is.null(y_col) || y_col == "") stop("variables.y が必要です")
-  if (is.null(w_col) || w_col == "") stop("variables.w が必要です")
-  if (is.null(xraw)  || length(xraw) == 0) stop("variables.x が必要です")
+  if (is.null(y_col) || y_col == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(w_col) || w_col == "") stop("request$variables$treatment_column が必要です")
+  if (is.null(xraw)  || length(xraw) == 0) stop("request$variables$features が必要です")
 
   # ---- normalize X ----
 
@@ -212,7 +221,9 @@ run_recipe_impl <- function(request, data) {
         y="Count"
       )
 
-    file <- tempfile(fileext = ".png")
+    # Save to persistent directory (not temp)
+    results_dir <- .ensure_results_dir()
+    file <- file.path(results_dir, sprintf("ite_distribution_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
 
     ggplot2::ggsave(
       file,
@@ -278,7 +289,8 @@ run_recipe_impl <- function(request, data) {
       )
     ),
     figures = figures,
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 
 }

@@ -9,14 +9,14 @@
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$y
-  xraw <- request$variables$x   # vector or comma-separated string
+  ycol <- request$variables$outcome_column
+  xraw <- request$variables$predictor_columns   # vector or comma-separated string
 
   # optional (advanced)
   compute_vif <- request$variables$compute_vif %||% FALSE
 
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x（説明変数）が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$predictor_columns（説明変数）が必要です")
 
   # x normalization
   xs <- NULL
@@ -207,7 +207,8 @@ run_recipe_impl <- function(request, data) {
     ),
     tables = tables_out,
     figures = list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

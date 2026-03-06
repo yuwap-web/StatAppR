@@ -10,11 +10,11 @@ run_recipe_impl <- function(request, data) {
   #
   # This recipe will NOT fail if make_forest_plot is missing; it will just skip the plot.
 
-  ycol <- request$variables$y
-  xraw <- request$variables$x  # vector or comma-separated string
+  ycol <- request$variables$outcome_column
+  xraw <- request$variables$predictor_columns  # vector or comma-separated string
 
-  if (is.null(ycol) || ycol == "") stop("variables.y（2値目的変数）が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x（説明変数）が必要です")
+  if (is.null(ycol) || ycol == "") stop("variables.outcome_column（2値目的変数）が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("variables.predictor_columns（説明変数）が必要です")
 
   # ---- x normalization (array or "a,b") ----
   xs <- NULL
@@ -232,7 +232,8 @@ run_recipe_impl <- function(request, data) {
         path = forest_file
       )
     ) else list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

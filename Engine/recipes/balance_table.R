@@ -305,7 +305,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "balance_table", title = "Balance table（SMD）", data = bal)
     ),
     figures = figures_out,
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

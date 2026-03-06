@@ -1,18 +1,18 @@
 # recipes/linear_regression.R
 # - x は「単一列」を想定（column）
-# - ただし variables.x が配列 or "a,b" で来ても検出して丁寧にエラーにする
+# - ただし request$variables$predictor_column が配列 or "a,b" で来ても検出して丁寧にエラーにする
 # - y は数値必須、x は数値 or factor（数値化できなければ factor に逃がす）
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$y
-  xraw <- request$variables$x   # string or array (misconfigured)
+  ycol <- request$variables$outcome_column
+  xraw <- request$variables$predictor_column   # string or array (misconfigured)
 
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
   if (!(ycol %in% names(data))) stop(paste0("y column not found: ", ycol))
 
   # ---- x normalization (single column expected) ----
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x が必要です（単一の列）")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$predictor_column が必要です（単一の列）")
 
   xs <- NULL
   if (is.character(xraw) && length(xraw) == 1) {
@@ -28,7 +28,7 @@ run_recipe_impl <- function(request, data) {
   xs <- trimws(xs)
   xs <- xs[xs != ""]
 
-  if (length(xs) < 1) stop("variables.x の指定が不正です（空）")
+  if (length(xs) < 1) stop("request$variables$predictor_column の指定が不正です（空）")
   if (length(xs) > 1) {
     stop(paste0(
       "linear_regression は x を1つだけ指定してください（単回帰）。指定: ",
@@ -138,7 +138,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "coefficients", title = "回帰係数", data = coefs)
     ),
     figures = list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

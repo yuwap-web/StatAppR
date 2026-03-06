@@ -203,9 +203,9 @@ robust_se_theta <- function(t_tilde, y_tilde, theta) {
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$y
-  trt  <- request$variables$treat %||% request$variables$treatment
-  xraw <- request$variables$x
+  ycol <- request$variables$outcome_column
+  trt  <- request$variables$treatment_column %||% request$variables$treatment_columnment
+  xraw <- request$variables$covariates
 
   # optional
   idcol <- request$variables$id %||% NULL
@@ -214,9 +214,9 @@ run_recipe_impl <- function(request, data) {
   k_folds   <- request$variables$k_folds %||% 5
   seed      <- request$variables$seed %||% 1
 
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
-  if (is.null(trt)  || trt  == "") stop("variables.treat（または treatment）が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x（共変量）が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(trt)  || trt  == "") stop("request$variables$treatment_column（または treatment）が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$covariates（共変量）が必要です")
 
   # x normalization
   xs <- normalize_xs(xraw)
@@ -395,7 +395,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "dml_diagnostics", title = "診断（nuisance性能など）", data = diag_tbl)
     ),
     figures = list(),
-    warnings = warn
+    warnings = warn,
+    errors = list()
   )
 }
 

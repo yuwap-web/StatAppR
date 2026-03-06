@@ -9,8 +9,8 @@
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$y
-  xraw <- request$variables$x
+  ycol <- request$variables$outcome_column
+  xraw <- request$variables$predictor_columns
 
   # optional params (from recipes.json advanced)
   scale_flag <- request$variables$scale %||% TRUE
@@ -23,9 +23,9 @@ run_recipe_impl <- function(request, data) {
   cv_folds <- as.integer(cv_folds)
   if (is.na(cv_folds) || cv_folds < 2) cv_folds <- 2
 
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
   if (!(ycol %in% names(data))) stop(paste0("y column not found: ", ycol))
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$predictor_columns が必要です")
 
   # x normalization (array or "a,b")
   if (is.character(xraw) && length(xraw) == 1) {
@@ -210,7 +210,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "pls_rmsep", title = "モデル性能", data = perf)
     ),
     figures = list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

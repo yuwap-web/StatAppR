@@ -138,7 +138,8 @@ run_recipe_impl <- function(request, data) {
       list(id = "random_effects", title = "ランダム効果（SD）", data = vc_df)
     ),
     figures = list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

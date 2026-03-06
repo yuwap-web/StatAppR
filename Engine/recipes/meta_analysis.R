@@ -1,5 +1,14 @@
 # recipes/meta_analysis.R
 
+# Create persistent results directory (respects STATAPPR_RESULTS_FOLDER env var)
+.ensure_results_dir <- function() {
+  results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+  if (!dir.exists(results_dir)) {
+    dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  results_dir
+}
+
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (length(a) == 0) return(b)
@@ -46,7 +55,9 @@ make_forest_plot_meta <- function(study_tbl, pooled_row) {
   x_min <- x_min - pad
   x_max <- x_max + pad
 
-  file <- tempfile(fileext = ".png")
+  # Save to persistent directory (not temp)
+  results_dir <- .ensure_results_dir()
+  file <- file.path(results_dir, sprintf("forest_plot_meta_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
   grDevices::png(file, width = 1000, height = 700, res = 120)
 
   op <- par(no.readonly = TRUE)
@@ -261,7 +272,8 @@ run_recipe_impl <- function(request, data) {
         path = forest_file
       )
     ) else list(),
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

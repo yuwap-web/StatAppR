@@ -11,6 +11,7 @@ enum DataType: String, CaseIterable, Identifiable {
     case survival = "生存分析"
     case causalInference = "因果推論"
     case dimensionReduction = "次元削減"
+    case metaAnalysis = "メタ分析"
 
     var id: String { self.rawValue }
 
@@ -30,6 +31,8 @@ enum DataType: String, CaseIterable, Identifiable {
             return "因果効果の推定。マッチング、傾向スコア、機械学習ベースの手法。"
         case .dimensionReduction:
             return "多数の変数を少数に圧縮。主成分分析、因子分析、部分最小二乗法。"
+        case .metaAnalysis:
+            return "複数の研究から得られた効果サイズを統合する。メタ分析、システマティックレビュー。"
         }
     }
 
@@ -711,6 +714,77 @@ enum DataType: String, CaseIterable, Identifiable {
                             type: .numeric,
                             description: "抽出する因子の数",
                             required: false
+                        )
+                    ]
+                )
+            ]
+
+        case .metaAnalysis:
+            return [
+                RecipeInfo(
+                    name: "Meta-Analysis",
+                    description: "複数の研究結果を統合し効果量を推定",
+                    recipeName: "meta_analysis",
+                    requiredColumns: ["効果サイズ", "標準誤差"],
+                    example: "study_id, effect_size, se",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "効果サイズ",
+                            parameterKey: "effect",
+                            type: .singleColumn,
+                            description: "各研究の効果量（Cohen's d等）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "標準誤差",
+                            parameterKey: "se",
+                            type: .singleColumn,
+                            description: "効果サイズの標準誤差",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "研究ラベル（オプション）",
+                            parameterKey: "label",
+                            type: .singleColumn,
+                            description: "各研究の名前または識別子（オプション）",
+                            required: false
+                        )
+                    ]
+                ),
+                RecipeInfo(
+                    name: "Subgroup Meta-Analysis",
+                    description: "層別分析により複数グループの効果を比較",
+                    recipeName: "subgroup_meta_analysis",
+                    requiredColumns: ["効果サイズ", "標準誤差", "サブグループ列"],
+                    example: "study_id, effect_size, se, year",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "効果サイズ",
+                            parameterKey: "effect",
+                            type: .singleColumn,
+                            description: "各研究の効果量（Cohen's d等）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "標準誤差",
+                            parameterKey: "se",
+                            type: .singleColumn,
+                            description: "効果サイズの標準誤差",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "研究ラベル（オプション）",
+                            parameterKey: "label",
+                            type: .singleColumn,
+                            description: "各研究の名前または識別子（オプション）",
+                            required: false
+                        ),
+                        ParameterRequirement(
+                            name: "サブグループ列",
+                            parameterKey: "subgroup_column",
+                            type: .singleColumn,
+                            description: "層別分析に使用するカテゴリ列（年代、著者等）",
+                            required: true
                         )
                     ]
                 )

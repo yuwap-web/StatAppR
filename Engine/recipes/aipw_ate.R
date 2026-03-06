@@ -18,18 +18,18 @@ if (exists("runner_dir")) {
 
 run_recipe_impl <- function(request, data) {
 
-  treat_col <- request$variables$treat
-  y_col     <- request$variables$y
-  xraw      <- request$variables$x
+  treat_col <- request$variables$treatment_column
+  y_col     <- request$variables$outcome_column
+  xraw      <- request$variables$covariates
 
   ps_model  <- request$variables$ps_model %||% "logit"
   stabilized <- request$variables$stabilized %||% TRUE
   trim_val   <- request$variables$trim %||% 0
   smd_thr    <- request$variables$balance_threshold %||% 0.1
 
-  if (is.null(treat_col) || treat_col == "") stop("variables.treat が必要です")
-  if (is.null(y_col)     || y_col     == "") stop("variables.y が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x が必要です")
+  if (is.null(treat_col) || treat_col == "") stop("request$variables$treatment_column が必要です")
+  if (is.null(y_col)     || y_col     == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$covariates が必要です")
 
   # ---- normalize x ----
   if (is.character(xraw) && length(xraw) == 1) {
@@ -304,8 +304,8 @@ run_recipe_impl <- function(request, data) {
 
     figures=figures_out,
 
-    warnings=list()
-
+    warnings=list(),
+    errors = list()
   )
 
 }

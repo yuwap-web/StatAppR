@@ -12,10 +12,10 @@
 
 run_recipe_impl <- function(request, data) {
 
-  ycol   <- request$variables$y
-  unitcol <- request$variables$unit %||% request$variables$id
-  timecol <- request$variables$time
-  ttimecol <- request$variables$treat_time %||% request$variables$policy_time
+  ycol   <- request$variables$outcome_column
+  unitcol <- request$variables$unit_id %||% request$variables$id
+  timecol <- request$variables$time_column
+  ttimecol <- request$variables$event_date_column %||% request$variables$policy_time
 
   # options
   min_lag  <- request$variables$min_lag %||% -5   # e.g. -5
@@ -43,10 +43,10 @@ run_recipe_impl <- function(request, data) {
     # allow, no stop
   }
 
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
-  if (is.null(unitcol) || unitcol == "") stop("variables.unit（または id）が必要です")
-  if (is.null(timecol) || timecol == "") stop("variables.time が必要です")
-  if (is.null(ttimecol) || ttimecol == "") stop("variables.treat_time が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(unitcol) || unitcol == "") stop("request$variables$unit_id（または id）が必要です")
+  if (is.null(timecol) || timecol == "") stop("request$variables$time_column が必要です")
+  if (is.null(ttimecol) || ttimecol == "") stop("request$variables$event_date_column が必要です")
 
   for (cname in c(ycol, unitcol, timecol, ttimecol)) {
     if (!(cname %in% names(data))) stop(paste0("column not found: ", cname))
@@ -307,7 +307,8 @@ run_recipe_impl <- function(request, data) {
       if (nrow(pretest_tbl) > 0) list(list(id = "pretrend_test", title = "Pre-trend同時検定（参考）", data = pretest_tbl)) else list()
     ),
     figures = figures_out,
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

@@ -15,19 +15,19 @@ run_recipe_impl <- function(request, data) {
     stop("survival パッケージが必要です")
   }
 
-  time_col  <- request$variables$time
-  status_col<- request$variables$status
-  treat_col <- request$variables$treat
-  xraw      <- request$variables$x
+  time_col  <- request$variables$time_column
+  status_col<- request$variables$event_column
+  treat_col <- request$variables$treatment_column
+  xraw      <- request$variables$covariates
 
   ps_model  <- request$variables$ps_model %||% "logit"
   stabilized <- request$variables$stabilized %||% TRUE
   trim_val   <- request$variables$trim %||% 0
 
-  if (is.null(time_col)) stop("variables.time が必要です")
-  if (is.null(status_col)) stop("variables.status が必要です")
-  if (is.null(treat_col)) stop("variables.treat が必要です")
-  if (is.null(xraw) || length(xraw)==0) stop("variables.x が必要です")
+  if (is.null(time_col)) stop("request$variables$time_column が必要です")
+  if (is.null(status_col)) stop("request$variables$event_column が必要です")
+  if (is.null(treat_col)) stop("request$variables$treatment_column が必要です")
+  if (is.null(xraw) || length(xraw)==0) stop("request$variables$covariates が必要です")
 
   # ---- normalize x ----
   if (is.character(xraw) && length(xraw)==1) {
@@ -247,8 +247,8 @@ run_recipe_impl <- function(request, data) {
 
     figures=figures_out,
 
-    warnings=list()
-
+    warnings=list(),
+    errors = list()
   )
 
 }

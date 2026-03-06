@@ -16,10 +16,10 @@
 run_recipe_impl <- function(request, data) {
 
   # Required columns
-  ycol     <- request$variables$y
-  unitcol  <- request$variables$unit %||% request$variables$id
-  timecol  <- request$variables$time
-  ttimecol <- request$variables$treat_time %||% request$variables$policy_time
+  ycol     <- request$variables$outcome_column
+  unitcol  <- request$variables$unit_id %||% request$variables$id
+  timecol  <- request$variables$time_column
+  ttimecol <- request$variables$event_date_column %||% request$variables$policy_time
 
   # Options
   mode <- request$variables$mode %||% "shift"          # "shift" or "permute"
@@ -43,10 +43,10 @@ run_recipe_impl <- function(request, data) {
   if (is.null(draw_plot)) draw_plot <- TRUE
 
   # ---- validate ----
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
-  if (is.null(unitcol) || unitcol == "") stop("variables.unit（または id）が必要です")
-  if (is.null(timecol) || timecol == "") stop("variables.time が必要です")
-  if (is.null(ttimecol) || ttimecol == "") stop("variables.treat_time が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(unitcol) || unitcol == "") stop("request$variables$unit_id（または id）が必要です")
+  if (is.null(timecol) || timecol == "") stop("request$variables$time_column が必要です")
+  if (is.null(ttimecol) || ttimecol == "") stop("request$variables$event_date_column が必要です")
 
   for (cname in c(ycol, unitcol, timecol, ttimecol)) {
     if (!(cname %in% names(data))) stop(paste0("column not found: ", cname))
@@ -279,7 +279,8 @@ run_recipe_impl <- function(request, data) {
         list(id = "placebo_effects", title = "Placebo event-time 推定結果", data = est_tbl)
       ),
       figures = figures_out,
-      warnings = warnings_out
+      warnings = warnings_out,
+    errors = list()
     )
 
   }
@@ -423,7 +424,8 @@ run_recipe_impl <- function(request, data) {
         list(id = "perm_distribution", title = "Permutation 分布（stat）", data = perm_tbl)
       ),
       figures = figures_out,
-      warnings = warnings_out
+      warnings = warnings_out,
+    errors = list()
     )
   }
 }

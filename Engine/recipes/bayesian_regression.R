@@ -10,14 +10,14 @@
 
 run_recipe_impl <- function(request, data) {
 
-  y_col <- request$variables$y
-  xraw  <- request$variables$x
+  y_col <- request$variables$outcome_column
+  xraw  <- request$variables$predictor_columns
 
   n_draw <- request$variables$n_draw %||% 2000
   seed   <- request$variables$seed %||% 1
 
-  if (is.null(y_col) || y_col == "") stop("variables.y が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x が必要です")
+  if (is.null(y_col) || y_col == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$predictor_columns が必要です")
 
   # ---- normalize X ----
 
@@ -175,7 +175,8 @@ run_recipe_impl <- function(request, data) {
       )
     ),
     figures=list(),
-    warnings=list()
+    warnings=list(),
+    errors = list()
   )
 
 }
