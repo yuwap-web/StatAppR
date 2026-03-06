@@ -169,6 +169,7 @@ enum DataType: String, CaseIterable, Identifiable {
             return [
                 RecipeInfo(
                     name: "Descriptive Statistics",
+                    nameJapanese: "記述統計",
                     description: "平均値、中央値、標準偏差などを計算",
                     recipeName: "descriptive_analysis",
                     requiredColumns: ["数値列（複数可）"],
@@ -185,6 +186,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Correlation Analysis",
+                    nameJapanese: "相関分析",
                     description: "複数の変数間の相関関係を分析",
                     recipeName: "correlation_analysis",
                     requiredColumns: ["数値列（2列以上）"],
@@ -205,6 +207,7 @@ enum DataType: String, CaseIterable, Identifiable {
             return [
                 RecipeInfo(
                     name: "T-Test (Independent)",
+                    nameJapanese: "t検定（独立標本）",
                     description: "2つの独立したグループを比較",
                     recipeName: "t_test",
                     requiredColumns: ["グループ列", "数値アウトカム列"],
@@ -228,6 +231,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "ANOVA",
+                    nameJapanese: "分散分析",
                     description: "3つ以上のグループを比較",
                     recipeName: "anova",
                     requiredColumns: ["グループ列", "数値アウトカム列"],
@@ -251,6 +255,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Mann-Whitney U Test",
+                    nameJapanese: "マン・ホイットニーU検定",
                     description: "ノンパラメトリック検定",
                     recipeName: "mann_whitney",
                     requiredColumns: ["グループ列", "数値アウトカム列"],
@@ -278,6 +283,7 @@ enum DataType: String, CaseIterable, Identifiable {
             return [
                 RecipeInfo(
                     name: "Linear Regression",
+                    nameJapanese: "線形回帰",
                     description: "1つの予測変数による線形回帰",
                     recipeName: "linear_regression",
                     requiredColumns: ["結果変数", "予測変数"],
@@ -301,6 +307,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Multiple Regression",
+                    nameJapanese: "重回帰",
                     description: "複数の予測変数を使用",
                     recipeName: "multiple_regression",
                     requiredColumns: ["結果変数", "予測変数（複数）"],
@@ -324,6 +331,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Logistic Regression",
+                    nameJapanese: "ロジスティック回帰",
                     description: "二項アウトカムの予測",
                     recipeName: "logistic_regression",
                     requiredColumns: ["0/1アウトカム", "予測変数"],
@@ -351,6 +359,7 @@ enum DataType: String, CaseIterable, Identifiable {
             return [
                 RecipeInfo(
                     name: "Time Series Analysis",
+                    nameJapanese: "時系列分析",
                     description: "時系列データのトレンド分析",
                     recipeName: "time_series_analysis",
                     requiredColumns: ["ID列", "時間列", "数値列"],
@@ -381,6 +390,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Panel Regression",
+                    nameJapanese: "パネル回帰",
                     description: "固定効果モデルなど",
                     recipeName: "panel_regression",
                     requiredColumns: ["ID列", "時間列", "結果/予測変数"],
@@ -418,6 +428,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Difference-in-Differences",
+                    nameJapanese: "差分の差（DiD）",
                     description: "政策評価用の準実験デザイン",
                     recipeName: "difference_in_differences",
                     requiredColumns: ["グループ", "時間", "アウトカム"],
@@ -452,6 +463,7 @@ enum DataType: String, CaseIterable, Identifiable {
             return [
                 RecipeInfo(
                     name: "Kaplan-Meier Analysis",
+                    nameJapanese: "カプラン・マイヤー分析",
                     description: "生存曲線の推定と群比較",
                     recipeName: "kaplan_meier",
                     requiredColumns: ["時間列", "イベント列（0/1）", "グループ列"],
@@ -482,6 +494,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Cox Proportional Hazards",
+                    nameJapanese: "Cox比例ハザードモデル",
                     description: "共変量を調整したハザード比推定",
                     recipeName: "cox_proportional_hazards",
                     requiredColumns: ["時間列", "イベント列", "共変量"],
@@ -523,6 +536,7 @@ enum DataType: String, CaseIterable, Identifiable {
             return [
                 RecipeInfo(
                     name: "Propensity Score Matching",
+                    nameJapanese: "傾向スコアマッチング",
                     description: "傾向スコアマッチングによる効果推定",
                     recipeName: "propensity_score_matching",
                     requiredColumns: ["処置変数（0/1）", "アウトカム", "共変量"],
@@ -553,6 +567,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Double Machine Learning",
+                    nameJapanese: "ダブル機械学習",
                     description: "機械学習を使用した効果推定",
                     recipeName: "double_machine_learning",
                     requiredColumns: ["処置変数", "アウトカム", "共変量"],
@@ -583,6 +598,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Causal Forest",
+                    nameJapanese: "因果森",
                     description: "異質な処置効果の推定",
                     recipeName: "causal_forest",
                     requiredColumns: ["処置", "アウトカム", "特徴量"],
@@ -613,6 +629,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Instrumental Variable",
+                    nameJapanese: "操作変数法",
                     description: "操作変数法による逆方向因果制御",
                     recipeName: "instrumental_variable",
                     requiredColumns: ["結果", "処置", "操作変数"],
@@ -647,6 +664,7 @@ enum DataType: String, CaseIterable, Identifiable {
             return [
                 RecipeInfo(
                     name: "Principal Component Analysis",
+                    nameJapanese: "主成分分析",
                     description: "多数の変数を主成分に圧縮",
                     recipeName: "principal_component_analysis",
                     requiredColumns: ["数値列（5列以上推奨）"],
@@ -670,6 +688,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Partial Least Squares",
+                    nameJapanese: "部分最小二乗法",
                     description: "予測と次元削減を同時実施",
                     recipeName: "pls_regression",
                     requiredColumns: ["結果変数", "予測変数（複数）"],
@@ -693,6 +712,7 @@ enum DataType: String, CaseIterable, Identifiable {
                 ),
                 RecipeInfo(
                     name: "Factor Analysis",
+                    nameJapanese: "因子分析",
                     description: "潜在因子の抽出",
                     recipeName: "factor_analysis",
                     requiredColumns: ["数値列（複数）"],
@@ -724,6 +744,7 @@ enum DataType: String, CaseIterable, Identifiable {
 struct RecipeInfo: Identifiable {
     let id = UUID()
     let name: String
+    let nameJapanese: String
     let description: String
     let recipeName: String
     let requiredColumns: [String]

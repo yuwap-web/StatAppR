@@ -389,7 +389,7 @@ struct RecipeCardView: View {
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 12) {
-                Text(recipe.name)
+                Text("\(recipe.name)　\(recipe.nameJapanese)")
                     .font(.title3)
                     .fontWeight(.semibold)
 
