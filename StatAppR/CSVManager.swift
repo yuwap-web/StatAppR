@@ -113,7 +113,7 @@ class CSVManager {
         var columns: [CSVColumn] = []
 
         for (index, header) in headers.enumerated() {
-            let values = data.compactMap { row in
+            let values = data.compactMap { row -> String? in
                 guard index < row.count else { return nil }
                 return row[index]
             }
