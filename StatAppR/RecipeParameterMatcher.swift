@@ -102,6 +102,18 @@ struct RecipeParameterMatcher {
         }
 
         for param in recipe.parameters {
+            // Special handling for "variables" parameter: auto-select all numeric columns
+            if param.parameterKey == "variables" && param.type == .multipleColumns {
+                let numericColumns = csvColumns.filter { $0.dataType == "数値" }  // CSVManager returns "数値" in Japanese
+                if !numericColumns.isEmpty {
+                    result[param.parameterKey] = Set(numericColumns.map { $0.name })
+                    if DEBUG {
+                        print("🔍 Parameter 'variables': Auto-selected numeric columns: \(numericColumns.map { $0.name })")
+                    }
+                    continue
+                }
+            }
+
             guard let keywords = keywordMappings[param.parameterKey] else {
                 if DEBUG {
                     print("⚠️ No keywords found for parameter '\(param.parameterKey)'")
