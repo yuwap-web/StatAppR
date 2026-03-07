@@ -322,6 +322,44 @@ enum DataType: String, CaseIterable, Identifiable {
                             required: true
                         )
                     ]
+                ),
+                RecipeInfo(
+                    name: "Balance Table",
+                    nameJapanese: "バランステーブル",
+                    description: "グループ間の共変量バランスを評価",
+                    recipeName: "balance_table",
+                    requiredColumns: ["処置変数（0/1）", "共変量"],
+                    example: "treatment (0/1), age, gender, baseline_score",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "処置変数",
+                            parameterKey: "treatment",
+                            type: .singleColumn,
+                            description: "処置の有無（0/1）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "共変量",
+                            parameterKey: "x",
+                            type: .multipleColumns,
+                            description: "バランスを評価する共変量（複数選択）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "重み（オプション）",
+                            parameterKey: "weight",
+                            type: .singleColumn,
+                            description: "重み付け（例：傾向スコア重み）",
+                            required: false
+                        ),
+                        ParameterRequirement(
+                            name: "標準化平均差の閾値",
+                            parameterKey: "smd_threshold",
+                            type: .numeric,
+                            description: "バランス判定の閾値（通常0.1）",
+                            required: false
+                        )
+                    ]
                 )
             ]
 
@@ -448,6 +486,37 @@ enum DataType: String, CaseIterable, Identifiable {
                             type: .numeric,
                             description: "乱数シード値",
                             required: false
+                        )
+                    ]
+                ),
+                RecipeInfo(
+                    name: "Mixed Effects Model",
+                    nameJapanese: "混合効果モデル",
+                    description: "ランダム効果を含む階層的なデータの分析",
+                    recipeName: "mixed_model",
+                    requiredColumns: ["アウトカム", "予測変数", "グループ化変数"],
+                    example: "score, age, treatment, group_id",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "結果変数",
+                            parameterKey: "y",
+                            type: .singleColumn,
+                            description: "予測対象となる数値列",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "固定効果の予測変数",
+                            parameterKey: "x",
+                            type: .multipleColumns,
+                            description: "固定効果として含める変数（複数選択）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "グループ化変数",
+                            parameterKey: "group",
+                            type: .singleColumn,
+                            description: "ランダム切片を設定するグループ化変数",
+                            required: true
                         )
                     ]
                 )
@@ -776,6 +845,65 @@ enum DataType: String, CaseIterable, Identifiable {
                             required: true
                         )
                     ]
+                ),
+                RecipeInfo(
+                    name: "IPTW Kaplan-Meier",
+                    nameJapanese: "IPTWカプラン・マイヤー曲線",
+                    description: "逆確率重み付けを用いたカプラン・マイヤー曲線",
+                    recipeName: "iptw_km_survival",
+                    requiredColumns: ["時間列", "イベント列", "処置変数", "共変量"],
+                    example: "time_months, event_occurred (0/1), treatment, age, baseline_score",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "時間列",
+                            parameterKey: "time_column",
+                            type: .singleColumn,
+                            description: "フォローアップ期間（月、年など）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "イベント列",
+                            parameterKey: "event_column",
+                            type: .singleColumn,
+                            description: "イベント発生有無（0/1）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "処置変数",
+                            parameterKey: "treatment_column",
+                            type: .singleColumn,
+                            description: "処置の有無（0/1）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "共変量",
+                            parameterKey: "covariates",
+                            type: .multipleColumns,
+                            description: "傾向スコア計算用の共変量（複数選択）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "傾向スコアモデル",
+                            parameterKey: "ps_model",
+                            type: .categorical,
+                            description: "logit/probit モデル",
+                            required: false
+                        ),
+                        ParameterRequirement(
+                            name: "安定化重み",
+                            parameterKey: "stabilized",
+                            type: .categorical,
+                            description: "重みの安定化（TRUE/FALSE）",
+                            required: false
+                        ),
+                        ParameterRequirement(
+                            name: "トリミング",
+                            parameterKey: "trim",
+                            type: .numeric,
+                            description: "傾向スコアトリミング（0-0.5）",
+                            required: false
+                        )
+                    ]
                 )
             ]
 
@@ -1092,6 +1220,75 @@ enum DataType: String, CaseIterable, Identifiable {
                             parameterKey: "balance_threshold",
                             type: .numeric,
                             description: "標準化平均差の閾値",
+                            required: false
+                        )
+                    ]
+                ),
+                RecipeInfo(
+                    name: "Propensity Score Estimation",
+                    nameJapanese: "傾向スコア推定",
+                    description: "傾向スコアを計算・分析",
+                    recipeName: "propensity_score",
+                    requiredColumns: ["処置変数（0/1）", "共変量"],
+                    example: "treatment (0/1), age, education, income",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "処置変数",
+                            parameterKey: "treatment",
+                            type: .singleColumn,
+                            description: "処置の有無（0/1）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "共変量",
+                            parameterKey: "x",
+                            type: .multipleColumns,
+                            description: "傾向スコア計算用の共変量（複数選択）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "傾向スコアモデル",
+                            parameterKey: "ps_model",
+                            type: .categorical,
+                            description: "logit/probit モデル",
+                            required: false
+                        )
+                    ]
+                ),
+                RecipeInfo(
+                    name: "Instrumental Variable (2SLS)",
+                    nameJapanese: "操作変数法（2段階最小二乗法）",
+                    description: "操作変数法による内生性制御",
+                    recipeName: "instrumental_variable",
+                    requiredColumns: ["結果変数", "処置変数", "操作変数"],
+                    example: "earnings, education, distance_to_college",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "結果変数",
+                            parameterKey: "outcome_column",
+                            type: .singleColumn,
+                            description: "最終的な結果となる変数",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "処置変数",
+                            parameterKey: "treatment_column",
+                            type: .singleColumn,
+                            description: "処置またはエンドジェナス変数",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "操作変数",
+                            parameterKey: "instrument",
+                            type: .singleColumn,
+                            description: "処置と相関し結果には直接影響しない変数",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "共変量（オプション）",
+                            parameterKey: "covariates",
+                            type: .multipleColumns,
+                            description: "統制する共変量（複数選択可）",
                             required: false
                         )
                     ]
