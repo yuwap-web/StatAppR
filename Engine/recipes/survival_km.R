@@ -1,6 +1,7 @@
 # recipes/survival_km.R
 
 source(file.path(runner_dir, "utils", "plot_utils.R"))
+source(file.path(runner_dir, "utils", "km_plot.R"))
 
 run_recipe_impl <- function(request, data) {
 
@@ -156,6 +157,11 @@ run_recipe_impl <- function(request, data) {
   }
 
   # ---- KM figure ----
+  # Diagnostic: validate fit object before plotting
+  if (!inherits(fit, "survfit")) {
+    warning("fit object is not a valid survfit object")
+  }
+
   km_file <- tryCatch(
 
     make_km_plot(
@@ -164,13 +170,17 @@ run_recipe_impl <- function(request, data) {
       group_col="group"
     ),
 
-    error=function(e) NULL
+    error=function(e) {
+      warning("make_km_plot() failed: ", conditionMessage(e))
+      NULL
+    }
 
   )
 
   figures_out <- list()
 
-  if (!is.null(km_file)) {
+  # Defensive check: ensure km_file is a list before accessing $
+  if (!is.null(km_file) && is.list(km_file)) {
 
     # km_file is a list(curve=path, risk_table=path), extract curve path
     if (!is.null(km_file$curve)) {
@@ -183,6 +193,15 @@ run_recipe_impl <- function(request, data) {
       )
     }
 
+  } else if (!is.null(km_file) && !is.list(km_file)) {
+    # Fallback: if km_file is a character string (old function behavior)
+    figures_out <- list(
+      list(
+        id="km_curve",
+        title="Kaplan-Meier Survival Curve",
+        path=km_file
+      )
+    )
   }
 
   headline <- paste0(

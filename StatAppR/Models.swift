@@ -230,40 +230,6 @@ enum DataType: String, CaseIterable, Identifiable {
         switch self {
         case .basicStats:
             return [
-                RecipeInfo(
-                    name: "Descriptive Statistics",
-                    nameJapanese: "記述統計",
-                    description: "平均値、中央値、標準偏差などを計算",
-                    recipeName: "descriptive_analysis",
-                    requiredColumns: ["数値列（複数可）"],
-                    example: "patient_id, age, weight_kg, height_cm",
-                    parameters: [
-                        ParameterRequirement(
-                            name: "分析対象列",
-                            parameterKey: "numeric_columns",
-                            type: .multipleColumns,
-                            description: "統計量を計算する数値列（複数選択可）",
-                            required: true
-                        )
-                    ]
-                ),
-                RecipeInfo(
-                    name: "Correlation Analysis",
-                    nameJapanese: "相関分析",
-                    description: "複数の変数間の相関関係を分析",
-                    recipeName: "correlation_analysis",
-                    requiredColumns: ["数値列（2列以上）"],
-                    example: "age, bmi, cholesterol, glucose",
-                    parameters: [
-                        ParameterRequirement(
-                            name: "相関分析対象列",
-                            parameterKey: "numeric_columns",
-                            type: .multipleColumns,
-                            description: "相関を計算する数値列（2列以上選択）",
-                            required: true
-                        )
-                    ]
-                )
             ]
 
         case .groupComparison:
@@ -333,7 +299,7 @@ enum DataType: String, CaseIterable, Identifiable {
                         ),
                         ParameterRequirement(
                             name: "計測列",
-                            parameterKey: "measurement_column",
+                            parameterKey: "outcome_column",
                             type: .singleColumn,
                             description: "比較対象となる列",
                             required: true
@@ -473,75 +439,6 @@ enum DataType: String, CaseIterable, Identifiable {
         case .timeSeries:
             return [
                 RecipeInfo(
-                    name: "Time Series Analysis",
-                    nameJapanese: "時系列分析",
-                    description: "時系列データのトレンド分析",
-                    recipeName: "time_series_analysis",
-                    requiredColumns: ["ID列", "時間列", "数値列"],
-                    example: "company_id, quarter, sales_usd",
-                    parameters: [
-                        ParameterRequirement(
-                            name: "ID列",
-                            parameterKey: "id_column",
-                            type: .singleColumn,
-                            description: "企業/グループの識別列",
-                            required: true
-                        ),
-                        ParameterRequirement(
-                            name: "時間列",
-                            parameterKey: "time_column",
-                            type: .singleColumn,
-                            description: "時間を示す列（quarter, year等）",
-                            required: true
-                        ),
-                        ParameterRequirement(
-                            name: "数値列",
-                            parameterKey: "value_column",
-                            type: .singleColumn,
-                            description: "分析対象となる数値列",
-                            required: true
-                        )
-                    ]
-                ),
-                RecipeInfo(
-                    name: "Panel Regression",
-                    nameJapanese: "パネル回帰",
-                    description: "固定効果モデルなど",
-                    recipeName: "panel_regression",
-                    requiredColumns: ["ID列", "時間列", "結果/予測変数"],
-                    example: "firm_id, year, revenue, marketing_spend",
-                    parameters: [
-                        ParameterRequirement(
-                            name: "ID列",
-                            parameterKey: "id_column",
-                            type: .singleColumn,
-                            description: "パネルの識別列",
-                            required: true
-                        ),
-                        ParameterRequirement(
-                            name: "時間列",
-                            parameterKey: "time_column",
-                            type: .singleColumn,
-                            description: "時間を示す列",
-                            required: true
-                        ),
-                        ParameterRequirement(
-                            name: "結果変数",
-                            parameterKey: "outcome_column",
-                            type: .singleColumn,
-                            description: "結果となる数値列",
-                            required: true
-                        ),
-                        ParameterRequirement(
-                            name: "予測変数",
-                            parameterKey: "predictor_columns",
-                            type: .multipleColumns,
-                            description: "説明変数（複数選択可）",
-                            required: false
-                        )
-                    ]
-                ),
-                RecipeInfo(
                     name: "Difference-in-Differences",
                     nameJapanese: "差分の差（DiD）",
                     description: "政策評価用の準実験デザイン",
@@ -645,6 +542,20 @@ enum DataType: String, CaseIterable, Identifiable {
                             type: .singleColumn,
                             description: "結果となる列",
                             required: true
+                        ),
+                        ParameterRequirement(
+                            name: "処置開始時点",
+                            parameterKey: "treat_time",
+                            type: .singleColumn,
+                            description: "処置が開始された時点（例：2020）",
+                            required: true
+                        ),
+                        ParameterRequirement(
+                            name: "共変量（オプション）",
+                            parameterKey: "covariates",
+                            type: .multipleColumns,
+                            description: "予測に使用する共変量（オプション）",
+                            required: false
                         )
                     ]
                 )
@@ -953,7 +864,7 @@ enum DataType: String, CaseIterable, Identifiable {
                         ),
                         ParameterRequirement(
                             name: "特徴量",
-                            parameterKey: "features",
+                            parameterKey: "predictor_columns",
                             type: .multipleColumns,
                             description: "分析に使用する特徴量（複数選択）",
                             required: true
@@ -985,7 +896,7 @@ enum DataType: String, CaseIterable, Identifiable {
                     name: "Instrumental Variable",
                     nameJapanese: "操作変数法",
                     description: "操作変数法による逆方向因果制御",
-                    recipeName: "instrumental_variable",
+                    recipeName: "iv_2sls",
                     requiredColumns: ["結果", "処置", "操作変数"],
                     example: "earnings, education, distance_to_college",
                     parameters: [
@@ -1009,6 +920,13 @@ enum DataType: String, CaseIterable, Identifiable {
                             type: .singleColumn,
                             description: "処置と相関し結果には直接影響しない変数",
                             required: true
+                        ),
+                        ParameterRequirement(
+                            name: "共変量（オプション）",
+                            parameterKey: "covariates",
+                            type: .multipleColumns,
+                            description: "統制する共変量（複数選択可）",
+                            required: false
                         )
                     ]
                 ),
@@ -1175,7 +1093,7 @@ enum DataType: String, CaseIterable, Identifiable {
                     parameters: [
                         ParameterRequirement(
                             name: "分析対象列",
-                            parameterKey: "numeric_columns",
+                            parameterKey: "predictor_columns",
                             type: .multipleColumns,
                             description: "PCAに使用する数値列（5列以上推奨）",
                             required: true
@@ -1248,30 +1166,6 @@ enum DataType: String, CaseIterable, Identifiable {
                         )
                     ]
                 ),
-                RecipeInfo(
-                    name: "Factor Analysis",
-                    nameJapanese: "因子分析",
-                    description: "潜在因子の抽出",
-                    recipeName: "factor_analysis",
-                    requiredColumns: ["数値列（複数）"],
-                    example: "survey_q1, survey_q2, ..., survey_q15",
-                    parameters: [
-                        ParameterRequirement(
-                            name: "分析対象列",
-                            parameterKey: "numeric_columns",
-                            type: .multipleColumns,
-                            description: "因子分析に使用する数値列",
-                            required: true
-                        ),
-                        ParameterRequirement(
-                            name: "因子数",
-                            parameterKey: "n_factors",
-                            type: .numeric,
-                            description: "抽出する因子の数",
-                            required: false
-                        )
-                    ]
-                )
             ]
 
         case .metaAnalysis:
@@ -1339,7 +1233,7 @@ enum DataType: String, CaseIterable, Identifiable {
                         ParameterRequirement(
                             name: "サブグループ列",
                             parameterKey: "subgroup_column",
-                            type: .singleColumn,
+                            type: .multipleColumns,
                             description: "層別分析に使用するカテゴリ列（年代、著者等）",
                             required: true
                         )

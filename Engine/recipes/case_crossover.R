@@ -17,7 +17,7 @@ run_recipe_impl <- function(request, data) {
   event_time_col <- request$variables$time_column
   case_window   <- request$variables$case_window %||% 1
   control_window <- request$variables$control_window %||% 28
-  xraw          <- request$variables$x
+  xraw          <- request$variables$covariates
 
   suppressWarnings(case_window <- as.numeric(case_window))
   suppressWarnings(control_window <- as.numeric(control_window))

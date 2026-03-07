@@ -9,7 +9,7 @@
 
 run_recipe_impl <- function(request, data) {
 
-  xraw <- request$variables$numeric_columns
+  xraw <- request$variables$predictor_columns
 
   # advanced (optional; from recipes.json)
   center <- request$variables$center %||% TRUE
@@ -17,7 +17,7 @@ run_recipe_impl <- function(request, data) {
   n_components <- request$variables$n_components %||% 0  # 0 = all
 
   if (is.null(xraw) || length(xraw) == 0) {
-    stop("request$variables$numeric_columns が必要です（数値列）")
+    stop("request$variables$predictor_columns が必要です（数値列）")
   }
 
   # x normalization (array or "a,b")

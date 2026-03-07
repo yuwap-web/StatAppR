@@ -25,7 +25,7 @@ run_recipe_impl <- function(request, data) {
 
   y_col <- request$variables$outcome_column
   w_col <- request$variables$treatment_column
-  xraw  <- request$variables$features
+  xraw  <- request$variables$predictor_columns
 
   n_trees <- request$variables$n_trees %||% 2000
   seed    <- request$variables$seed %||% 1
@@ -33,7 +33,7 @@ run_recipe_impl <- function(request, data) {
 
   if (is.null(y_col) || y_col == "") stop("request$variables$outcome_column が必要です")
   if (is.null(w_col) || w_col == "") stop("request$variables$treatment_column が必要です")
-  if (is.null(xraw)  || length(xraw) == 0) stop("request$variables$features が必要です")
+  if (is.null(xraw)  || length(xraw) == 0) stop("request$variables$predictor_columns が必要です")
 
   # ---- normalize X ----
 

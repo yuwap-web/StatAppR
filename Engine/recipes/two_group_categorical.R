@@ -3,10 +3,10 @@
 run_recipe_impl <- function(request, data) {
 
   gcol <- request$variables$group_column
-  ycol <- request$variables$measurement_column
+  ycol <- request$variables$outcome_column
 
   if (is.null(gcol) || gcol == "") stop("request$variables$group_column が必要です")
-  if (is.null(ycol) || ycol == "") stop("request$variables$measurement_column（カテゴリ列）が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column（カテゴリ列）が必要です")
 
   if (!(gcol %in% names(data))) stop(paste0("group column not found: ", gcol))
   if (!(ycol %in% names(data))) stop(paste0("y column not found: ", ycol))

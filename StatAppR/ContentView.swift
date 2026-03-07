@@ -439,14 +439,14 @@ struct RecipeExecutionView: View {
 
     @State private var csvData: String?
     @State private var csvColumns: [CSVColumn] = []
-    @State private var selectedColumns: Set<String> = []
+    @State private var selectedColumnsByParameter: [String: Set<String>] = [:]
     @State private var executionResult: String?
     @State private var recipeOutput: RecipeOutput?
     @State private var executionError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header with Back Button
+            // Header with Back Button & Recipe Switcher
             HStack {
                 Button(action: onBack) {
                     HStack(spacing: 6) {
@@ -465,6 +465,17 @@ struct RecipeExecutionView: View {
                     Text("レシピ: \(recipe.recipeName)")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                Button(action: onBack) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                        Text("別のレシピ")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
                 }
             }
             .padding(20)
@@ -536,13 +547,23 @@ struct RecipeExecutionView: View {
                                                             Text(column.name)
                                                                 .font(.caption)
                                                             Spacer()
-                                                            Image(systemName: selectedColumns.contains(column.name) ? "checkmark.square.fill" : "square")
-                                                                .foregroundColor(selectedColumns.contains(column.name) ? .blue : .gray)
+                                                            let isSelected = (selectedColumnsByParameter[param.parameterKey] ?? []).contains(column.name)
+                                                            Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                                                                .foregroundColor(isSelected ? .blue : .gray)
                                                                 .onTapGesture {
-                                                                    if selectedColumns.contains(column.name) {
-                                                                        selectedColumns.remove(column.name)
+                                                                    if var selected = selectedColumnsByParameter[param.parameterKey] {
+                                                                        if selected.contains(column.name) {
+                                                                            selected.remove(column.name)
+                                                                        } else {
+                                                                            if param.type == .singleColumn {
+                                                                                selected = [column.name]
+                                                                            } else {
+                                                                                selected.insert(column.name)
+                                                                            }
+                                                                        }
+                                                                        selectedColumnsByParameter[param.parameterKey] = selected
                                                                     } else {
-                                                                        selectedColumns.insert(column.name)
+                                                                        selectedColumnsByParameter[param.parameterKey] = [column.name]
                                                                     }
                                                                 }
                                                         }
@@ -560,35 +581,6 @@ struct RecipeExecutionView: View {
                                 }
                             }
 
-                            // Column Information & Selection (従来の列情報表示)
-                            if !csvColumns.isEmpty && recipe.parameters.isEmpty {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text("列情報と選択")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-
-                                    VStack(spacing: 8) {
-                                        ForEach(csvColumns) { column in
-                                            HStack {
-                                                ColumnInfoView(column: column)
-
-                                                Spacer()
-
-                                                // Column Selection Checkbox
-                                                Image(systemName: selectedColumns.contains(column.name) ? "checkmark.square.fill" : "square")
-                                                    .foregroundColor(selectedColumns.contains(column.name) ? .blue : .gray)
-                                                    .onTapGesture {
-                                                        if selectedColumns.contains(column.name) {
-                                                            selectedColumns.remove(column.name)
-                                                        } else {
-                                                            selectedColumns.insert(column.name)
-                                                        }
-                                                    }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         }
                         .padding(20)
                         .background(Color(.controlBackgroundColor).opacity(0.5))
@@ -802,6 +794,7 @@ struct RecipeExecutionView: View {
     private func loadCSVColumns() {
         guard let csvPath = csvPath else {
             csvColumns = []
+            selectedColumnsByParameter = [:]
             return
         }
 
@@ -810,9 +803,89 @@ struct RecipeExecutionView: View {
             try CSVManager.shared.validateCSV(headers: headers, data: data)
             let types = CSVManager.shared.detectColumnTypes(headers: headers, data: data)
             csvColumns = CSVManager.shared.extractColumnInfo(headers: headers, data: data, types: types)
+
+            // Auto-match parameters
+            autoMatchParameters()
         } catch {
             csvColumns = []
+            selectedColumnsByParameter = [:]
             executionError = error.localizedDescription
+        }
+    }
+
+    private func autoMatchParameters() {
+        // Define keyword mappings for each parameter type - 統一されたパラメータキー対応
+        let keywordMappings: [String: [String]] = [
+            // ===== Time/Duration Parameters =====
+            "time_column": ["time_column", "time", "months", "days", "years", "followup", "followup_months", "time_months", "duration", "period"],
+            "start_column": ["start_column", "start", "start_time"],
+            "stop_column": ["stop_column", "stop", "stop_time"],
+
+            // ===== Event/Outcome Parameters =====
+            "event_column": ["event_column", "event", "status", "outcome_event", "event_occurred", "censor", "censored"],
+            "outcome_column": ["outcome_column", "outcome", "y", "result", "event", "disease_status", "measurement"],
+
+            // ===== Group/Stratum Parameters =====
+            "group_column": ["group_column", "group", "arm", "condition", "strata", "stratification"],
+            "subgroup_column": ["subgroup_column", "subgroup", "stratum"],
+            "treatment_column": ["treatment_column", "treatment", "treat", "treatment_group"],
+
+            // ===== Variable Selection =====
+            "predictor_columns": ["predictor_columns", "predictors", "features", "independent", "variables"],
+            "predictor_column": ["predictor_column", "predictor", "feature"],
+            "covariates": ["covariates", "covariate", "confounders", "x", "control_vars"],
+
+            // ===== ID Parameters =====
+            "id": ["id", "patient_id", "subject_id", "individual_id"],
+            "unit_id": ["unit_id", "unit", "entity_id", "firm_id", "country_id"],
+
+            // ===== Exposure/Intervention =====
+            "exposure_column": ["exposure_column", "exposure", "exposed"],
+
+            // ===== Instrumental Variables =====
+            "instrument": ["instrument", "instrument_var", "z", "iv"],
+
+            // ===== Study/Research Parameters =====
+            "author_column": ["author_column", "author", "study", "study_name"],
+            "label": ["label", "author", "study", "study_id"],
+            "effect_size_column": ["effect_size_column", "effect_size"],
+            "standard_error_column": ["standard_error_column", "standard_error", "stderr"],
+
+            // ===== Effect Size & SE (Meta-analysis) =====
+            "effect": ["effect", "effect_size", "estimate", "coefficient"],
+            "se": ["se", "standard_error", "stderr", "se_value"],
+
+            // ===== Event/Policy Parameters =====
+            "event_date_column": ["event_date_column", "event_date", "policy_time", "treat_time", "intervention_date"],
+
+            // ===== Match/Case Parameters =====
+            "matchset_column": ["matchset_column", "matchset", "matched_set"],
+
+            // ===== Weight Parameters =====
+            "weight_column": ["weight_column", "weight", "weights", "sample_weight"],
+        ]
+
+        selectedColumnsByParameter = [:]
+
+        for param in recipe.parameters {
+            guard let keywords = keywordMappings[param.parameterKey] else {
+                continue
+            }
+
+            // Try to find matching columns
+            for column in csvColumns {
+                let columnNameLower = column.name.lowercased()
+
+                // Check for exact matches or keyword matches
+                if keywords.contains(where: { keyword in
+                    columnNameLower == keyword.lowercased() ||
+                    columnNameLower.contains(keyword.lowercased()) ||
+                    keyword.lowercased().contains(columnNameLower)
+                }) {
+                    selectedColumnsByParameter[param.parameterKey] = [column.name]
+                    break  // One match per parameter
+                }
+            }
         }
     }
 
@@ -852,21 +925,24 @@ struct RecipeExecutionView: View {
         var params: [String: Any] = [:]
 
         for param in recipe.parameters {
-            if param.type == .singleColumn && !selectedColumns.isEmpty {
-                // Get first selected column
-                if let firstSelected = selectedColumns.first {
+            let selectedForParam = selectedColumnsByParameter[param.parameterKey] ?? []
+
+            if param.type == .singleColumn {
+                if let firstSelected = selectedForParam.first {
                     params[param.parameterKey] = firstSelected
                 } else if param.required {
                     executionError = "\(param.name) は必須です"
                     isRunning = false
                     return
                 }
-            } else if param.type == .multipleColumns && !selectedColumns.isEmpty {
-                params[param.parameterKey] = Array(selectedColumns)
-            } else if param.required {
-                executionError = "\(param.name) は必須です"
-                isRunning = false
-                return
+            } else if param.type == .multipleColumns {
+                if !selectedForParam.isEmpty {
+                    params[param.parameterKey] = Array(selectedForParam)
+                } else if param.required {
+                    executionError = "\(param.name) は必須です"
+                    isRunning = false
+                    return
+                }
             }
         }
 

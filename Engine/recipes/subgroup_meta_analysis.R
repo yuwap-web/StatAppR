@@ -457,7 +457,18 @@ run_recipe_impl <- function(request, data) {
   # Parameter validation
   if (is.null(eff) || eff == "") stop("variables.effect が必要です（効果量）")
   if (is.null(se)  || se  == "") stop("variables.se が必要です（標準誤差）")
-  if (is.null(subgroup_col) || subgroup_col == "") stop("variables.subgroup_column が必要です")
+
+  if (is.null(subgroup_col) || length(subgroup_col) == 0) {
+    stop("variables.subgroup_column が必要です")
+  }
+
+  # 複数列が指定された場合：最初の列を使用
+  if (length(subgroup_col) > 1) {
+    warning("subgroup_column は1列のみ使用できます。最初の列を使用します")
+    subgroup_col <- subgroup_col[1]
+  }
+
+  if (subgroup_col == "") stop("variables.subgroup_column が必要です")
 
   if (!(eff %in% names(data))) stop(paste0("effect column not found: ", eff))
   if (!(se  %in% names(data))) stop(paste0("se column not found: ", se))

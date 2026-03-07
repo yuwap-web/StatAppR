@@ -17,7 +17,7 @@ run_recipe_impl <- function(request, data) {
   y_col <- request$variables$outcome_column
   d_col <- request$variables$treatment_column
   z_col <- request$variables$instrument
-  xraw  <- request$variables$x %||% NULL
+  xraw  <- request$variables$covariates %||% NULL
 
   if (is.null(y_col) || y_col == "") stop("request$variables$outcome_column が必要です")
   if (is.null(d_col) || d_col == "") stop("request$variables$treatment_column が必要です")

@@ -21,7 +21,7 @@ run_recipe_impl <- function(request, data) {
   treat_unit <- request$variables$treated_unit
   treat_time <- request$variables$treat_time
 
-  xraw <- request$variables$x %||% NULL
+  xraw <- request$variables$covariates %||% NULL
 
   # optional (advanced)
   pre_period_start <- request$variables$pre_period_start %||% NULL

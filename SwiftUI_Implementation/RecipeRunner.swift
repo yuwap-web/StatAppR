@@ -73,25 +73,46 @@ class RecipeRunner {
     private func buildParametersList(_ parameters: [String: Any]) -> String {
         var lines: [String] = []
 
+        lines.append("request <- list(")
+
         if !parameters.isEmpty {
-            lines.append("request <- list(")
+            // Check if parameters already has a "variables" key
+            if let variables = parameters["variables"] as? [String: Any], !variables.isEmpty {
+                lines.append("  variables = list(")
 
-            let parameterLines = parameters.map { key, value in
-                if let value = value as? String {
-                    return "  \(key) = '\(value)'"
-                } else if let value = value as? [String] {
-                    let csvList = value.map { "'\($0)'" }.joined(separator: ", ")
-                    return "  \(key) = list(\(csvList))"
-                } else {
-                    return "  \(key) = \(value)"
+                let varLines = variables.map { key, value in
+                    if let value = value as? String {
+                        return "    \(key) = '\(value)'"
+                    } else if let value = value as? [String] {
+                        let csvList = value.map { "'\($0)'" }.joined(separator: ", ")
+                        return "    \(key) = c(\(csvList))"
+                    } else if let value = value as? Bool {
+                        return "    \(key) = \(value ? "TRUE" : "FALSE")"
+                    } else {
+                        return "    \(key) = \(value)"
+                    }
                 }
-            }
 
-            lines.append(parameterLines.joined(separator: ",\n"))
-            lines.append(")")
-        } else {
-            lines.append("request <- list()")
+                lines.append(varLines.joined(separator: ",\n"))
+                lines.append("  )")
+            } else {
+                // Fallback for flat parameters
+                let parameterLines = parameters.map { key, value in
+                    if let value = value as? String {
+                        return "  \(key) = '\(value)'"
+                    } else if let value = value as? [String] {
+                        let csvList = value.map { "'\($0)'" }.joined(separator: ", ")
+                        return "  \(key) = list(\(csvList))"
+                    } else {
+                        return "  \(key) = \(value)"
+                    }
+                }
+
+                lines.append(parameterLines.joined(separator: ",\n"))
+            }
         }
+
+        lines.append(")")
 
         return lines.joined(separator: "\n")
     }
@@ -154,7 +175,7 @@ struct RecipeOutput: Codable {
     struct TableInfo: Codable {
         let id: String
         let title: String
-        let data: [[String: String]]
+        let data: [[String: AnyCodable]]
     }
 
     struct FigureInfo: Codable {

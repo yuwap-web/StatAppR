@@ -232,37 +232,5 @@ make_weight_hist <- function(w) {
 
 }
 
-# ------------------------------------------------------------
-# Kaplan-Meier plot
-# ------------------------------------------------------------
-
-make_km_plot <- function(fit, df, group_col="group") {
-
-  file <- make_plot_file("km")
-
-  s <- summary(fit)
-
-  km <- data.frame(
-    time=s$time,
-    surv=s$surv,
-    strata=s$strata
-  )
-
-  p <- ggplot(
-    km,
-    aes(
-      x=time,
-      y=surv,
-      color=strata
-    )
-  ) +
-    geom_step(size=1) +
-    theme_minimal() +
-    ylab("Survival Probability") +
-    xlab("Time")
-
-  ggsave(file,p,width=6,height=4,dpi=300)
-
-  file
-
-}
+# Note: make_km_plot() has been moved to Engine/utils/km_plot.R for better
+# error handling, survminer support, and proper return structure (list with curve/risk_table fields)

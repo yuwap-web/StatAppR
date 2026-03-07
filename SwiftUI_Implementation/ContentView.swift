@@ -441,6 +441,8 @@ struct RecipeExecutionView: View {
     @State private var csvColumns: [CSVColumn] = []
     @State private var selectedColumns: Set<String> = []
     @State private var executionResult: String?
+    @State private var recipeOutput: RecipeOutput?
+    @State private var executionError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -610,7 +612,7 @@ struct RecipeExecutionView: View {
                     }
 
                     // Execution Results
-                    if let result = executionResult {
+                    if let output = recipeOutput {
                         VStack(alignment: .leading, spacing: 16) {
                             // Results Header
                             HStack {
@@ -622,80 +624,140 @@ struct RecipeExecutionView: View {
                                     .font(.title3)
                             }
 
-                            // Results Summary
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("処理結果")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
+                            // Summary Section
+                            if let summary = output.summary {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("概要")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
 
-                                Text(result)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(nil)
-                                    .padding(12)
-                                    .background(Color(.controlBackgroundColor))
-                                    .cornerRadius(6)
+                                    if let headline = summary.headline {
+                                        Text(headline)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                            .padding(12)
+                                            .background(Color(.controlBackgroundColor))
+                                            .cornerRadius(6)
+                                    }
+                                }
                             }
 
-                            // Chart Preview (Placeholder)
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("図表プレビュー")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
+                            // Figures Section
+                            if let figures = output.figures, !figures.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("図表")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
 
-                                // Chart Placeholder
-                                HStack(spacing: 12) {
-                                    VStack(alignment: .center, spacing: 8) {
-                                        ForEach(0..<5, id: \.self) { index in
-                                            HStack(spacing: 4) {
-                                                RoundedRectangle(cornerRadius: 4)
-                                                    .fill(Color.blue.opacity(Double(5-index) / 5))
-                                                    .frame(width: CGFloat(20 + index * 15), height: 20)
+                                    ForEach(figures, id: \.id) { figure in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(figure.title)
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                            Text(figure.id)
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(12)
+                                        .background(Color(.controlBackgroundColor))
+                                        .cornerRadius(6)
+                                    }
+                                }
+                            }
 
-                                                Spacer()
+                            // Tables Section
+                            if let tables = output.tables, !tables.isEmpty {
+                                VStack(alignment: .leading, spacing: 12) {
+                                    Text("統計値")
+                                        .font(.subheadline)
+                                        .fontWeight(.semibold)
+
+                                    ForEach(tables, id: \.id) { table in
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            Text(table.title)
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.primary)
+
+                                            // Dynamic table rendering
+                                            if !table.data.isEmpty {
+                                                VStack(spacing: 0) {
+                                                    // Header row
+                                                    let firstRow = table.data[0]
+                                                    let keys = Array(firstRow.keys).sorted()
+
+                                                    HStack(spacing: 8) {
+                                                        ForEach(keys, id: \.self) { key in
+                                                            Text(key)
+                                                                .fontWeight(.semibold)
+                                                                .font(.caption2)
+                                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                                        }
+                                                    }
+                                                    .padding(8)
+                                                    .background(Color(.controlBackgroundColor))
+
+                                                    Divider()
+
+                                                    // Data rows
+                                                    ForEach(Array(table.data.enumerated()), id: \.offset) { _, row in
+                                                        HStack(spacing: 8) {
+                                                            ForEach(keys, id: \.self) { key in
+                                                                if let value = row[key] {
+                                                                    Text(formatTableValue(value.value))
+                                                                        .font(.caption)
+                                                                        .foregroundColor(.secondary)
+                                                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                                                } else {
+                                                                    Text("--")
+                                                                        .font(.caption)
+                                                                        .foregroundColor(.secondary)
+                                                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                                                }
+                                                            }
+                                                        }
+                                                        .padding(8)
+                                                        .background(Color(.windowBackgroundColor))
+                                                    }
+                                                }
+                                                .cornerRadius(6)
+                                                .border(Color(.controlBackgroundColor), width: 1)
+                                            } else {
+                                                Text("データがありません")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                    .padding(12)
+                                                    .background(Color(.windowBackgroundColor))
+                                                    .cornerRadius(6)
                                             }
                                         }
+                                        .padding(12)
+                                        .background(Color(.controlBackgroundColor))
+                                        .cornerRadius(6)
                                     }
-                                    .frame(height: 120)
-
-                                    Text("データ可視化\n（R結果）")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                        .frame(maxWidth: .infinity, alignment: .center)
                                 }
+                            }
+                        }
+                        .padding(20)
+                        .background(Color(.controlBackgroundColor).opacity(0.5))
+                        .cornerRadius(8)
+                    } else if let error = executionError {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Label("エラー", systemImage: "exclamationmark.circle.fill")
+                                    .font(.headline)
+                                    .foregroundColor(.red)
+                                Spacer()
+                            }
+
+                            Text(error)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(nil)
                                 .padding(12)
                                 .background(Color(.controlBackgroundColor))
                                 .cornerRadius(6)
-                            }
-
-                            // Statistics Table
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("統計値")
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-
-                                VStack(spacing: 6) {
-                                    HStack {
-                                        Text("項目").fontWeight(.semibold).frame(maxWidth: .infinity, alignment: .leading)
-                                        Text("値").fontWeight(.semibold).frame(width: 80, alignment: .trailing)
-                                    }
-                                    .font(.caption)
-                                    .padding(8)
-                                    .background(Color(.controlBackgroundColor))
-
-                                    ForEach(["サンプル数", "平均値", "標準偏差", "最小値", "最大値"], id: \.self) { stat in
-                                        HStack {
-                                            Text(stat).frame(maxWidth: .infinity, alignment: .leading)
-                                            Text("--").frame(width: 80, alignment: .trailing).foregroundColor(.secondary)
-                                        }
-                                        .font(.caption)
-                                        .padding(8)
-                                        Divider().padding(.horizontal, -8)
-                                    }
-                                }
-                                .background(Color(.windowBackgroundColor))
-                                .cornerRadius(6)
-                            }
                         }
                         .padding(20)
                         .background(Color(.controlBackgroundColor).opacity(0.5))
@@ -729,23 +791,84 @@ struct RecipeExecutionView: View {
         }
     }
 
+    private func formatTableValue(_ value: Any) -> String {
+        if let intVal = value as? Int {
+            return String(intVal)
+        } else if let doubleVal = value as? Double {
+            // Format doubles with appropriate precision
+            if doubleVal.isNaN {
+                return "NA"
+            } else if doubleVal.truncatingRemainder(dividingBy: 1) == 0 {
+                return String(Int(doubleVal))
+            } else {
+                return String(format: "%.4g", doubleVal)
+            }
+        } else if let stringVal = value as? String {
+            return stringVal
+        } else if let boolVal = value as? Bool {
+            return boolVal ? "TRUE" : "FALSE"
+        } else {
+            return String(describing: value)
+        }
+    }
+
     private func executeRecipe() {
+        guard let csvPath = csvPath else {
+            executionError = "CSVファイルが指定されていません"
+            return
+        }
+
         isRunning = true
+        recipeOutput = nil
+        executionError = nil
+        executionResult = nil
 
-        // Simulate recipe execution
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            executionResult = """
-            ✅ 分析完了！
+        // Build parameters from selected columns
+        var params: [String: Any] = [:]
 
-            サンプル結果:
-            - 処理行数: \(csvColumns.count)
-            - ステータス: 成功
-            - 処理時間: 1.2秒
+        for param in recipe.parameters {
+            if param.type == .singleColumn && !selectedColumns.isEmpty {
+                // Get first selected column
+                if let firstSelected = selectedColumns.first {
+                    params[param.key] = firstSelected
+                } else if param.required {
+                    executionError = "\(param.name) は必須です"
+                    isRunning = false
+                    return
+                }
+            } else if param.type == .multipleColumns && !selectedColumns.isEmpty {
+                params[param.key] = Array(selectedColumns)
+            } else if param.required {
+                executionError = "\(param.name) は必須です"
+                isRunning = false
+                return
+            }
+        }
 
-            詳細な結果がR環境で生成されました。
-            """
+        // Create the request structure expected by R
+        var requestDict: [String: Any] = [:]
+        requestDict["variables"] = params
 
-            isRunning = false
+        // Execute recipe in background
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = RecipeRunner.shared.executeRecipe(
+                name: recipe.recipeName,
+                csvPath: csvPath.path,
+                parameters: requestDict
+            )
+
+            DispatchQueue.main.async {
+                isRunning = false
+
+                switch result {
+                case .success(let output):
+                    recipeOutput = output
+                    executionResult = "✅ 分析完了しました"
+                case .failure(let error):
+                    executionError = error.errorDescription ?? "不明なエラーが発生しました"
+                    recipeOutput = nil
+                }
+            }
         }
     }
 }
