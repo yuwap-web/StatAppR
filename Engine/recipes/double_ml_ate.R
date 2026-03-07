@@ -377,6 +377,38 @@ source("Engine/utils/plot_utils.R", local = TRUE)
     )))
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+
+    plot_file <- file.path(results_dir, sprintf("double_ml_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    plot(1:10, main = "Double ML ATE Plot")
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "double_ml",
+        title = "Double ML ATE Plot",
+        type = "plot",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("DML（ATE）: estimate = ", signif(theta, 4), ", p = ", signif(p, 3)),
@@ -398,62 +430,6 @@ source("Engine/utils/plot_utils.R", local = TRUE)
       list(id = "dml_ate", title = "DML 推定結果（ATE）", data = est_tbl),
       list(id = "dml_diagnostics", title = "診断（nuisance性能など）", data = diag_tbl)
     ),
-      # ---- 図表生成 ----
-
-      figures <- list()
-
-
-      tryCatch({
-
-        results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
-
-        if (!dir.exists(results_dir)) {
-
-          dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
-
-        }
-
-        plot_file <- file.path(results_dir, sprintf("double_ml_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
-
-
-        png(plot_file, width = 800, height = 600)
-
-        plot(1:10, main = "Double ML ATE Plot")
-
-        dev.off()
-
-
-        if (file.exists(plot_file)) {
-
-          figures <- c(figures, list(list(
-
-            id = "double_ml",
-
-            title = "Double ML ATE Plot",
-
-            type = "plot",
-
-            path = plot_file
-
-          )))
-
-        }
-
-      }, error = function(e) {
-
-        warnings_out <<- c(warnings_out, list(list(
-
-          code = "PLOT_GENERATION_FAILED",
-
-          severity = "info",
-
-          message = paste("図表生成に失敗しました:", e$message)
-
-        )))
-
-      })
-
-
     figures = figures,
     warnings = warn,
     errors = list()

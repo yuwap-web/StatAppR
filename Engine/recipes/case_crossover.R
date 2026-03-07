@@ -123,6 +123,61 @@ source("Engine/utils/plot_utils.R", local = TRUE)
   coef_summary$term <- rownames(coef_summary)
   rownames(coef_summary) <- NULL
 
+  # ---- 図表生成 ----
+
+  figures <- list()
+
+
+  tryCatch({
+
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+
+    if (!dir.exists(results_dir)) {
+
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+
+    }
+
+    plot_file <- file.path(results_dir, sprintf("case_crossover_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+
+    png(plot_file, width = 800, height = 600)
+
+    plot(1:10, main = "Case Crossover Analysis Plot")
+
+    dev.off()
+
+
+    if (file.exists(plot_file)) {
+
+      figures <- c(figures, list(list(
+
+        id = "case_crossover",
+
+        title = "Case Crossover Analysis Plot",
+
+        type = "plot",
+
+        path = plot_file
+
+      )))
+
+    }
+
+  }, error = function(e) {
+
+    warnings_out <<- c(warnings_out, list(list(
+
+      code = "PLOT_GENERATION_FAILED",
+
+      severity = "info",
+
+      message = paste("図表生成に失敗しました:", e$message)
+
+    )))
+
+  })
+
   list(
     summary = list(
       headline = "Case-Crossover (Prototype) - Logistic Approximation",
@@ -148,62 +203,6 @@ source("Engine/utils/plot_utils.R", local = TRUE)
         n_persons = n_persons
       ))
     ),
-      # ---- 図表生成 ----
-
-      figures <- list()
-
-
-      tryCatch({
-
-        results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
-
-        if (!dir.exists(results_dir)) {
-
-          dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
-
-        }
-
-        plot_file <- file.path(results_dir, sprintf("case_crossover_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
-
-
-        png(plot_file, width = 800, height = 600)
-
-        plot(1:10, main = "Case Crossover Analysis Plot")
-
-        dev.off()
-
-
-        if (file.exists(plot_file)) {
-
-          figures <- c(figures, list(list(
-
-            id = "case_crossover",
-
-            title = "Case Crossover Analysis Plot",
-
-            type = "plot",
-
-            path = plot_file
-
-          )))
-
-        }
-
-      }, error = function(e) {
-
-        warnings_out <<- c(warnings_out, list(list(
-
-          code = "PLOT_GENERATION_FAILED",
-
-          severity = "info",
-
-          message = paste("図表生成に失敗しました:", e$message)
-
-        )))
-
-      })
-
-
     figures = figures,
     warnings = warnings_out,
     errors = list()

@@ -273,6 +273,37 @@ source("Engine/utils/plot_utils.R", local = TRUE)
 
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("instrumental_variable_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    plot(1:10, main = "Analysis Results")
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- list(list(
+        id = "analysis_plot",
+        title = "Analysis Summary Plot",
+        type = "plot",
+        path = plot_file
+      ))
+    }
+  }, error = function(e) {
+    if (!exists("warnings_out")) warnings_out <<- list()
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary=list(
       headline=headline,
@@ -306,38 +337,6 @@ source("Engine/utils/plot_utils.R", local = TRUE)
     ),
     figures = figures,
     warnings=warnings_out,
-
-  # ---- 図表生成 ----
-  figures <- list()
-
-  tryCatch({
-    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
-    if (!dir.exists(results_dir)) {
-      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
-    }
-    plot_file <- file.path(results_dir, sprintf("instrumental_variable_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
-
-    png(plot_file, width = 800, height = 600)
-    plot(1:10, main = "Analysis Results")
-    dev.off()
-
-    if (file.exists(plot_file)) {
-      figures <- list(list(
-        id = "analysis_plot",
-        title = "Analysis Summary Plot",
-        type = "plot",
-        path = plot_file
-      ))
-    }
-  }, error = function(e) {
-    if (!exists("warnings_out")) warnings_out <<- list()
-    warnings_out <<- c(warnings_out, list(list(
-      code = "PLOT_GENERATION_FAILED",
-      severity = "info",
-      message = paste("図表生成に失敗しました:", e$message)
-    )))
-  })
-
     errors = list()
   )
 
