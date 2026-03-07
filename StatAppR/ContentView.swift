@@ -847,54 +847,22 @@ struct RecipeExecutionView: View {
         executionError = nil
         executionResult = nil
 
-        // Build parameters from selected columns
-        var params: [String: Any] = [:]
+        // Use RecipeExecutionEngine to execute recipe
+        RecipeExecutionEngine.shared.executeRecipe(
+            recipe: recipe,
+            csvPath: csvPath,
+            selectedColumns: selectedColumnsByParameter
+        ) { result in
+            isRunning = false
 
-        for param in recipe.parameters {
-            let selectedForParam = selectedColumnsByParameter[param.parameterKey] ?? []
+            switch result {
+            case .success(let output):
+                recipeOutput = output
+                executionResult = "✅ 分析完了しました"
 
-            if param.type == .singleColumn {
-                if let firstSelected = selectedForParam.first {
-                    params[param.parameterKey] = firstSelected
-                } else if param.required {
-                    executionError = "\(param.name) は必須です"
-                    isRunning = false
-                    return
-                }
-            } else if param.type == .multipleColumns {
-                if !selectedForParam.isEmpty {
-                    params[param.parameterKey] = Array(selectedForParam)
-                } else if param.required {
-                    executionError = "\(param.name) は必須です"
-                    isRunning = false
-                    return
-                }
-            }
-        }
-
-        // Create the request structure expected by R
-        var requestDict: [String: Any] = [:]
-        requestDict["variables"] = params
-
-        // Execute recipe in background
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = RecipeRunner.shared.executeRecipe(
-                name: recipe.recipeName,
-                csvPath: csvPath.path,
-                parameters: requestDict
-            )
-
-            DispatchQueue.main.async {
-                isRunning = false
-
-                switch result {
-                case .success(let output):
-                    recipeOutput = output
-                    executionResult = "✅ 分析完了しました"
-                case .failure(let error):
-                    executionError = error.errorDescription ?? "不明なエラーが発生しました"
-                    recipeOutput = nil
-                }
+            case .failure(let error):
+                executionError = error.errorDescription ?? "不明なエラーが発生しました"
+                recipeOutput = nil
             }
         }
     }
