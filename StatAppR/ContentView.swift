@@ -1004,6 +1004,11 @@ struct RecipeExecutionView: View {
         .onChange(of: csvPath) {
             loadCSVColumns()
         }
+        .onChange(of: recipe.name) {
+            // When recipe changes, re-run auto-matching for the new recipe
+            let matcher = RecipeParameterMatcher()
+            selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
+        }
     }
 
     private func loadCSVColumns() {
