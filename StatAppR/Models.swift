@@ -1246,34 +1246,8 @@ enum DataType: String, CaseIterable, Identifiable {
 
 // MARK: - Recipe Information Model
 
-struct RecipeInfo: Identifiable {
-    let id = UUID()
-    let name: String
-    let nameJapanese: String
-    let description: String
-    let recipeName: String
-    let requiredColumns: [String]
-    let example: String
-    let parameters: [ParameterRequirement]
-}
-
-// MARK: - Parameter Requirement Model
-
-struct ParameterRequirement: Identifiable {
-    let id = UUID()
-    let name: String           // 表示名（「時間列」など）
-    let parameterKey: String   // パラメータキー（「time_column」など）
-    let type: ParameterType    // パラメータ型
-    let description: String    // 説明
-    let required: Bool         // 必須か
-}
-
-enum ParameterType {
-    case singleColumn          // 1つの列を選ぶ
-    case multipleColumns       // 複数の列を選ぶ
-    case categorical           // カテゴリから選ぶ
-    case numeric               // 数値入力
-}
+// Recipe models are defined in RecipeModels.swift
+// (RecipeInfo, ParameterRequirement, ParameterType)
 
 // MARK: - Package Information
 
