@@ -3,6 +3,9 @@
 # - ただし request$variables$predictor_column が配列 or "a,b" で来ても検出して丁寧にエラーにする
 # - y は数値必須、x は数値 or factor（数値化できなければ factor に逃がす）
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
 run_recipe_impl <- function(request, data) {
 
   ycol <- request$variables$outcome_column
@@ -119,6 +122,38 @@ run_recipe_impl <- function(request, data) {
     if (length(pv) > 0) p_slope <- min(pv, na.rm = TRUE)
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    # Create scatter plot with regression line
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("linear_regression_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    plot(df$x, df$y, main = "Linear Regression", xlab = xcol, ylab = ycol, pch = 19)
+    abline(fit, col = "red", lwd = 2)
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "scatter_plot",
+        title = "Scatter Plot with Regression Line",
+        type = "ggplot2",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("線形回帰（単回帰）: p = ", signif(p_slope, 3)),
@@ -137,7 +172,7 @@ run_recipe_impl <- function(request, data) {
       list(id = "model_metrics", title = "モデル指標", data = metrics),
       list(id = "coefficients", title = "回帰係数", data = coefs)
     ),
-    figures = list(),
+    figures = figures,
     warnings = warnings_out,
     errors = list()
   )

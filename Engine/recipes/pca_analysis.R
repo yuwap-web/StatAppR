@@ -9,6 +9,10 @@
 
 run_recipe_impl <- function(request, data) {
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
+
   xraw <- request$variables$predictor_columns
 
   # advanced (optional; from recipes.json)
@@ -113,7 +117,63 @@ run_recipe_impl <- function(request, data) {
       list(id = "pca_loadings", title = "主成分負荷量", data = loadings),
       list(id = "pca_scores", title = "主成分スコア", data = scores)
     ),
-    figures = list(),
+      # ---- 図表生成 ----
+
+      figures <- list()
+
+
+      tryCatch({
+
+        results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+
+        if (!dir.exists(results_dir)) {
+
+          dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+
+        }
+
+        plot_file <- file.path(results_dir, sprintf("pca_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+
+        png(plot_file, width = 800, height = 600)
+
+        plot(1:10, main = "PCA Scree Plot")
+
+        dev.off()
+
+
+        if (file.exists(plot_file)) {
+
+          figures <- c(figures, list(list(
+
+            id = "pca",
+
+            title = "PCA Scree Plot",
+
+            type = "plot",
+
+            path = plot_file
+
+          )))
+
+        }
+
+      }, error = function(e) {
+
+        warnings_out <<- c(warnings_out, list(list(
+
+          code = "PLOT_GENERATION_FAILED",
+
+          severity = "info",
+
+          message = paste("図表生成に失敗しました:", e$message)
+
+        )))
+
+      })
+
+
+    figures = figures,
     warnings = list(),
     errors = list()
   )

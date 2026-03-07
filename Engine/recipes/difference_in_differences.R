@@ -19,6 +19,10 @@
 
 run_recipe_impl <- function(request, data) {
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
+
   y_col <- request$variables$outcome_column %||% request$variables$y
   t_col <- request$variables$time_column %||% request$variables$time %||% request$variables$post
   g_col <- request$variables$treatment_column %||% request$variables$treat
@@ -252,6 +256,8 @@ run_recipe_impl <- function(request, data) {
     ),
     figures=figures,
     warnings=list(),
+
+
     errors = list()
   )
 

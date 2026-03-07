@@ -268,19 +268,41 @@ run_recipe_impl <- function(request, data) {
   figs <- list()
   warnings_out <- list()
 
+  # Generate weight distribution plot
+  tryCatch({
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("tte_weights_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    hist(w, main = "IPCW Weight Distribution", xlab = "Weight", col = "steelblue", breaks = 20)
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figs <- list(list(
+        id = "weights_dist",
+        title = "IPCW Weight Distribution",
+        type = "histogram",
+        path = plot_file
+      ))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   if (isTRUE(use_ggplot)) {
     # Only if ggplot2 exists; otherwise warn
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       warnings_out <- c(warnings_out, list(list(
         code = "GGPLOT2_NOT_INSTALLED",
         severity = "info",
-        message = "ggplot2 が無いため図はスキップしました。"
-      )))
-    } else {
-      warnings_out <- c(warnings_out, list(list(
-        code = "PLOT_SKIPPED",
-        severity = "info",
-        message = "TTEの重み付きstart-stopデータの論文品質プロットは次段で実装します（まず推定の安定性優先）。"
+        message = "ggplot2 が無いため詳細図はスキップしました。"
       )))
     }
   }

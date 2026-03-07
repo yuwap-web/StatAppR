@@ -1,5 +1,8 @@
 # recipes/multiple_regression.R
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (length(a) == 0) return(b)
@@ -190,6 +193,37 @@ run_recipe_impl <- function(request, data) {
 
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    # Create diagnostic plot (residuals vs fitted)
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("multiple_regression_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    plot(fit, which = 1)  # Residuals vs Fitted
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "residuals_plot",
+        title = "Residuals vs Fitted Values",
+        type = "plot",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("重回帰: adj R² = ", signif(sm$adj.r.squared, 3)),
@@ -206,7 +240,7 @@ run_recipe_impl <- function(request, data) {
       )
     ),
     tables = tables_out,
-    figures = list(),
+    figures = figures,
     warnings = warnings_out,
     errors = list()
   )

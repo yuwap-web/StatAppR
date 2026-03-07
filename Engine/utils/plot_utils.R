@@ -234,3 +234,53 @@ make_weight_hist <- function(w) {
 
 # Note: make_km_plot() has been moved to Engine/utils/km_plot.R for better
 # error handling, survminer support, and proper return structure (list with curve/risk_table fields)
+
+# ============================================================
+# Generic summary plot function for recipes without specific plots
+# ============================================================
+
+make_summary_plot <- function(recipe_name, summary_text = "") {
+  # Generate a simple text-based summary plot for recipes without graphics
+  file <- make_plot_file(paste0("summary_", recipe_name))
+
+  png(file, width = 800, height = 600, bg = "white")
+
+  par(mar = c(1, 1, 1, 1))
+  plot(0, 0, type = "n", xlab = "", ylab = "", axes = FALSE, xlim = c(0, 1), ylim = c(0, 1))
+
+  # Add title
+  text(0.5, 0.95, paste0(recipe_name, " - Analysis Summary"),
+       cex = 1.5, fontweight = 2, adj = 0.5)
+
+  # Add summary text
+  if (nchar(summary_text) > 0) {
+    text(0.5, 0.5, summary_text, cex = 1, adj = 0.5, wrap = TRUE)
+  } else {
+    text(0.5, 0.5, "Analysis completed successfully", cex = 1, adj = 0.5)
+  }
+
+  dev.off()
+  return(file)
+}
+
+# ============================================================
+# Simplified histogram for numeric columns
+# ============================================================
+
+make_histogram_plot <- function(data, column, main_title = "") {
+  file <- make_plot_file("histogram")
+
+  x <- as.numeric(data[[column]])
+  x <- x[!is.na(x)]
+
+  if (length(x) < 2) {
+    return(make_summary_plot("histogram", "Insufficient data for histogram"))
+  }
+
+  png(file, width = 800, height = 600)
+  hist(x, main = ifelse(nchar(main_title) > 0, main_title, paste("Distribution of", column)),
+       xlab = column, col = "steelblue", breaks = 15)
+  dev.off()
+
+  return(file)
+}

@@ -1,5 +1,8 @@
 # recipes/two_group_continuous.R
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
 run_recipe_impl <- function(request, data) {
 
   gcol <- request$variables$group_column
@@ -79,6 +82,37 @@ run_recipe_impl <- function(request, data) {
     )))
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    # Create boxplot
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("two_group_continuous_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    boxplot(list(x1, x2), names = lv, main = paste("Box Plot -", ycol), ylab = ycol)
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "boxplot",
+        title = "Box Plot by Group",
+        type = "plot",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("2群比較（連続変数）: p = ", signif(tt$p.value, 3)),
@@ -99,7 +133,7 @@ run_recipe_impl <- function(request, data) {
       list(id = "group_summary", title = "群別要約", data = group_summary),
       list(id = "t_test", title = "t検定結果", data = t_test)
     ),
-    figures = list(),
+    figures = figures,
     warnings = warnings_out,
     errors = list()
   )

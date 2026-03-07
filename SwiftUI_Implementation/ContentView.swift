@@ -650,17 +650,58 @@ struct RecipeExecutionView: View {
                                         .fontWeight(.semibold)
 
                                     ForEach(figures, id: \.id) { figure in
-                                        VStack(alignment: .leading, spacing: 4) {
+                                        VStack(alignment: .leading, spacing: 8) {
                                             Text(figure.title)
                                                 .font(.caption)
                                                 .fontWeight(.semibold)
-                                            Text(figure.id)
-                                                .font(.caption2)
-                                                .foregroundColor(.secondary)
+                                                .foregroundColor(.primary)
+
+                                            // Load and display image if path is provided
+                                            if let path = figure.path, !path.isEmpty {
+                                                if let nsImage = NSImage(contentsOfFile: path) {
+                                                    Image(nsImage: nsImage)
+                                                        .resizable()
+                                                        .scaledToFit()
+                                                        .frame(maxWidth: 800)
+                                                        .cornerRadius(4)
+                                                } else {
+                                                    HStack {
+                                                        Image(systemName: "exclamationmark.triangle")
+                                                            .foregroundColor(.orange)
+                                                        Text("画像の読み込みに失敗しました: \(path)")
+                                                            .font(.caption)
+                                                            .foregroundColor(.orange)
+                                                    }
+                                                    .padding(12)
+                                                    .background(Color(.controlBackgroundColor))
+                                                    .cornerRadius(6)
+                                                }
+                                            } else {
+                                                HStack {
+                                                    Image(systemName: "photo")
+                                                        .foregroundColor(.secondary)
+                                                    Text("\(figure.type) plot")
+                                                        .font(.caption)
+                                                        .foregroundColor(.secondary)
+                                                }
+                                                .padding(12)
+                                                .background(Color(.controlBackgroundColor))
+                                                .cornerRadius(6)
+                                            }
+
+                                            // Additional metadata
+                                            HStack(spacing: 8) {
+                                                Text("ID: \(figure.id)")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                                Text("Type: \(figure.type)")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                            }
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding(12)
-                                        .background(Color(.controlBackgroundColor))
+                                        .background(Color(.controlBackgroundColor).opacity(0.5))
                                         .cornerRadius(6)
                                     }
                                 }

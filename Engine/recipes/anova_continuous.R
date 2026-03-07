@@ -2,6 +2,10 @@
 
 run_recipe_impl <- function(request, data) {
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
+
   gcol <- request$variables$group_column
   ycol <- request$variables$outcome_column
 
@@ -122,6 +126,37 @@ run_recipe_impl <- function(request, data) {
     }
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    # Create boxplot by group
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("anova_continuous_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    boxplot(y ~ g, data = df, main = "Box Plot by Group", ylab = ycol, xlab = gcol)
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "boxplot",
+        title = "Box Plot by Group",
+        type = "plot",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("3群以上（ANOVA）: p = ", signif(p, 3)),
@@ -141,7 +176,7 @@ run_recipe_impl <- function(request, data) {
       list(id = "anova_table", title = "ANOVA表", data = anova_table),
       list(id = "tukey_hsd", title = "Tukey多重比較（参考）", data = tuk_tbl)
     ),
-    figures = list(),
+    figures = figures,
     warnings = warnings_out,
     errors = list()
   )

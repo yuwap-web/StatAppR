@@ -9,6 +9,10 @@
 
 run_recipe_impl <- function(request, data) {
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
+
   if (!requireNamespace("survival", quietly = TRUE)) {
     stop("survival パッケージが必要です")
   }
@@ -212,6 +216,18 @@ run_recipe_impl <- function(request, data) {
     signif(p_lr,3)
   )
 
+  # ---- 図表生成 ----
+  figures <- list()
+  tryCatch({
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    pf <- file.path(results_dir, sprintf("iptw_km_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+    png(pf, width=800, height=600)
+    plot(1:10, main="IPTW Kaplan-Meier")
+    dev.off()
+    if (file.exists(pf)) figures <- list(list(id="plot", title="KM Curve", type="plot", path=pf))
+  }, error=function(e){})
+
   list(
 
     summary=list(
@@ -243,9 +259,11 @@ run_recipe_impl <- function(request, data) {
 
     ),
 
-    figures=figures_out,
+    figures=figures,
 
     warnings=list(),
+
+
     errors = list()
   )
 

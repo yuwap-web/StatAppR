@@ -2,6 +2,9 @@
 # 基本統計分析レシピ
 # 記述統計量と相関分析を実行
 
+# Source plot utilities
+source("Engine/utils/plot_utils.R", local = TRUE)
+
 run_recipe_impl <- function(request, data) {
 
   # ---- パラメータ取得 ----
@@ -98,6 +101,32 @@ run_recipe_impl <- function(request, data) {
     })
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+  warnings_out <- list()
+
+  # Generate histogram for first numeric variable
+  if (length(vars) > 0) {
+    first_var <- vars[1]
+    tryCatch({
+      plot_file <- make_histogram_plot(df, first_var, paste("Distribution of", first_var))
+      if (!is.null(plot_file) && file.exists(plot_file)) {
+        figures <- c(figures, list(list(
+          id = "distribution",
+          title = paste("Distribution of", first_var),
+          type = "histogram",
+          path = plot_file
+        )))
+      }
+    }, error = function(e) {
+      warnings_out <<- c(warnings_out, list(list(
+        code = "PLOT_GENERATION_FAILED",
+        severity = "info",
+        message = paste("図表生成に失敗しました:", e$message)
+      )))
+    })
+  }
+
   # ---- 結果を構築 ----
   result <- list(
     summary = list(
@@ -126,8 +155,8 @@ run_recipe_impl <- function(request, data) {
         data = corr_data
       ) else NULL
     ),
-    figures = list(),
-    warnings = list(),
+    figures = figures,
+    warnings = warnings_out,
     errors = list()
   )
 

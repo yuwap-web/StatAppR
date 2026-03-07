@@ -182,6 +182,7 @@ struct RecipeOutput: Codable {
         let id: String
         let title: String
         let type: String
+        let path: String?
     }
 
     struct WarningInfo: Codable {
