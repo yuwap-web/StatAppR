@@ -19,10 +19,10 @@
 
 run_recipe_impl <- function(request, data) {
 
-  y_col <- request$variables$outcome_column
-  t_col <- request$variables$time_column
-  g_col <- request$variables$treatment_column
-  id_col <- request$variables$id %||% NULL
+  y_col <- request$variables$outcome_column %||% request$variables$y
+  t_col <- request$variables$time_column %||% request$variables$time %||% request$variables$post
+  g_col <- request$variables$treatment_column %||% request$variables$treat
+  id_col <- request$variables$id %||% request$variables$unit %||% NULL
 
   event_plot <- request$variables$event_study %||% TRUE
   seed <- request$variables$seed %||% 1

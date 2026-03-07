@@ -1,8 +1,5 @@
 # recipes/survival_km.R
 
-source(file.path(runner_dir, "utils", "plot_utils.R"))
-source(file.path(runner_dir, "utils", "km_plot.R"))
-
 run_recipe_impl <- function(request, data) {
 
   if (!requireNamespace("survival", quietly = TRUE)) {

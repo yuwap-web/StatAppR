@@ -15,11 +15,11 @@
 
 run_recipe_impl <- function(request, data) {
 
-  # Required columns
-  ycol     <- request$variables$outcome_column
-  unitcol  <- request$variables$unit_id %||% request$variables$id
-  timecol  <- request$variables$time_column
-  ttimecol <- request$variables$event_date_column %||% request$variables$policy_time
+  # Required columns - support multiple parameter name formats
+  ycol     <- request$variables$outcome_column %||% request$variables$y
+  unitcol  <- request$variables$unit_id %||% request$variables$unit %||% request$variables$id
+  timecol  <- request$variables$time_column %||% request$variables$time
+  ttimecol <- request$variables$event_date_column %||% request$variables$treat_time %||% request$variables$policy_time
 
   # Options
   mode <- request$variables$mode %||% "shift"          # "shift" or "permute"

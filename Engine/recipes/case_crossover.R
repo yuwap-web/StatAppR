@@ -11,13 +11,13 @@
 
 run_recipe_impl <- function(request, data) {
 
-  person_id_col <- request$variables$case_id
-  outcome_col   <- request$variables$outcome_column
-  exposure_col  <- request$variables$exposure_column
-  event_time_col <- request$variables$time_column
+  person_id_col <- request$variables$case_id %||% request$variables$person_id %||% request$variables$id
+  outcome_col   <- request$variables$outcome_column %||% request$variables$outcome %||% request$variables$y
+  exposure_col  <- request$variables$exposure_column %||% request$variables$exposure
+  event_time_col <- request$variables$time_column %||% request$variables$event_time %||% request$variables$time
   case_window   <- request$variables$case_window %||% 1
   control_window <- request$variables$control_window %||% 28
-  xraw          <- request$variables$covariates
+  xraw          <- request$variables$covariates %||% request$variables$x
 
   suppressWarnings(case_window <- as.numeric(case_window))
   suppressWarnings(control_window <- as.numeric(control_window))

@@ -203,9 +203,9 @@ robust_se_theta <- function(t_tilde, y_tilde, theta) {
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$outcome_column
-  trt  <- request$variables$treatment_column %||% request$variables$treatment_columnment
-  xraw <- request$variables$covariates
+  ycol <- request$variables$outcome_column %||% request$variables$y
+  trt  <- request$variables$treatment_column %||% request$variables$treat %||% request$variables$treatment
+  xraw <- request$variables$covariates %||% request$variables$x
 
   # optional
   idcol <- request$variables$id %||% NULL

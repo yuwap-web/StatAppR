@@ -14,10 +14,10 @@ run_recipe_impl <- function(request, data) {
   use_fallback <- !requireNamespace("AER", quietly = TRUE)
   fallback_warning <- NULL
 
-  y_col <- request$variables$outcome_column
-  d_col <- request$variables$treatment_column
+  y_col <- request$variables$outcome_column %||% request$variables$y
+  d_col <- request$variables$treatment_column %||% request$variables$treat
   z_col <- request$variables$instrument
-  xraw  <- request$variables$covariates %||% NULL
+  xraw  <- request$variables$covariates %||% request$variables$x %||% NULL
 
   if (is.null(y_col) || y_col == "") stop("request$variables$outcome_column が必要です")
   if (is.null(d_col) || d_col == "") stop("request$variables$treatment_column が必要です")

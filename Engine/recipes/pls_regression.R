@@ -9,8 +9,8 @@
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$outcome_column
-  xraw <- request$variables$predictor_columns
+  ycol <- request$variables$outcome_column %||% request$variables$y
+  xraw <- request$variables$predictor_columns %||% request$variables$x
 
   # optional params (from recipes.json advanced)
   scale_flag <- request$variables$scale %||% TRUE

@@ -1,7 +1,5 @@
 # recipes/iptw_km_survival.R
 
-source(file.path(runner_dir, "utils", "plot_utils.R"))
-
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (length(a) == 0) return(b)

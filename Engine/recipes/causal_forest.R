@@ -23,9 +23,9 @@ run_recipe_impl <- function(request, data) {
   use_fallback <- !requireNamespace("grf", quietly = TRUE)
   fallback_warning <- NULL
 
-  y_col <- request$variables$outcome_column
-  w_col <- request$variables$treatment_column
-  xraw  <- request$variables$predictor_columns
+  y_col <- request$variables$outcome_column %||% request$variables$y
+  w_col <- request$variables$treatment_column %||% request$variables$w %||% request$variables$treat
+  xraw  <- request$variables$predictor_columns %||% request$variables$x
 
   n_trees <- request$variables$n_trees %||% 2000
   seed    <- request$variables$seed %||% 1

@@ -1,7 +1,5 @@
 # recipes/cox_regression.R
 
-source(file.path(runner_dir, "utils", "plot_utils.R"))
-
 run_recipe_impl <- function(request, data) {
 
   if (!requireNamespace("survival", quietly = TRUE)) {

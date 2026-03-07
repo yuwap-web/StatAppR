@@ -3,8 +3,8 @@
 # - balance plot (Love plot)
 # - PS overlap
 # - weight histogram
-
-source(file.path(runner_dir, "utils", "plot_utils.R"))
+#
+# Note: plot_utils.R functions (safe_require, save_plot, etc.) are pre-loaded by runner.R
 
 # -------------------------------------------------------
 # Balance plot (Standardized Mean Difference)

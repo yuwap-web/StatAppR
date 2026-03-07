@@ -34,11 +34,11 @@ run_recipe_impl <- function(request, data) {
   }
 
   id_col     <- request$variables$id
-  start_col  <- request$variables$time_column
+  start_col  <- request$variables$time_column %||% request$variables$start %||% request$variables$time
   stop_col   <- request$variables$stop
-  status_col <- request$variables$outcome_column
+  status_col <- request$variables$outcome_column %||% request$variables$status %||% request$variables$y
   a_col      <- request$variables$a
-  xraw       <- request$variables$covariates
+  xraw       <- request$variables$covariates %||% request$variables$x
 
   # optional (advanced)
   stabilize   <- request$variables$stabilized %||% TRUE

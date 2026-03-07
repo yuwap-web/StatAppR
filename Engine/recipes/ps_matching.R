@@ -18,9 +18,9 @@ if (exists("runner_dir")) {
 
 run_recipe_impl <- function(request,data){
 
-  treat_col <- request$variables$treatment_column
-  y_col     <- request$variables$outcome_column
-  xraw      <- request$variables$covariates
+  treat_col <- request$variables$treatment_column %||% request$variables$treat
+  y_col     <- request$variables$outcome_column %||% request$variables$y
+  xraw      <- request$variables$covariates %||% request$variables$x
 
   caliper <- request$variables$caliper %||% 1.0
   smd_thr <- request$variables$balance_threshold %||% 0.1
@@ -34,6 +34,8 @@ run_recipe_impl <- function(request,data){
     xvars <- trimws(unlist(strsplit(xraw,",")))
   } else if(is.character(xraw)){
     xvars <- xraw
+  } else if(is.list(xraw)){
+    xvars <- unlist(xraw)
   } else {
     xvars <- as.character(xraw)
   }
@@ -147,12 +149,28 @@ run_recipe_impl <- function(request,data){
 
   matched <- rbind(treat_rows, control_rows)
 
+  if (nrow(matched) == 0) {
+    stop("No matches found. Consider adjusting caliper or checking data.")
+  }
+
   treat_m <- matched[[treat_col]]
   y_m     <- matched[[y_col]]
 
+  # Ensure numeric
+  if (!is.numeric(y_m)) {
+    suppressWarnings(y_m <- as.numeric(as.character(y_m)))
+  }
+  if (!is.numeric(treat_m)) {
+    suppressWarnings(treat_m <- as.numeric(as.character(treat_m)))
+  }
+
   # ---- ATT estimate ----
 
-  att <- mean(y_m[treat_m==1]) - mean(y_m[treat_m==0])
+  if (any(is.na(y_m)) || any(is.na(treat_m))) {
+    stop("y or treatment contains NA after matching")
+  }
+
+  att <- mean(y_m[treat_m==1], na.rm = TRUE) - mean(y_m[treat_m==0], na.rm = TRUE)
 
   se <- sqrt(stats::var(y_m)/length(y_m))
 

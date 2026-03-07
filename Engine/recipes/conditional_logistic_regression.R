@@ -17,10 +17,10 @@ run_recipe_impl <- function(request, data) {
   }
   library(survival)
 
-  ycol     <- request$variables$outcome_column
-  stratumcol <- request$variables$matchset_column
-  exposurecol <- request$variables$exposure_column
-  xraw     <- request$variables$exposure_columns
+  ycol     <- request$variables$outcome_column %||% request$variables$y
+  stratumcol <- request$variables$matchset_column %||% request$variables$stratum
+  exposurecol <- request$variables$exposure_column %||% request$variables$exposure
+  xraw     <- request$variables$exposure_columns %||% request$variables$x
 
   if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column（アウトカム 0/1）が必要です")
   if (is.null(stratumcol) || stratumcol == "") stop("request$variables$matchset_column（マッチング層）が必要です")
