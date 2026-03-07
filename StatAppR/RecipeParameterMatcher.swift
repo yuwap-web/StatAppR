@@ -34,11 +34,12 @@ struct RecipeParameterMatcher {
 
         // ===== Group/Stratum Parameters =====
         "group_column": ["group_column", "group", "arm", "condition", "strata", "stratification"],
-        "subgroup_column": ["subgroup_column", "subgroup", "stratum"],
+        "subgroup_column": ["subgroup_column", "subgroup", "stratum", "author", "year", "category"],
         "treatment_column": ["treatment_column", "treatment", "treat", "treatment_group"],
 
         // ===== Variable Selection =====
-        "predictor_columns": ["predictor_columns", "predictors", "features", "independent", "variables"],
+        "variables": ["variables", "vars", "variable", "numeric_vars", "columns"],
+        "predictor_columns": ["predictor_columns", "predictors", "features", "independent"],
         "predictor_column": ["predictor_column", "predictor", "feature"],
         "covariates": ["covariates", "covariate", "confounders", "x", "control_vars"],
 
@@ -54,7 +55,7 @@ struct RecipeParameterMatcher {
 
         // ===== Study/Research Parameters =====
         "author_column": ["author_column", "author", "study", "study_name"],
-        "label": ["label", "author", "study", "study_id"],
+        "label": ["label", "author", "year", "study", "study_name"],  // Removed "study_id" to avoid false matches
         "effect_size_column": ["effect_size_column", "effect_size"],
         "standard_error_column": ["standard_error_column", "standard_error", "stderr"],
 
@@ -89,30 +90,84 @@ struct RecipeParameterMatcher {
     /// - Returns: Dictionary mapping parameter keys to matched column names
     func matchParametersForRecipe(_ recipe: RecipeInfo?, csvColumns: [CSVColumn]) -> [String: Set<String>] {
         var result: [String: Set<String>] = [:]
+        let DEBUG = false  // Set to true to enable detailed logging
 
         guard let recipe = recipe else {
             return result
         }
 
+        if DEBUG {
+            print("🔍 RecipeParameterMatcher: Starting match for recipe '\(recipe.name)'")
+            print("📊 Available CSV columns: \(csvColumns.map { $0.name })")
+        }
+
         for param in recipe.parameters {
             guard let keywords = keywordMappings[param.parameterKey] else {
+                if DEBUG {
+                    print("⚠️ No keywords found for parameter '\(param.parameterKey)'")
+                }
                 continue
             }
 
-            // Try to find matching columns
+            if DEBUG {
+                print("\n🔎 Parameter: '\(param.parameterKey)' (required: \(param.required))")
+                print("   Keywords: \(keywords)")
+            }
+
+            // Try to find matching columns with priority:
+            // 1. Exact match
+            // 2. Column contains keyword (columnName.contains(keyword))
+            // 3. Keyword contains column (keyword.contains(columnName)) - least preferred
+
+            var foundMatch = false
+            var bestMatch: (column: String, matchType: String)? = nil
+
             for column in csvColumns {
                 let columnNameLower = column.name.lowercased()
 
-                // Check for exact matches or keyword matches (case-insensitive)
-                if keywords.contains(where: { keyword in
-                    columnNameLower == keyword.lowercased() ||
-                    columnNameLower.contains(keyword.lowercased()) ||
-                    keyword.lowercased().contains(columnNameLower)
-                }) {
+                // Check for exact matches (highest priority)
+                if let exactKeyword = keywords.first(where: { $0.lowercased() == columnNameLower }) {
+                    if DEBUG {
+                        print("   ✅ EXACT MATCH: '\(column.name)' ← keyword '\(exactKeyword)'")
+                    }
                     result[param.parameterKey] = [column.name]
-                    break  // One match per parameter for singleColumn behavior
+                    foundMatch = true
+                    break  // Highest priority - stop immediately
+                }
+
+                // Check for column contains keyword (medium priority)
+                if bestMatch == nil, let containsKeyword = keywords.first(where: { columnNameLower.contains($0.lowercased()) }) {
+                    if DEBUG {
+                        print("   ✅ CONTAINS MATCH: '\(column.name)' contains '\(containsKeyword)'")
+                    }
+                    bestMatch = (column: column.name, matchType: "contains")
+                }
+
+                // Check for keyword contains column (lowest priority)
+                if bestMatch == nil, let reverseKeyword = keywords.first(where: { $0.lowercased().contains(columnNameLower) }) {
+                    if DEBUG {
+                        print("   ⚠️ REVERSE MATCH: '\(reverseKeyword)' contains '\(column.name)' (lower priority)")
+                    }
+                    bestMatch = (column: column.name, matchType: "reverse")
                 }
             }
+
+            // Use the best match found (if no exact match was already applied)
+            if !foundMatch, let best = bestMatch {
+                if DEBUG {
+                    print("   → Selected: '\(best.column)' (\(best.matchType) match)")
+                }
+                result[param.parameterKey] = [best.column]
+                foundMatch = true
+            }
+
+            if DEBUG && !foundMatch {
+                print("   ❌ No match found")
+            }
+        }
+
+        if DEBUG {
+            print("\n📋 Final result: \(result)")
         }
 
         return result

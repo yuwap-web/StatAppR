@@ -782,6 +782,7 @@ struct RecipeExecutionView: View {
             }
         }
         .onAppear {
+            checkRInstallation()
             loadCSVColumns()
         }
         .onChange(of: csvPath) { newPath in
@@ -814,6 +815,42 @@ struct RecipeExecutionView: View {
         }
     }
 
+    // MARK: - R Installation Check
+
+    private func checkRInstallation() {
+        // Check for Rscript in common installation paths
+        let commonPaths = [
+            "/usr/local/bin/Rscript",      // Homebrew install (Intel)
+            "/opt/homebrew/bin/Rscript",   // M1/M2 Homebrew (Apple Silicon)
+            "/usr/bin/Rscript",             // System R
+            "/Applications/R.app/Contents/MacOS/Rscript"  // R.app GUI
+        ]
+
+        let rscriptExists = commonPaths.contains { path in
+            FileManager.default.fileExists(atPath: path)
+        }
+
+        if !rscriptExists {
+            showRInstallationAlert()
+        }
+    }
+
+    private func showRInstallationAlert() {
+        let alert = NSAlert()
+        alert.messageText = "⚠️ R がインストールされていません"
+        alert.informativeText = """
+        統計分析を実行するには R のインストールが必要です。
+
+        以下の手順でインストールしてください：
+        1. https://cran.r-project.org/ にアクセス
+        2. macOS 用の R をダウンロード
+        3. インストーラーを実行してインストール
+
+        インストール後、アプリを再起動してください。
+        """
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
 
     private func formatTableValue(_ value: Any) -> String {
         if let intVal = value as? Int {

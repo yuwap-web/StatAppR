@@ -230,6 +230,23 @@ enum DataType: String, CaseIterable, Identifiable {
         switch self {
         case .basicStats:
             return [
+                RecipeInfo(
+                    name: "Descriptive Statistics",
+                    nameJapanese: "記述統計",
+                    description: "平均値、標準偏差、相関などの基本統計量を計算します",
+                    recipeName: "basic_statistics",
+                    requiredColumns: ["分析対象の数値列（複数可）"],
+                    example: "age, weight_kg, height_cm, systolic_bp",
+                    parameters: [
+                        ParameterRequirement(
+                            name: "分析対象の列",
+                            parameterKey: "variables",
+                            type: .multipleColumns,
+                            description: "統計分析に含める数値列を選択してください",
+                            required: true
+                        )
+                    ]
+                )
             ]
 
         case .groupComparison:

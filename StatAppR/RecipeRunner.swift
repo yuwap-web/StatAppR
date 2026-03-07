@@ -32,6 +32,12 @@ class RecipeRunner {
             outputFile: outputFile
         )
 
+        // DEBUG: ログ出力
+        print("🔴 DEBUG RecipeRunner - R Command:")
+        print("=====================================")
+        print(rCommand)
+        print("=====================================")
+
         // Execute R command
         do {
             _ = try executeRScript(rCommand)
@@ -57,15 +63,21 @@ class RecipeRunner {
     ) -> String {
         // Load recipe source
         let runnerDir = "/Users/uts/StatAppR/Engine"
+
+        // Escape paths for R (handle quotes in paths)
+        let escapedRecipePath = recipePath.replacingOccurrences(of: "'", with: "\\'")
+        let escapedCsvPath = csvPath.replacingOccurrences(of: "'", with: "\\'")
+        let escapedOutputFile = outputFile.replacingOccurrences(of: "'", with: "\\'")
+
         let commandLines = [
             "runner_dir <- '\(runnerDir)'",
-            "source('\(recipePath)')",
-            "df <- read.csv('\(csvPath)', stringsAsFactors = FALSE)",
+            "source('\(escapedRecipePath)')",
+            "df <- read.csv('\(escapedCsvPath)', stringsAsFactors = FALSE)",
             buildParametersList(parameters),
             "result <- run(request, df)",
             "library(jsonlite)",
-            "result_json <- toJSON(result, pretty = TRUE)",
-            "write(result_json, '\(outputFile)')",
+            "result_json <- toJSON(result, pretty = TRUE, auto_unbox = TRUE)",
+            "write(result_json, '\(escapedOutputFile)')",
             "cat('SUCCESS')"
         ]
 
