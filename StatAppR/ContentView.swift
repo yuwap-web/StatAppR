@@ -21,23 +21,23 @@ struct ContentView: View {
                             // Welcome Section
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("StatAppRへようこそ")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
+                                    .font(.title3)
+                                    .fontWeight(.semibold)
 
                                 Text("このアプリケーションでは、CSVデータを読み込んで、様々な統計分析を実行できます。")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                     .lineLimit(nil)
                             }
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 12)
+                            .padding(12)
                             .background(Color(.controlBackgroundColor))
                             .cornerRadius(8)
 
                             // Step-by-step Guide
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("手順")
-                                    .font(.headline)
+                                Text("操作手順")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
 
                                 StepView(number: 1, title: "データタイプを選択", description: "あなたのデータの種類を選んでください")
                                 StepView(number: 2, title: "CSVをロード", description: "コンピュータからCSVファイルを選択")
@@ -46,12 +46,13 @@ struct ContentView: View {
                             }
 
                             Divider()
-                                .padding(.vertical, 8)
+                                .padding(.vertical, 12)
 
                             // Data Type Selection
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("データタイプを選択")
-                                    .font(.headline)
+                                Text("データタイプ")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
 
                                 VStack(spacing: 8) {
                                     ForEach(DataType.allCases) { dataType in
@@ -66,7 +67,7 @@ struct ContentView: View {
 
                             Spacer()
                         }
-                        .padding(12)
+                        .padding(16)
                     }
                     .background(Color(.windowBackgroundColor))
 
@@ -443,6 +444,8 @@ struct RecipeExecutionView: View {
     @State private var executionResult: String?
     @State private var recipeOutput: RecipeOutput?
     @State private var executionError: String?
+    @State private var selectedResultTab: String = "summary"
+    @State private var columnSearchText: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -486,11 +489,18 @@ struct RecipeExecutionView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // CSV Information Section
+                    // CSV Information Section & Status Indicator
                     if let csvPath = csvPath {
                         VStack(alignment: .leading, spacing: 12) {
-                            Label("ロード済みファイル", systemImage: "checkmark.circle.fill")
-                                .font(.headline)
+                            HStack {
+                                Label("データファイル", systemImage: "checkmark.circle.fill")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                Spacer()
+                                Image(systemName: "checkmark.circle")
+                                    .foregroundColor(.green)
+                                    .font(.title3)
+                            }
 
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(csvPath.lastPathComponent)
@@ -514,7 +524,9 @@ struct RecipeExecutionView: View {
                             // Parameter Settings (レシピごとのパラメータ設定)
                             if !recipe.parameters.isEmpty && !csvColumns.isEmpty {
                                 VStack(alignment: .leading, spacing: 16) {
-                                    Text("分析パラメータ")
+                                    let requiredCount = recipe.parameters.filter { $0.required }.count
+                                    let totalCount = recipe.parameters.count
+                                    Text("分析パラメータ（必須\(requiredCount)/\(totalCount)）")
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
 
@@ -541,35 +553,95 @@ struct RecipeExecutionView: View {
 
                                             // Parameter Selection UI based on type
                                             if param.type == .singleColumn || param.type == .multipleColumns {
-                                                VStack(spacing: 6) {
-                                                    ForEach(csvColumns) { column in
-                                                        HStack {
-                                                            Text(column.name)
-                                                                .font(.caption)
-                                                            Spacer()
-                                                            let isSelected = (selectedColumnsByParameter[param.parameterKey] ?? []).contains(column.name)
-                                                            Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                                                                .foregroundColor(isSelected ? .blue : .gray)
-                                                                .onTapGesture {
-                                                                    if var selected = selectedColumnsByParameter[param.parameterKey] {
-                                                                        if selected.contains(column.name) {
-                                                                            selected.remove(column.name)
-                                                                        } else {
-                                                                            if param.type == .singleColumn {
-                                                                                selected = [column.name]
-                                                                            } else {
-                                                                                selected.insert(column.name)
-                                                                            }
-                                                                        }
-                                                                        selectedColumnsByParameter[param.parameterKey] = selected
-                                                                    } else {
-                                                                        selectedColumnsByParameter[param.parameterKey] = [column.name]
-                                                                    }
-                                                                }
+                                                VStack(alignment: .leading, spacing: 10) {
+                                                    // Search field
+                                                    HStack {
+                                                        Image(systemName: "magnifyingglass")
+                                                            .foregroundColor(.gray)
+                                                        TextField("列を検索", text: $columnSearchText)
+                                                            .textFieldStyle(.roundedBorder)
+                                                            .font(.caption)
+                                                    }
+                                                    .padding(8)
+                                                    .background(Color(.windowBackgroundColor))
+                                                    .cornerRadius(4)
+
+                                                    // Grouped columns by type
+                                                    let numericColumns = csvColumns.filter { $0.dataType == "numeric" && $0.name.localizedCaseInsensitiveContains(columnSearchText) }
+                                                    let categoricalColumns = csvColumns.filter { $0.dataType == "categorical" && $0.name.localizedCaseInsensitiveContains(columnSearchText) }
+                                                    let otherColumns = csvColumns.filter { !["numeric", "categorical"].contains($0.dataType) && $0.name.localizedCaseInsensitiveContains(columnSearchText) }
+
+                                                    // Numeric columns group
+                                                    if !numericColumns.isEmpty {
+                                                        VStack(alignment: .leading, spacing: 6) {
+                                                            Text("数値列")
+                                                                .font(.caption2)
+                                                                .fontWeight(.semibold)
+                                                                .foregroundColor(.secondary)
+
+                                                            ForEach(numericColumns) { column in
+                                                                ColumnSelectionRow(
+                                                                    column: column,
+                                                                    parameterKey: param.parameterKey,
+                                                                    isSingleSelection: param.type == .singleColumn,
+                                                                    selectedColumns: $selectedColumnsByParameter
+                                                                )
+                                                            }
                                                         }
                                                         .padding(8)
                                                         .background(Color(.windowBackgroundColor))
                                                         .cornerRadius(4)
+                                                    }
+
+                                                    // Categorical columns group
+                                                    if !categoricalColumns.isEmpty {
+                                                        VStack(alignment: .leading, spacing: 6) {
+                                                            Text("カテゴリ列")
+                                                                .font(.caption2)
+                                                                .fontWeight(.semibold)
+                                                                .foregroundColor(.secondary)
+
+                                                            ForEach(categoricalColumns) { column in
+                                                                ColumnSelectionRow(
+                                                                    column: column,
+                                                                    parameterKey: param.parameterKey,
+                                                                    isSingleSelection: param.type == .singleColumn,
+                                                                    selectedColumns: $selectedColumnsByParameter
+                                                                )
+                                                            }
+                                                        }
+                                                        .padding(8)
+                                                        .background(Color(.windowBackgroundColor))
+                                                        .cornerRadius(4)
+                                                    }
+
+                                                    // Other columns group
+                                                    if !otherColumns.isEmpty {
+                                                        VStack(alignment: .leading, spacing: 6) {
+                                                            Text("その他")
+                                                                .font(.caption2)
+                                                                .fontWeight(.semibold)
+                                                                .foregroundColor(.secondary)
+
+                                                            ForEach(otherColumns) { column in
+                                                                ColumnSelectionRow(
+                                                                    column: column,
+                                                                    parameterKey: param.parameterKey,
+                                                                    isSingleSelection: param.type == .singleColumn,
+                                                                    selectedColumns: $selectedColumnsByParameter
+                                                                )
+                                                            }
+                                                        }
+                                                        .padding(8)
+                                                        .background(Color(.windowBackgroundColor))
+                                                        .cornerRadius(4)
+                                                    }
+
+                                                    if numericColumns.isEmpty && categoricalColumns.isEmpty && otherColumns.isEmpty {
+                                                        Text("該当する列がありません")
+                                                            .font(.caption)
+                                                            .foregroundColor(.secondary)
+                                                            .padding(8)
                                                     }
                                                 }
                                             }
@@ -605,67 +677,128 @@ struct RecipeExecutionView: View {
 
                     // Execution Results
                     if let output = recipeOutput {
-                        VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 12) {
                             // Results Header
                             HStack {
                                 Label("分析結果", systemImage: "chart.bar.fill")
                                     .font(.headline)
+                                    .fontWeight(.semibold)
                                 Spacer()
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.green)
                                     .font(.title3)
                             }
 
-                            // Summary Section
-                            if let summary = output.summary {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("概要")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
+                            Divider()
 
-                                    if let headline = summary.headline {
-                                        Text(headline)
-                                            .font(.caption)
-                                            .foregroundColor(.secondary)
+                            // Results Tab Selection
+                            VStack(alignment: .leading, spacing: 12) {
+                                Picker("結果タイプ", selection: $selectedResultTab) {
+                                    if output.summary != nil {
+                                        Text("概要").tag("summary")
+                                    }
+                                    if output.figures != nil && !(output.figures?.isEmpty ?? true) {
+                                        Text("図表").tag("figures")
+                                    }
+                                    if output.tables != nil && !(output.tables?.isEmpty ?? true) {
+                                        Text("統計値").tag("tables")
+                                    }
+                                    if output.warnings != nil && !(output.warnings?.isEmpty ?? true) {
+                                        Text("警告").tag("warnings")
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+
+                                // Summary Tab
+                                if selectedResultTab == "summary", let summary = output.summary {
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        if let headline = summary.headline {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("主要結果")
+                                                    .font(.caption)
+                                                    .fontWeight(.semibold)
+                                                Text(headline)
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                    .padding(12)
+                                                    .background(Color(.controlBackgroundColor))
+                                                    .cornerRadius(6)
+                                            }
+                                        }
+
+                                        if let methodUsed = summary.method_used {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("使用した方法")
+                                                    .font(.caption)
+                                                    .fontWeight(.semibold)
+                                                Text(methodUsed)
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                                    .padding(12)
+                                                    .background(Color(.controlBackgroundColor))
+                                                    .cornerRadius(6)
+                                            }
+                                        }
+
+                                        if let keyMetrics = summary.key_metrics, !keyMetrics.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("主要指標")
+                                                    .font(.caption)
+                                                    .fontWeight(.semibold)
+
+                                                VStack(alignment: .leading, spacing: 4) {
+                                                    ForEach(Array(keyMetrics), id: \.key) { key, value in
+                                                        HStack {
+                                                            Text(key)
+                                                                .font(.caption)
+                                                                .foregroundColor(.secondary)
+                                                            Spacer()
+                                                            Text(formatTableValue(value.value))
+                                                                .font(.caption)
+                                                                .fontWeight(.semibold)
+                                                        }
+                                                    }
+                                                }
+                                                .padding(12)
+                                                .background(Color(.controlBackgroundColor))
+                                                .cornerRadius(6)
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Figures Tab
+                                if selectedResultTab == "figures", let figures = output.figures, !figures.isEmpty {
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        ForEach(figures, id: \.id) { figure in
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                HStack {
+                                                    Text(figure.title)
+                                                        .font(.caption)
+                                                        .fontWeight(.semibold)
+                                                    Spacer()
+                                                    Text(figure.type)
+                                                        .font(.caption2)
+                                                        .padding(4)
+                                                        .background(Color.blue.opacity(0.2))
+                                                        .cornerRadius(3)
+                                                }
+                                                Text(figure.id)
+                                                    .font(.caption2)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
                                             .padding(12)
                                             .background(Color(.controlBackgroundColor))
                                             .cornerRadius(6)
-                                    }
-                                }
-                            }
-
-                            // Figures Section
-                            if let figures = output.figures, !figures.isEmpty {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text("図表")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-
-                                    ForEach(figures, id: \.id) { figure in
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(figure.title)
-                                                .font(.caption)
-                                                .fontWeight(.semibold)
-                                            Text(figure.id)
-                                                .font(.caption2)
-                                                .foregroundColor(.secondary)
                                         }
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .padding(12)
-                                        .background(Color(.controlBackgroundColor))
-                                        .cornerRadius(6)
                                     }
                                 }
-                            }
 
-                            // Tables Section
-                            if let tables = output.tables, !tables.isEmpty {
-                                VStack(alignment: .leading, spacing: 12) {
-                                    Text("統計値")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-
-                                    ForEach(tables, id: \.id) { table in
+                                // Tables Tab
+                                if selectedResultTab == "tables", let tables = output.tables, !tables.isEmpty {
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        ForEach(tables, id: \.id) { table in
                                         VStack(alignment: .leading, spacing: 8) {
                                             Text(table.title)
                                                 .font(.caption)
@@ -727,6 +860,35 @@ struct RecipeExecutionView: View {
                                         .padding(12)
                                         .background(Color(.controlBackgroundColor))
                                         .cornerRadius(6)
+                                        }
+                                    }
+                                }
+
+                                // Warnings Tab
+                                if selectedResultTab == "warnings", let warnings = output.warnings, !warnings.isEmpty {
+                                    VStack(alignment: .leading, spacing: 12) {
+                                        ForEach(warnings, id: \.code) { warning in
+                                            VStack(alignment: .leading, spacing: 6) {
+                                                HStack {
+                                                    Text(warning.code)
+                                                        .font(.caption)
+                                                        .fontWeight(.semibold)
+                                                    Spacer()
+                                                    Text(warning.severity)
+                                                        .font(.caption2)
+                                                        .padding(4)
+                                                        .background(Color.orange.opacity(0.2))
+                                                        .cornerRadius(3)
+                                                }
+                                                Text(warning.message)
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(12)
+                                            .background(Color.orange.opacity(0.05))
+                                            .cornerRadius(6)
+                                        }
                                     }
                                 }
                             }
@@ -737,22 +899,76 @@ struct RecipeExecutionView: View {
                     } else if let error = executionError {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Label("エラー", systemImage: "exclamationmark.circle.fill")
+                                Label("エラーが発生しました", systemImage: "exclamationmark.triangle.fill")
                                     .font(.headline)
                                     .foregroundColor(.red)
+                                    .fontWeight(.semibold)
                                 Spacer()
                             }
 
-                            Text(error)
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .lineLimit(nil)
-                                .padding(12)
-                                .background(Color(.controlBackgroundColor))
-                                .cornerRadius(6)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("エラーメッセージ:")
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+
+                                Text(error)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(nil)
+                                    .padding(10)
+                                    .background(Color.red.opacity(0.1))
+                                    .cornerRadius(4)
+                            }
+
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("解決方法:")
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Label("CSV ファイルが正しく読み込まれているか確認", systemImage: "checkmark")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+
+                                    Label("パラメータの選択が完了しているか確認", systemImage: "checkmark")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+
+                                    Label("R とすべての必須パッケージがインストールされているか確認", systemImage: "checkmark")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+
+                                    Label("別のレシピを選択して再度試す", systemImage: "checkmark")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+
+                            HStack(spacing: 12) {
+                                Button(action: { executionError = nil; recipeOutput = nil }) {
+                                    Text("リセット")
+                                        .frame(maxWidth: .infinity)
+                                        .padding(8)
+                                        .background(Color.orange)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(4)
+                                }
+
+                                Button(action: { onBack() }) {
+                                    Text("別のレシピ")
+                                        .frame(maxWidth: .infinity)
+                                        .padding(8)
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(4)
+                                }
+                            }
                         }
-                        .padding(20)
-                        .background(Color(.controlBackgroundColor).opacity(0.5))
+                        .padding(16)
+                        .background(Color.red.opacity(0.05))
+                        .border(Color.red.opacity(0.3), width: 1)
                         .cornerRadius(8)
                     }
 
@@ -785,10 +1001,8 @@ struct RecipeExecutionView: View {
             checkRInstallation()
             loadCSVColumns()
         }
-        .onChange(of: csvPath) { newPath in
-            if newPath != nil {
-                loadCSVColumns()
-            }
+        .onChange(of: csvPath) {
+            loadCSVColumns()
         }
     }
 
@@ -841,15 +1055,28 @@ struct RecipeExecutionView: View {
         alert.informativeText = """
         統計分析を実行するには R のインストールが必要です。
 
-        以下の手順でインストールしてください：
-        1. https://cran.r-project.org/ にアクセス
+        【推奨】Homebrew でインストール:
+        1. ターミナルを開く
+        2. 以下をコピーして実行：
+           brew install r
+        3. インストール完了後、アプリを再起動
+
+        【別の方法】CRAN から直接インストール:
+        1. https://cran.r-project.org にアクセス
         2. macOS 用の R をダウンロード
-        3. インストーラーを実行してインストール
+        3. インストーラーを実行
 
         インストール後、アプリを再起動してください。
         """
         alert.addButton(withTitle: "OK")
-        alert.runModal()
+        alert.addButton(withTitle: "詳細ガイドを開く")
+
+        let result = alert.runModal()
+        if result == NSApplication.ModalResponse.alertSecondButtonReturn {
+            if let url = URL(string: "https://cran.r-project.org") {
+                NSWorkspace.shared.open(url)
+            }
+        }
     }
 
     private func formatTableValue(_ value: Any) -> String {
@@ -901,6 +1128,74 @@ struct RecipeExecutionView: View {
                 executionError = error.errorDescription ?? "不明なエラーが発生しました"
                 recipeOutput = nil
             }
+        }
+    }
+}
+
+// MARK: - Column Selection Row
+
+struct ColumnSelectionRow: View {
+    let column: CSVColumn
+    let parameterKey: String
+    let isSingleSelection: Bool
+    @Binding var selectedColumns: [String: Set<String>]
+
+    var isSelected: Bool {
+        (selectedColumns[parameterKey] ?? []).contains(column.name)
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: isSelected ? "checkmark.square.fill" : "square")
+                .foregroundColor(isSelected ? .blue : .gray)
+                .font(.title3)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(column.name)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+
+                HStack(spacing: 8) {
+                    Text(column.dataType)
+                        .font(.caption2)
+                        .padding(2)
+                        .background(Color.blue.opacity(0.2))
+                        .cornerRadius(3)
+
+                    Text(column.sampleValue)
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Spacer()
+
+            Text(String(format: "%.0f%%", column.completeness * 100))
+                .font(.caption2)
+                .foregroundColor(.secondary)
+        }
+        .padding(8)
+        .background(Color(.controlBackgroundColor).opacity(0.5))
+        .cornerRadius(4)
+        .onTapGesture {
+            updateSelection()
+        }
+    }
+
+    private func updateSelection() {
+        if var selected = selectedColumns[parameterKey] {
+            if selected.contains(column.name) {
+                selected.remove(column.name)
+            } else {
+                if isSingleSelection {
+                    selected = [column.name]
+                } else {
+                    selected.insert(column.name)
+                }
+            }
+            selectedColumns[parameterKey] = selected
+        } else {
+            selectedColumns[parameterKey] = [column.name]
         }
     }
 }
@@ -962,12 +1257,23 @@ struct PackageManagerView: View {
     @Environment(\.dismiss) var dismiss
     @State private var installationProgress: [String: Double] = [:]
     @State private var installedPackages: Set<String> = []
+    @State private var isInstallingAll = false
+    @State private var installationMessage = ""
+    @State private var selectedTab: String = "status"
+
+    var requiredPackages: [RPackage] {
+        RPackage.allPackages.filter { $0.isRequired }
+    }
+
+    var optionalPackages: [RPackage] {
+        RPackage.allPackages.filter { !$0.isRequired }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Rパッケージ管理")
+                Text("R パッケージ管理")
                     .font(.headline)
                     .fontWeight(.bold)
 
@@ -976,6 +1282,7 @@ struct PackageManagerView: View {
                 Button(action: { dismiss() }) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(.secondary)
+                        .font(.title3)
                 }
             }
             .padding(20)
@@ -983,58 +1290,53 @@ struct PackageManagerView: View {
 
             Divider()
 
-            // Package List
+            // Tabs
+            Picker("タブ", selection: $selectedTab) {
+                Text("R 環境").tag("status")
+                Text("必須パッケージ").tag("required")
+                Text("オプション").tag("optional")
+            }
+            .pickerStyle(.segmented)
+            .padding(12)
+
+            Divider()
+
+            // Content
             ScrollView {
-                VStack(spacing: 12) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("R環境")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
+                VStack(alignment: .leading, spacing: 16) {
+                    if selectedTab == "status" {
+                        REnvironmentStatusView(rEnvironment: rEnvironment)
+                    } else if selectedTab == "required" {
+                        PackageListView(
+                            packages: requiredPackages,
+                            installedPackages: installedPackages,
+                            onInstall: { installPackage($0) }
+                        )
+                    } else {
+                        PackageListView(
+                            packages: optionalPackages,
+                            installedPackages: installedPackages,
+                            onInstall: { installPackage($0) }
+                        )
+                    }
 
-                        HStack(spacing: 12) {
-                            Image(systemName: rEnvironment.isInstalled ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                .foregroundColor(rEnvironment.isInstalled ? .green : .red)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("R")
-                                    .font(.headline)
-                                if let version = rEnvironment.version {
-                                    Text("バージョン: \(version)")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-
-                            Spacer()
+                    if !installationMessage.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Label("インストール状態", systemImage: "info.circle.fill")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Text(installationMessage)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
                         .padding(12)
-                        .background(Color(.controlBackgroundColor))
+                        .background(Color.blue.opacity(0.1))
                         .cornerRadius(6)
                     }
-                    .padding(20)
 
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("オプショナルパッケージ")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 12)
-
-                        VStack(spacing: 8) {
-                            ForEach(RPackage.allPackages.filter { !$0.isRequired }) { package in
-                                PackageRowView(
-                                    package: package,
-                                    isInstalled: installedPackages.contains(package.id),
-                                    onInstall: { installPackage(package) }
-                                )
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
-                    }
+                    Spacer()
                 }
+                .padding(20)
             }
 
             // Action Buttons
@@ -1047,28 +1349,249 @@ struct PackageManagerView: View {
                         .cornerRadius(6)
                 }
 
-                Button(action: { installAllMissing() }) {
-                    Text("すべてインストール")
+                if !isInstallingAll {
+                    Button(action: { installAllMissing() }) {
+                        Text("不足分をインストール")
+                            .frame(maxWidth: .infinity)
+                            .padding(10)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(6)
+                    }
+                } else {
+                    Button(action: {}) {
+                        HStack {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                            Text("インストール中...")
+                        }
                         .frame(maxWidth: .infinity)
                         .padding(10)
-                        .background(Color.blue)
+                        .background(Color.gray)
                         .foregroundColor(.white)
                         .cornerRadius(6)
+                    }
+                    .disabled(true)
                 }
             }
             .padding(20)
             .background(Color(.controlBackgroundColor))
         }
+        .frame(minWidth: 500, minHeight: 400)
     }
 
     private func installPackage(_ package: RPackage) {
-        // Simulate package installation
+        installationMessage = "\(package.name) をインストール中..."
         print("Installing \(package.name)...")
+
+        // Simulate installation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            installedPackages.insert(package.id)
+            installationMessage = "\(package.name) をインストールしました"
+        }
     }
 
     private func installAllMissing() {
-        // Simulate batch installation
+        isInstallingAll = true
+        installationMessage = "不足しているパッケージをインストール中...\nこれは数分かかります。"
         print("Installing all missing packages...")
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Simulate batch installation
+            for package in RPackage.allPackages {
+                if !installedPackages.contains(package.id) {
+                    DispatchQueue.main.async {
+                        installedPackages.insert(package.id)
+                        installationMessage = "\(package.name) をインストールしました"
+                    }
+                    usleep(500000) // 0.5s delay between packages
+                }
+            }
+
+            DispatchQueue.main.async {
+                isInstallingAll = false
+                installationMessage = "すべてのパッケージのインストールが完了しました"
+            }
+        }
+    }
+}
+
+// MARK: - R Environment Status View
+
+struct REnvironmentStatusView: View {
+    let rEnvironment: REnvironment
+    @State private var isInstallingR = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // R Installation Status
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: rEnvironment.isInstalled ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundColor(rEnvironment.isInstalled ? .green : .red)
+                        .font(.title3)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("R")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+
+                        if let version = rEnvironment.version {
+                            Text("バージョン: \(version)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        } else if rEnvironment.isInstalled {
+                            Text("バージョン情報を取得中...")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        } else {
+                            Text("インストール: 必須")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
+                    }
+
+                    Spacer()
+
+                    if !rEnvironment.isInstalled && !isInstallingR {
+                        Button(action: { installR() }) {
+                            Text("インストール")
+                                .font(.caption)
+                                .padding(6)
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(4)
+                        }
+                    } else if isInstallingR {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                    }
+                }
+                .padding(12)
+                .background(Color(.controlBackgroundColor))
+                .cornerRadius(6)
+            }
+
+            // Installation Guide
+            if !rEnvironment.isInstalled {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("📋 インストール方法")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("【Homebrew を使う（推奨）】")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        Text("ターミナルで以下を実行してください：")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text("brew install r")
+                            .font(.caption)
+                            .monospaced()
+                            .padding(8)
+                            .background(Color(.controlBackgroundColor))
+                            .cornerRadius(4)
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("【CRAN から直接インストール】")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                        HStack {
+                            Text("https://cran.r-project.org")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                            Spacer()
+                            Button(action: {
+                                if let url = URL(string: "https://cran.r-project.org") {
+                                    NSWorkspace.shared.open(url)
+                                }
+                            }) {
+                                Image(systemName: "safari")
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(6)
+            }
+
+            // System Information
+            VStack(alignment: .leading, spacing: 8) {
+                Text("📊 システム情報")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+
+                HStack {
+                    Text("R 実行パス:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text(rEnvironment.isInstalled ? "/usr/local/bin/Rscript" : "未検出")
+                        .font(.caption)
+                        .monospaced()
+                }
+                .padding(8)
+                .background(Color(.windowBackgroundColor))
+                .cornerRadius(4)
+
+                HStack {
+                    Text("パッケージライブラリ:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    Spacer()
+                    Text("システムデフォルト")
+                        .font(.caption)
+                }
+                .padding(8)
+                .background(Color(.windowBackgroundColor))
+                .cornerRadius(4)
+            }
+        }
+    }
+
+    private func installR() {
+        isInstallingR = true
+        // Trigger R installation from rEnvironment
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            isInstallingR = false
+        }
+    }
+}
+
+// MARK: - Package List View
+
+struct PackageListView: View {
+    let packages: [RPackage]
+    let installedPackages: Set<String>
+    let onInstall: (RPackage) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if packages.isEmpty {
+                Text("パッケージがありません")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(20)
+            } else {
+                Text("\(packages.count) 個のパッケージ")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+
+                VStack(spacing: 8) {
+                    ForEach(packages) { package in
+                        PackageRowView(
+                            package: package,
+                            isInstalled: installedPackages.contains(package.id),
+                            onInstall: { onInstall(package) }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

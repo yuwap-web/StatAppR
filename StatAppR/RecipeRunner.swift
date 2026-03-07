@@ -269,19 +269,54 @@ enum RecipeError: LocalizedError {
     case invalidOutput
     case parseError(String)
     case csvNotFound(String)
+    case parameterError(String)
+    case rNotInstalled
+    case packageMissing(String)
 
     var errorDescription: String? {
         switch self {
         case .recipeNotFound(let recipe):
-            return "レシピが見つかりません: \(recipe)"
+            return "分析レシピが見つかりません: \(recipe)"
         case .executionError(let message):
-            return "実行エラー: \(message)"
+            return "分析の実行に失敗しました：\(message)"
         case .invalidOutput:
-            return "無効な出力形式"
+            return "R の出力形式が無効です"
         case .parseError(let message):
-            return "解析エラー: \(message)"
+            return "結果の解析に失敗しました：\(message)"
         case .csvNotFound(let path):
-            return "CSVファイルが見つかりません: \(path)"
+            return "CSV ファイルが見つかりません：\(path)"
+        case .parameterError(let message):
+            return "パラメータが無効です：\(message)"
+        case .rNotInstalled:
+            return "R がインストールされていません"
+        case .packageMissing(let package):
+            return "必要なパッケージ '\(package)' がインストールされていません"
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .recipeNotFound(let recipe):
+            return "別のレシピを選択してください。または、パッケージマネージャーでパッケージを確認してください。"
+        case .executionError(let message):
+            if message.contains("package") {
+                return "パッケージマネージャーから必要なパッケージをインストールしてください。"
+            } else if message.contains("csv") || message.contains("file") {
+                return "CSV ファイルが正しく読み込まれているか確認してください。"
+            }
+            return "R スクリプトに問題がある可能性があります。ログを確認してください。"
+        case .invalidOutput:
+            return "分析を再度実行してください。それでも失敗する場合は、別のレシピを試してください。"
+        case .parseError(_):
+            return "R の出力形式が予期した形式ではありません。パッケージを最新版に更新してください。"
+        case .csvNotFound(let path):
+            return "「CSV をロード」ボタンから再度ファイルを選択してください。ファイルが削除されていないか確認してください。"
+        case .parameterError(_):
+            return "分析パラメータを確認して再度設定してください。必須パラメータが選択されているか確認しましたか？"
+        case .rNotInstalled:
+            return "R をインストールしてください。https://cran.r-project.org から最新版をダウンロードできます。"
+        case .packageMissing(let package):
+            return "パッケージマネージャーで '\(package)' をインストールしてください。"
         }
     }
 }
