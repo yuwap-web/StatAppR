@@ -315,7 +315,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0.0-alpha;
 				PRODUCT_BUNDLE_IDENTIFIER = apa.jp.yasuda.StatAppR;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -346,7 +346,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 2.0.0-alpha;
 				PRODUCT_BUNDLE_IDENTIFIER = apa.jp.yasuda.StatAppR;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
