@@ -6,6 +6,11 @@
     "order": 10,
     "implemented": true,
     "description": "t検定 / Wilcoxon",
+    "sampleDataFile": "2_GroupComparison_treatment_vs_control.csv",
+    "recommendedParameters": {
+      "group": "group",
+      "y": "final_score"
+    },
     "variables": [
       { "key": "group", "type": "column", "label": "群", "required": true },
       { "key": "y", "type": "column", "label": "目的変数", "required": true }
@@ -18,6 +23,11 @@
     "order": 20,
     "implemented": true,
     "description": "カイ二乗 / Fisher",
+    "sampleDataFile": "2_GroupComparison_treatment_vs_control.csv",
+    "recommendedParameters": {
+      "group": "group",
+      "y": "treatment"
+    },
     "variables": [
       { "key": "group", "type": "column", "label": "群", "required": true },
       { "key": "y", "type": "column", "label": "カテゴリ変数", "required": true }
@@ -30,6 +40,11 @@
     "order": 30,
     "implemented": true,
     "description": "多群比較",
+    "sampleDataFile": "2_GroupComparison_treatment_vs_control.csv",
+    "recommendedParameters": {
+      "group": "group",
+      "y": "final_score"
+    },
     "variables": [
       { "key": "group", "type": "column", "label": "群", "required": true },
       { "key": "y", "type": "column", "label": "目的変数", "required": true }
@@ -43,6 +58,11 @@
     "order": 10,
     "implemented": true,
     "description": "lm（単回帰）",
+    "sampleDataFile": "3_Regression_house_price_prediction.csv",
+    "recommendedParameters": {
+      "y": "price_usd",
+      "x": "size_sqft"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "目的変数", "required": true },
       { "key": "x", "type": "column", "label": "説明変数", "required": true }
@@ -55,6 +75,11 @@
     "order": 20,
     "implemented": true,
     "description": "多変量線形回帰（lm）",
+    "sampleDataFile": "3_Regression_house_price_prediction.csv",
+    "recommendedParameters": {
+      "y": "price_usd",
+      "x": ["size_sqft", "bedrooms", "bathrooms"]
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "目的変数", "required": true },
       { "key": "x", "type": "columns", "label": "説明変数", "required": true },
@@ -68,6 +93,11 @@
     "order": 30,
     "implemented": true,
     "description": "glm(binomial)",
+    "sampleDataFile": "2_GroupComparison_treatment_vs_control.csv",
+    "recommendedParameters": {
+      "y": "treatment",
+      "x": ["baseline_score", "final_score", "age"]
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "アウトカム（2値）", "required": true },
       { "key": "x", "type": "columns", "label": "説明変数", "required": true }
@@ -80,6 +110,12 @@
     "order": 40,
     "implemented": true,
     "description": "nlme::lme（ランダム切片）",
+    "sampleDataFile": "2_GroupComparison_treatment_vs_control.csv",
+    "recommendedParameters": {
+      "y": "final_score",
+      "x": ["baseline_score", "age"],
+      "group": "group"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "目的変数", "required": true },
       { "key": "x", "type": "columns", "label": "固定効果（任意）", "required": false },
@@ -94,6 +130,10 @@
     "order": 60,
     "implemented": true,
     "description": "prcomp（center+scale）",
+    "sampleDataFile": "7_DimensionReduction_gene_expression.csv",
+    "recommendedParameters": {
+      "x": ["gene_1", "gene_2", "gene_3", "gene_4", "gene_5"]
+    },
     "variables": [
       { "key": "x", "type": "columns", "label": "数値列", "required": true }
     ]
@@ -105,6 +145,11 @@
     "order": 70,
     "implemented": true,
     "description": "pls::plsr（CV）",
+    "sampleDataFile": "3_Regression_house_price_prediction.csv",
+    "recommendedParameters": {
+      "y": "price_usd",
+      "x": ["size_sqft", "bedrooms", "bathrooms"]
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "目的変数", "required": true },
       { "key": "x", "type": "columns", "label": "説明変数", "required": true },
@@ -121,6 +166,12 @@
     "order": 10,
     "implemented": true,
     "description": "survival::coxph",
+    "sampleDataFile": "5_Survival_patient_followup.csv",
+    "recommendedParameters": {
+      "time": "time_months",
+      "status": "event_occurred",
+      "x": ["age", "stage"]
+    },
     "variables": [
       { "key": "time", "type": "column", "label": "追跡時間（time）", "required": true },
       { "key": "status", "type": "column", "label": "イベント（status: 0/1）", "required": true },
@@ -135,6 +186,12 @@
     "order": 20,
     "implemented": true,
     "description": "survfit + survdiff",
+    "sampleDataFile": "5_Survival_patient_followup.csv",
+    "recommendedParameters": {
+      "time": "time_months",
+      "status": "event_occurred",
+      "group": "treatment_group"
+    },
     "variables": [
       { "key": "time", "type": "column", "label": "生存時間/観察時間（time）", "required": true },
       { "key": "status", "type": "column", "label": "イベント（1=event,0=censor）", "required": true },
@@ -149,6 +206,13 @@
     "order": 30,
     "implemented": true,
     "description": "IPTW重みでKM/ログランク（実装依存）",
+    "sampleDataFile": "5_Survival_patient_followup.csv",
+    "recommendedParameters": {
+      "treat": "treatment_group",
+      "time": "time_months",
+      "status": "event_occurred",
+      "x": ["age", "stage"]
+    },
     "variables": [
       { "key": "treat", "type": "column", "label": "治療（0/1）", "required": true },
       { "key": "time", "type": "column", "label": "時間（time）", "required": true },
@@ -164,6 +228,12 @@
     "order": 10,
     "implemented": true,
     "description": "逆分散重み（固定効果）",
+    "sampleDataFile": "8_MetaAnalysis_study_results.csv",
+    "recommendedParameters": {
+      "effect": "effect_size",
+      "se": "standard_error",
+      "label": "author"
+    },
     "variables": [
       { "key": "effect", "type": "column", "label": "効果量", "required": true },
       { "key": "se", "type": "column", "label": "標準誤差", "required": true },
@@ -178,6 +248,11 @@
     "order": 10,
     "implemented": true,
     "description": "PSモデル（glm）",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "treat": "treatment_received",
+      "x": ["age", "years_education", "prior_income_usd"]
+    },
     "variables": [
       { "key": "treat", "type": "column", "label": "治療（0/1 or 2-level）", "required": true },
       { "key": "x", "type": "columns", "label": "共変量（X）", "required": true },
@@ -201,6 +276,12 @@
     "order": 20,
     "implemented": true,
     "description": "傾向スコアマッチング",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "treat": "treatment_received",
+      "y": "outcome_earnings_usd",
+      "x": ["age", "years_education", "prior_income_usd"]
+    },
     "variables": [
       { "key": "treat", "type": "column", "label": "治療（0/1）", "required": true },
       { "key": "y", "type": "column", "label": "アウトカム", "required": true },
@@ -214,6 +295,12 @@
     "order": 30,
     "implemented": true,
     "description": "IPTWでATE推定",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "treat": "treatment_received",
+      "y": "outcome_earnings_usd",
+      "x": ["age", "years_education", "prior_income_usd"]
+    },
     "variables": [
       { "key": "treat", "type": "column", "label": "治療（0/1）", "required": true },
       { "key": "y", "type": "column", "label": "アウトカム", "required": true },
@@ -241,6 +328,12 @@
     "order": 40,
     "implemented": true,
     "description": "二重ロバスト推定",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "treat": "treatment_received",
+      "y": "outcome_earnings_usd",
+      "x": ["age", "years_education", "prior_income_usd"]
+    },
     "variables": [
       { "key": "treat", "type": "column", "label": "治療（0/1）", "required": true },
       { "key": "y", "type": "column", "label": "アウトカム", "required": true },
@@ -254,6 +347,12 @@
     "order": 50,
     "implemented": true,
     "description": "Double/Debiased ML",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "y": "outcome_earnings_usd",
+      "treat": "treatment_received",
+      "x": ["age", "years_education", "prior_income_usd"]
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "アウトカム", "required": true },
       { "key": "treat", "type": "column", "label": "治療（0/1）", "required": true },
@@ -267,6 +366,12 @@
     "order": 60,
     "implemented": true,
     "description": "異質性効果推定",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "y": "outcome_earnings_usd",
+      "w": "treatment_received",
+      "x": ["age", "years_education", "prior_income_usd"]
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "アウトカム", "required": true },
       { "key": "w", "type": "column", "label": "治療（W）", "required": true },
@@ -280,6 +385,15 @@
     "order": 70,
     "implemented": true,
     "description": "clone-censor-weight（設計依存）",
+    "sampleDataFile": "5_Survival_patient_followup.csv",
+    "recommendedParameters": {
+      "id": "patient_id",
+      "start": "age",
+      "stop": "time_months",
+      "status": "event_occurred",
+      "a": "treatment_group",
+      "x": ["stage", "comorbidity_count"]
+    },
     "variables": [
       { "key": "id", "type": "column", "label": "個体ID", "required": true },
       { "key": "start", "type": "column", "label": "開始時点（start）", "required": true },
@@ -297,6 +411,12 @@
     "order": 80,
     "implemented": true,
     "description": "AER::ivreg（2SLS）",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "y": "outcome_earnings_usd",
+      "treat": "treatment_received",
+      "z": "prior_income_usd"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "目的変数（y）", "required": true },
       { "key": "treat", "type": "column", "label": "治療/曝露（treat）", "required": true },
@@ -311,6 +431,12 @@
     "order": 90,
     "implemented": true,
     "description": "2SLS（実装別）",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "y": "outcome_earnings_usd",
+      "treatment": "treatment_received",
+      "instrument": "prior_income_usd"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "目的変数（y）", "required": true },
       { "key": "treatment", "type": "column", "label": "治療（treatment）", "required": true },
@@ -326,6 +452,12 @@
     "order": 10,
     "implemented": true,
     "description": "DID",
+    "sampleDataFile": "4_TimeSeries_quarterly_sales.csv",
+    "recommendedParameters": {
+      "y": "sales_usd",
+      "time": "quarter",
+      "treat": "company_id"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "アウトカム（y）", "required": true },
       { "key": "time", "type": "column", "label": "時点（time）", "required": true },
@@ -340,6 +472,14 @@
     "order": 20,
     "implemented": true,
     "description": "合成コントロール法",
+    "sampleDataFile": "4_TimeSeries_quarterly_sales.csv",
+    "recommendedParameters": {
+      "unit": "company_id",
+      "time": "quarter",
+      "y": "sales_usd",
+      "treat_unit": 1,
+      "treat_time": 1
+    },
     "variables": [
       { "key": "unit", "type": "column", "label": "ユニット（unit）", "required": true },
       { "key": "time", "type": "column", "label": "時点（time）", "required": true },
@@ -359,6 +499,11 @@
     "order": 10,
     "implemented": true,
     "description": "ベイズ回帰（実装依存）",
+    "sampleDataFile": "3_Regression_house_price_prediction.csv",
+    "recommendedParameters": {
+      "y": "price_usd",
+      "x": ["size_sqft", "bedrooms", "bathrooms"]
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "目的変数（y）", "required": true },
       { "key": "x", "type": "columns", "label": "説明変数（X）", "required": true }
@@ -372,6 +517,11 @@
     "order": 65,
     "implemented": true,
     "description": "共変量のバランス検査（SMD）",
+    "sampleDataFile": "6_CausalInference_policy_evaluation.csv",
+    "recommendedParameters": {
+      "treat": "treatment_received",
+      "x": ["age", "years_education", "prior_income_usd"]
+    },
     "variables": [
       { "key": "treat", "type": "column", "label": "治療", "required": true },
       { "key": "x", "type": "columns", "label": "共変量（X）", "required": true },
@@ -386,6 +536,13 @@
     "order": 30,
     "implemented": true,
     "description": "イベント研究（Two-Way Fixed Effects）",
+    "sampleDataFile": "4_TimeSeries_quarterly_sales.csv",
+    "recommendedParameters": {
+      "y": "sales_usd",
+      "unit": "company_id",
+      "time": "quarter",
+      "treat_time": "quarter"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "アウトカム", "required": true },
       { "key": "unit", "type": "column", "label": "ユニット（ID）", "required": true },
@@ -405,6 +562,13 @@
     "order": 40,
     "implemented": true,
     "description": "イベント研究の妥当性検証",
+    "sampleDataFile": "4_TimeSeries_quarterly_sales.csv",
+    "recommendedParameters": {
+      "y": "sales_usd",
+      "unit": "company_id",
+      "time": "quarter",
+      "treat_time": "quarter"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "アウトカム", "required": true },
       { "key": "unit", "type": "column", "label": "ユニット（ID）", "required": true },
@@ -430,6 +594,12 @@
     "order": 40,
     "implemented": true,
     "description": "survival::clogit（マッチドケースコントロール）",
+    "sampleDataFile": "2_GroupComparison_treatment_vs_control.csv",
+    "recommendedParameters": {
+      "y": "treatment",
+      "stratum": "group",
+      "exposure": "baseline_score"
+    },
     "variables": [
       { "key": "y", "type": "column", "label": "アウトカム（0/1）", "required": true },
       { "key": "stratum", "type": "column", "label": "マッチング層（stratum）", "required": true },
@@ -444,6 +614,13 @@
     "order": 50,
     "implemented": true,
     "description": "同一人物の時間内比較デザイン",
+    "sampleDataFile": "5_Survival_patient_followup.csv",
+    "recommendedParameters": {
+      "person_id": "patient_id",
+      "outcome": "event_occurred",
+      "exposure": "stage",
+      "event_time": "time_months"
+    },
     "variables": [
       { "key": "person_id", "type": "column", "label": "個人ID", "required": true },
       { "key": "outcome", "type": "column", "label": "アウトカム（0/1）", "required": true },

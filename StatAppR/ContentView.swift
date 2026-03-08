@@ -75,29 +75,48 @@ struct ContentView: View {
                     VStack(spacing: 8) {
                         Divider()
 
-                        HStack(spacing: 8) {
-                            Button(action: { showingFileImporter = true }) {
-                                HStack {
-                                    Image(systemName: "folder.badge.plus")
-                                    Text("CSVをロード")
+                        VStack(spacing: 8) {
+                            HStack(spacing: 8) {
+                                Button(action: { showingFileImporter = true }) {
+                                    HStack {
+                                        Image(systemName: "folder.badge.plus")
+                                        Text("CSVをロード")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(8)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(6)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding(8)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(6)
+
+                                Button(action: { showingPackageManager = true }) {
+                                    HStack {
+                                        Image(systemName: "box.truck")
+                                        Text("パッケージ")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(8)
+                                    .background(Color.orange)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(6)
+                                }
                             }
 
-                            Button(action: { showingPackageManager = true }) {
-                                HStack {
-                                    Image(systemName: "box.truck")
-                                    Text("パッケージ")
+                            // 推奨パラメータを適用ボタン
+                            if selectedRecipe != nil {
+                                Button(action: {
+                                    applyRecommendedParameters()
+                                }) {
+                                    HStack {
+                                        Image(systemName: "sparkles")
+                                        Text("推奨パラメータを適用")
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(8)
+                                    .background(Color.purple)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(6)
                                 }
-                                .frame(maxWidth: .infinity)
-                                .padding(8)
-                                .background(Color.orange)
-                                .foregroundColor(.white)
-                                .cornerRadius(6)
                             }
                         }
                         .padding(12)
@@ -160,6 +179,90 @@ struct ContentView: View {
         .onAppear {
             rEnvironment.detectR()
         }
+    }
+
+    // MARK: - Apply Recommended Parameters
+
+    private func applyRecommendedParameters() {
+        guard let recipe = selectedRecipe else { return }
+
+        // Load the recommended CSV file
+        let sampleDataFileName = getRecommendedSampleDataFile(for: recipe.recipeName)
+        guard let sampleDataURL = findSampleDataFile(sampleDataFileName) else {
+            print("⚠️ Sample data file not found: \(sampleDataFileName)")
+            return
+        }
+
+        // Set the CSV path
+        selectedCSVPath = sampleDataURL
+
+        // Apply recommended parameters after a short delay to allow CSV to load
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            applyRecommendedColumnSelections(for: recipe.recipeName)
+        }
+    }
+
+    private func getRecommendedSampleDataFile(for recipeName: String) -> String {
+        let fileMap: [String: String] = [
+            "two_group_continuous": "2_GroupComparison_treatment_vs_control.csv",
+            "two_group_categorical": "2_GroupComparison_treatment_vs_control.csv",
+            "anova_continuous": "2_GroupComparison_treatment_vs_control.csv",
+            "linear_regression": "3_Regression_house_price_prediction.csv",
+            "multiple_regression": "3_Regression_house_price_prediction.csv",
+            "logistic_regression": "2_GroupComparison_treatment_vs_control.csv",
+            "mixed_model": "2_GroupComparison_treatment_vs_control.csv",
+            "pca_analysis": "7_DimensionReduction_gene_expression.csv",
+            "pls_regression": "3_Regression_house_price_prediction.csv",
+            "cox_regression": "5_Survival_patient_followup.csv",
+            "survival_km": "5_Survival_patient_followup.csv",
+            "iptw_km_survival": "5_Survival_patient_followup.csv",
+            "meta_analysis": "8_MetaAnalysis_study_results.csv",
+            "propensity_score": "6_CausalInference_policy_evaluation.csv",
+            "ps_matching": "6_CausalInference_policy_evaluation.csv",
+            "iptw_ate": "6_CausalInference_policy_evaluation.csv",
+            "aipw_ate": "6_CausalInference_policy_evaluation.csv",
+            "double_ml_ate": "6_CausalInference_policy_evaluation.csv",
+            "causal_forest": "6_CausalInference_policy_evaluation.csv",
+            "target_trial_emulation": "5_Survival_patient_followup.csv",
+            "iv_2sls": "6_CausalInference_policy_evaluation.csv",
+            "instrumental_variable": "6_CausalInference_policy_evaluation.csv",
+            "difference_in_differences": "4_TimeSeries_quarterly_sales.csv",
+            "synthetic_control": "4_TimeSeries_quarterly_sales.csv",
+            "bayesian_regression": "3_Regression_house_price_prediction.csv",
+            "balance_table": "6_CausalInference_policy_evaluation.csv",
+            "event_study": "4_TimeSeries_quarterly_sales.csv",
+            "placebo_test": "4_TimeSeries_quarterly_sales.csv",
+            "conditional_logistic_regression": "2_GroupComparison_treatment_vs_control.csv",
+            "case_crossover": "5_Survival_patient_followup.csv"
+        ]
+        return fileMap[recipeName] ?? "1_BasicStats_patient_demographics.csv"
+    }
+
+    private func findSampleDataFile(_ fileName: String) -> URL? {
+        let fileManager = FileManager.default
+        let baseDir = "/Users/uts/StatAppR/Sample_Data"
+        let filePath = (baseDir as NSString).appendingPathComponent(fileName)
+
+        if fileManager.fileExists(atPath: filePath) {
+            return URL(fileURLWithPath: filePath)
+        }
+
+        // Try alternative location
+        if let documentsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let altPath = documentsDir.appendingPathComponent("StatAppR/Sample_Data/\(fileName)").path
+            if fileManager.fileExists(atPath: altPath) {
+                return URL(fileURLWithPath: altPath)
+            }
+        }
+
+        return nil
+    }
+
+    private func applyRecommendedColumnSelections(for recipeName: String) {
+        // This function will be implemented in conjunction with RecipeExecutionView
+        // For now, this is a placeholder that informs the parent view
+        // The actual parameter selection happens in RecipeExecutionView after CSV is loaded
+        print("✨ Recommended CSV loaded for \(recipeName)")
     }
 }
 
@@ -447,6 +550,7 @@ struct RecipeExecutionView: View {
     @State private var executionError: String?
     @State private var selectedResultTab: String = "summary"
     @State private var columnSearchText: String = ""
+    @State private var recommendedParametersApplied: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -527,9 +631,27 @@ struct RecipeExecutionView: View {
                                 VStack(alignment: .leading, spacing: 16) {
                                     let requiredCount = recipe.parameters.filter { $0.required }.count
                                     let totalCount = recipe.parameters.count
-                                    Text("分析パラメータ（必須\(requiredCount)/\(totalCount)）")
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
+
+                                    HStack {
+                                        Text("分析パラメータ（必須\(requiredCount)/\(totalCount)）")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+
+                                        if recommendedParametersApplied {
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "sparkles")
+                                                    .font(.caption2)
+                                                Text("推奨設定適用済み")
+                                                    .font(.caption2)
+                                            }
+                                            .foregroundColor(.purple)
+                                            .padding(4)
+                                            .background(Color.purple.opacity(0.1))
+                                            .cornerRadius(3)
+                                        }
+
+                                        Spacer()
+                                    }
 
                                     // Display parameters based on recipe requirements
                                     ForEach(recipe.parameters) { param in
@@ -1022,6 +1144,7 @@ struct RecipeExecutionView: View {
             loadCSVColumns()
         }
         .onChange(of: csvPath) {
+            recommendedParametersApplied = false  // Reset when CSV changes
             loadCSVColumns()
         }
         .onChange(of: recipe.name) {
@@ -1040,6 +1163,7 @@ struct RecipeExecutionView: View {
         guard let csvPath = csvPath else {
             csvColumns = []
             selectedColumnsByParameter = [:]
+            recommendedParametersApplied = false
             return
         }
 
@@ -1049,14 +1173,88 @@ struct RecipeExecutionView: View {
             let types = CSVManager.shared.detectColumnTypes(headers: headers, data: data)
             csvColumns = CSVManager.shared.extractColumnInfo(headers: headers, data: data, types: types)
 
-            // Auto-match parameters using RecipeParameterMatcher
-            let matcher = RecipeParameterMatcher()
-            selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
+            // Check if this is a recommended sample data file and apply recommended parameters
+            let isRecommendedSample = isLoadingRecommendedSampleData(csvPath: csvPath)
+
+            if isRecommendedSample {
+                // Apply recommended parameters from recipe
+                applyRecommendedParametersForRecipe()
+            } else {
+                // Auto-match parameters using RecipeParameterMatcher
+                let matcher = RecipeParameterMatcher()
+                selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
+                recommendedParametersApplied = false
+            }
         } catch {
             csvColumns = []
             selectedColumnsByParameter = [:]
+            recommendedParametersApplied = false
             executionError = error.localizedDescription
         }
+    }
+
+    private func isLoadingRecommendedSampleData(csvPath: URL) -> Bool {
+        let fileName = csvPath.lastPathComponent
+        let recommendedFiles = [
+            "1_BasicStats_patient_demographics.csv",
+            "2_GroupComparison_treatment_vs_control.csv",
+            "3_Regression_house_price_prediction.csv",
+            "4_TimeSeries_quarterly_sales.csv",
+            "5_Survival_patient_followup.csv",
+            "6_CausalInference_policy_evaluation.csv",
+            "7_DimensionReduction_gene_expression.csv",
+            "8_MetaAnalysis_study_results.csv",
+            "9_SubgroupMetaAnalysis_study_results.csv"
+        ]
+        return recommendedFiles.contains(fileName)
+    }
+
+    private func applyRecommendedParametersForRecipe() {
+        // Load recipes.json to get recommended parameters
+        let recipesPath = "/Users/uts/StatAppR/Engine/recipes/recipes.json"
+
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: recipesPath))
+            let json = try JSONSerialization.jsonObject(with: data, options: [])
+            if let recipes = json as? [[String: Any]] {
+                // Find the current recipe in the JSON
+                if let recipeDict = recipes.first(where: { ($0["id"] as? String) == recipe.recipeName }) {
+                    // Get recommended parameters
+                    if let recommendedParams = recipeDict["recommendedParameters"] as? [String: Any] {
+                        selectedColumnsByParameter = convertRecommendedParamsToSelection(recommendedParams)
+                        recommendedParametersApplied = true
+                        print("✨ Applied recommended parameters for \(recipe.recipeName)")
+                        return
+                    }
+                }
+            }
+        } catch {
+            print("⚠️ Failed to load recommended parameters: \(error)")
+        }
+
+        // Fallback to auto-matching if recipes.json not found or doesn't have recommended params
+        let matcher = RecipeParameterMatcher()
+        selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
+        recommendedParametersApplied = false
+    }
+
+    private func convertRecommendedParamsToSelection(_ recommendedParams: [String: Any]) -> [String: Set<String>] {
+        var selection: [String: Set<String>] = [:]
+
+        for (paramKey, paramValue) in recommendedParams {
+            if let stringValue = paramValue as? String {
+                // Single value
+                selection[paramKey] = [stringValue]
+            } else if let arrayValue = paramValue as? [String] {
+                // Array of values
+                selection[paramKey] = Set(arrayValue)
+            } else if let numberValue = paramValue as? NSNumber {
+                // Numeric value (convert to string for storage)
+                selection[paramKey] = [numberValue.stringValue]
+            }
+        }
+
+        return selection
     }
 
     // MARK: - R Installation Check
