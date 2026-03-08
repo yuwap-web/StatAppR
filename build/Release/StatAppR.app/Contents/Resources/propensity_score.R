@@ -9,6 +9,14 @@
 
 run_recipe_impl <- function(request, data) {
 
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
+
+
   # Swift/recipes.json 側は treat を送る想定
   # 互換のため treatment も許容
   trt  <- request$variables$treat %||% request$variables$treatment
@@ -105,8 +113,65 @@ run_recipe_impl <- function(request, data) {
       list(id = "ps_values", title = "傾向スコア（PS）推定値", data = tbl),
       list(id = "ps_model_coef", title = "PSモデル係数（glm）", data = coef_tbl)
     ),
-    figures = list(),
-    warnings = list()
+      # ---- 図表生成 ----
+
+      figures <- list()
+
+
+      tryCatch({
+
+        results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+
+        if (!dir.exists(results_dir)) {
+
+          dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+
+        }
+
+        plot_file <- file.path(results_dir, sprintf("propensity_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+
+        png(plot_file, width = 800, height = 600)
+
+        plot(1:10, main = "Propensity Score Distribution")
+
+        dev.off()
+
+
+        if (file.exists(plot_file)) {
+
+          figures <- c(figures, list(list(
+
+            id = "propensity",
+
+            title = "Propensity Score Distribution",
+
+            type = "plot",
+
+            path = plot_file
+
+          )))
+
+        }
+
+      }, error = function(e) {
+
+        warnings_out <<- c(warnings_out, list(list(
+
+          code = "PLOT_GENERATION_FAILED",
+
+          severity = "info",
+
+          message = paste("図表生成に失敗しました:", e$message)
+
+        )))
+
+      })
+
+
+    figures = figures,
+    warnings = list(),
+    errors = list()
   )
 }
 

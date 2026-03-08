@@ -3,7 +3,11 @@
 run_recipe_impl <- function(request, data) {
 
 # Source plot utilities
-source("Engine/utils/plot_utils.R", local = TRUE)
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 
 
   if (!requireNamespace("nlme", quietly = TRUE)) {

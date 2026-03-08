@@ -4,6 +4,15 @@
 # Helper functions
 # ============================================================
 
+# Create persistent results directory (respects STATAPPR_RESULTS_FOLDER env var)
+.ensure_results_dir <- function() {
+  results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+  if (!dir.exists(results_dir)) {
+    dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  results_dir
+}
+
 safe_require <- function(pkg) {
   # Try to load package, return TRUE if successful
   tryCatch({
@@ -17,11 +26,10 @@ save_plot <- function(p, filename, width = 7, height = 5) {
   # Save a ggplot object to PNG file
   # Returns file path or NULL if save fails
 
-  # Create output directory if needed
-  output_dir <- file.path(workdir, "figures")
-  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  # Use persistent results directory
+  output_dir <- .ensure_results_dir()
 
-  filepath <- file.path(output_dir, paste0(filename, ".png"))
+  filepath <- file.path(output_dir, sprintf("%s_%s.png", filename, format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
 
   tryCatch({
     ggplot2::ggsave(
@@ -49,9 +57,10 @@ if (!requireNamespace("ggplot2", quietly = TRUE)) {
 
 library(ggplot2)
 
-# safe temp file
+# safe persistent file (not temp)
 make_plot_file <- function(prefix="plot") {
-  f <- tempfile(pattern = prefix, fileext = ".png")
+  results_dir <- .ensure_results_dir()
+  f <- file.path(results_dir, sprintf("%s_%s.png", prefix, format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
   return(f)
 }
 
@@ -223,37 +232,55 @@ make_weight_hist <- function(w) {
 
 }
 
-# ------------------------------------------------------------
-# Kaplan-Meier plot
-# ------------------------------------------------------------
+# Note: make_km_plot() has been moved to Engine/utils/km_plot.R for better
+# error handling, survminer support, and proper return structure (list with curve/risk_table fields)
 
-make_km_plot <- function(fit, df, group_col="group") {
+# ============================================================
+# Generic summary plot function for recipes without specific plots
+# ============================================================
 
-  file <- make_plot_file("km")
+make_summary_plot <- function(recipe_name, summary_text = "") {
+  # Generate a simple text-based summary plot for recipes without graphics
+  file <- make_plot_file(paste0("summary_", recipe_name))
 
-  s <- summary(fit)
+  png(file, width = 800, height = 600, bg = "white")
 
-  km <- data.frame(
-    time=s$time,
-    surv=s$surv,
-    strata=s$strata
-  )
+  par(mar = c(1, 1, 1, 1))
+  plot(0, 0, type = "n", xlab = "", ylab = "", axes = FALSE, xlim = c(0, 1), ylim = c(0, 1))
 
-  p <- ggplot(
-    km,
-    aes(
-      x=time,
-      y=surv,
-      color=strata
-    )
-  ) +
-    geom_step(size=1) +
-    theme_minimal() +
-    ylab("Survival Probability") +
-    xlab("Time")
+  # Add title
+  text(0.5, 0.95, paste0(recipe_name, " - Analysis Summary"),
+       cex = 1.5, fontweight = 2, adj = 0.5)
 
-  ggsave(file,p,width=6,height=4,dpi=300)
+  # Add summary text
+  if (nchar(summary_text) > 0) {
+    text(0.5, 0.5, summary_text, cex = 1, adj = 0.5, wrap = TRUE)
+  } else {
+    text(0.5, 0.5, "Analysis completed successfully", cex = 1, adj = 0.5)
+  }
 
-  file
+  dev.off()
+  return(file)
+}
 
+# ============================================================
+# Simplified histogram for numeric columns
+# ============================================================
+
+make_histogram_plot <- function(data, column, main_title = "") {
+  file <- make_plot_file("histogram")
+
+  x <- as.numeric(data[[column]])
+  x <- x[!is.na(x)]
+
+  if (length(x) < 2) {
+    return(make_summary_plot("histogram", "Insufficient data for histogram"))
+  }
+
+  png(file, width = 800, height = 600)
+  hist(x, main = ifelse(nchar(main_title) > 0, main_title, paste("Distribution of", column)),
+       xlab = column, col = "steelblue", breaks = 15)
+  dev.off()
+
+  return(file)
 }

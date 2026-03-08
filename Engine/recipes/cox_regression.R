@@ -1,5 +1,11 @@
 # recipes/cox_regression.R
 
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 run_recipe_impl <- function(request, data) {
 
   if (!requireNamespace("survival", quietly = TRUE)) {
@@ -163,6 +169,7 @@ run_recipe_impl <- function(request, data) {
       list(
         id = "hr_forest",
         title = "Hazard Ratio Forest Plot",
+        type = "forest_plot",
         path = forest_file
       )
     ))

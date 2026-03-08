@@ -1,18 +1,25 @@
 # recipes/linear_regression.R
 # - x は「単一列」を想定（column）
-# - ただし variables.x が配列 or "a,b" で来ても検出して丁寧にエラーにする
+# - ただし request$variables$predictor_column が配列 or "a,b" で来ても検出して丁寧にエラーにする
 # - y は数値必須、x は数値 or factor（数値化できなければ factor に逃がす）
+
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$y
-  xraw <- request$variables$x   # string or array (misconfigured)
+  ycol <- request$variables$outcome_column
+  xraw <- request$variables$predictor_column   # string or array (misconfigured)
 
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
   if (!(ycol %in% names(data))) stop(paste0("y column not found: ", ycol))
 
   # ---- x normalization (single column expected) ----
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x が必要です（単一の列）")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$predictor_column が必要です（単一の列）")
 
   xs <- NULL
   if (is.character(xraw) && length(xraw) == 1) {
@@ -28,7 +35,7 @@ run_recipe_impl <- function(request, data) {
   xs <- trimws(xs)
   xs <- xs[xs != ""]
 
-  if (length(xs) < 1) stop("variables.x の指定が不正です（空）")
+  if (length(xs) < 1) stop("request$variables$predictor_column の指定が不正です（空）")
   if (length(xs) > 1) {
     stop(paste0(
       "linear_regression は x を1つだけ指定してください（単回帰）。指定: ",
@@ -119,6 +126,38 @@ run_recipe_impl <- function(request, data) {
     if (length(pv) > 0) p_slope <- min(pv, na.rm = TRUE)
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    # Create scatter plot with regression line
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("linear_regression_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    plot(df$x, df$y, main = "Linear Regression", xlab = xcol, ylab = ycol, pch = 19)
+    abline(fit, col = "red", lwd = 2)
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "scatter_plot",
+        title = "Scatter Plot with Regression Line",
+        type = "ggplot2",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("線形回帰（単回帰）: p = ", signif(p_slope, 3)),
@@ -137,8 +176,9 @@ run_recipe_impl <- function(request, data) {
       list(id = "model_metrics", title = "モデル指標", data = metrics),
       list(id = "coefficients", title = "回帰係数", data = coefs)
     ),
-    figures = list(),
-    warnings = warnings_out
+    figures = figures,
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

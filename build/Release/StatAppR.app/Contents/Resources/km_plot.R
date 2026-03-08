@@ -13,6 +13,17 @@ make_km_plot <- function(fit,
                          show_risk_table = TRUE,
                          title = "Kaplan–Meier Curve") {
 
+  # Validate input
+  if (!inherits(fit, "survfit")) {
+    stop("fit must be a survfit object")
+  }
+  if (!is.data.frame(df)) {
+    stop("df must be a data.frame")
+  }
+  if (!(group_col %in% names(df))) {
+    stop(paste0("group_col '", group_col, "' not found in df"))
+  }
+
   if (!safe_require("survival")) stop("survival is required for KM plot")
 
   # Prefer survminer if available (publication-quality + risk table)

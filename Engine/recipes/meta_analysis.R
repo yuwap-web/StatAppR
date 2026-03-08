@@ -1,5 +1,11 @@
 # recipes/meta_analysis.R
 
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 # Create persistent results directory (respects STATAPPR_RESULTS_FOLDER env var)
 .ensure_results_dir <- function() {
   results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
@@ -269,6 +275,7 @@ run_recipe_impl <- function(request, data) {
       list(
         id = "forest",
         title = "Forest plot (fixed effect)",
+        type = "forest_plot",
         path = forest_file
       )
     ) else list(),

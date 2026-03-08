@@ -20,26 +20,18 @@
       },
       {
         "comment": "",
-        "key": "ネットワーク接続が必須です（Rインストール・パッケージダウンロード時）",
+        "key": "操作手順",
         "location": {
           "startingColumn": 38,
-          "startingLine": 47
+          "startingLine": 38
         }
       },
       {
         "comment": "",
-        "key": "手順",
+        "key": "データタイプ",
         "location": {
           "startingColumn": 38,
-          "startingLine": 57
-        }
-      },
-      {
-        "comment": "",
-        "key": "データタイプを選択",
-        "location": {
-          "startingColumn": 38,
-          "startingLine": 72
+          "startingLine": 53
         }
       },
       {
@@ -47,7 +39,7 @@
         "key": "CSVをロード",
         "location": {
           "startingColumn": 42,
-          "startingLine": 104
+          "startingLine": 82
         }
       },
       {
@@ -55,7 +47,7 @@
         "key": "パッケージ",
         "location": {
           "startingColumn": 42,
-          "startingLine": 119
+          "startingLine": 94
         }
       },
       {
@@ -63,7 +55,7 @@
         "key": "分析を実行中...",
         "location": {
           "startingColumn": 26,
-          "startingLine": 172
+          "startingLine": 141
         }
       },
       {
@@ -71,7 +63,7 @@
         "key": "%lld",
         "location": {
           "startingColumn": 18,
-          "startingLine": 209
+          "startingLine": 175
         }
       },
       {
@@ -79,7 +71,7 @@
         "key": "StatAppRへようこそ",
         "location": {
           "startingColumn": 22,
-          "startingLine": 278
+          "startingLine": 244
         }
       },
       {
@@ -87,7 +79,7 @@
         "key": "CSVデータを使って、統計分析を簡単に実行できます",
         "location": {
           "startingColumn": 22,
-          "startingLine": 282
+          "startingLine": 248
         }
       },
       {
@@ -95,7 +87,7 @@
         "key": "基本統計からAI応用まで、幅広い分析に対応",
         "location": {
           "startingColumn": 26,
-          "startingLine": 294
+          "startingLine": 259
         }
       },
       {
@@ -103,7 +95,7 @@
         "key": "7つのデータタイプに対応",
         "location": {
           "startingColumn": 27,
-          "startingLine": 291
+          "startingLine": 257
         }
       },
       {
@@ -111,7 +103,7 @@
         "key": "各データタイプに複数の統計手法を用意",
         "location": {
           "startingColumn": 26,
-          "startingLine": 303
+          "startingLine": 267
         }
       },
       {
@@ -119,7 +111,7 @@
         "key": "複数の分析手法",
         "location": {
           "startingColumn": 27,
-          "startingLine": 300
+          "startingLine": 265
         }
       },
       {
@@ -127,7 +119,7 @@
         "key": "すぐに試せるサンプルCSVファイルを用意",
         "location": {
           "startingColumn": 26,
-          "startingLine": 312
+          "startingLine": 275
         }
       },
       {
@@ -135,7 +127,7 @@
         "key": "サンプルデータ付き",
         "location": {
           "startingColumn": 27,
-          "startingLine": 309
+          "startingLine": 273
         }
       },
       {
@@ -143,7 +135,7 @@
         "key": "左のパネルからデータタイプを選択して開始してください",
         "location": {
           "startingColumn": 22,
-          "startingLine": 324
+          "startingLine": 287
         }
       },
       {
@@ -151,7 +143,7 @@
         "key": "実行可能な分析",
         "location": {
           "startingColumn": 26,
-          "startingLine": 389
+          "startingLine": 348
         }
       },
       {
@@ -159,15 +151,7 @@
         "key": "📋 詳細情報",
         "location": {
           "startingColumn": 30,
-          "startingLine": 369
-        }
-      },
-      {
-        "comment": "",
-        "key": "%@　%@",
-        "location": {
-          "startingColumn": 22,
-          "startingLine": 421
+          "startingLine": 330
         }
       },
       {
@@ -175,7 +159,7 @@
         "key": "必要な列:",
         "location": {
           "startingColumn": 26,
-          "startingLine": 431
+          "startingLine": 389
         }
       },
       {
@@ -183,7 +167,7 @@
         "key": "例: %@",
         "location": {
           "startingColumn": 26,
-          "startingLine": 453
+          "startingLine": 411
         }
       },
       {
@@ -191,7 +175,7 @@
         "key": "戻る",
         "location": {
           "startingColumn": 30,
-          "startingLine": 496
+          "startingLine": 458
         }
       },
       {
@@ -199,15 +183,23 @@
         "key": "レシピ: %@",
         "location": {
           "startingColumn": 26,
-          "startingLine": 507
+          "startingLine": 469
         }
       },
       {
         "comment": "",
-        "key": "ロード済みファイル",
+        "key": "別のレシピ",
         "location": {
-          "startingColumn": 35,
-          "startingLine": 528
+          "startingColumn": 30,
+          "startingLine": 479
+        }
+      },
+      {
+        "comment": "",
+        "key": "データファイル",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 497
         }
       },
       {
@@ -215,7 +207,7 @@
         "key": "%lld 列",
         "location": {
           "startingColumn": 43,
-          "startingLine": 538
+          "startingLine": 512
         }
       },
       {
@@ -223,15 +215,15 @@
         "key": "データ準備完了",
         "location": {
           "startingColumn": 43,
-          "startingLine": 542
+          "startingLine": 516
         }
       },
       {
         "comment": "",
-        "key": "分析パラメータ",
+        "key": "分析パラメータ（必須%lld/%lld）",
         "location": {
           "startingColumn": 42,
-          "startingLine": 554
+          "startingLine": 530
         }
       },
       {
@@ -239,23 +231,47 @@
         "key": "※必須",
         "location": {
           "startingColumn": 58,
-          "startingLine": 567
+          "startingLine": 543
         }
       },
       {
         "comment": "",
-        "key": "列情報と選択",
+        "key": "該当する列がありません",
         "location": {
-          "startingColumn": 42,
-          "startingLine": 623
+          "startingColumn": 62,
+          "startingLine": 650
         }
       },
       {
         "comment": "",
-        "key": "",
+        "key": "列を検索",
         "location": {
-          "startingColumn": 54,
-          "startingLine": 635
+          "startingColumn": 67,
+          "startingLine": 562
+        }
+      },
+      {
+        "comment": "",
+        "key": "数値列",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 586
+        }
+      },
+      {
+        "comment": "",
+        "key": "カテゴリ列",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 608
+        }
+      },
+      {
+        "comment": "",
+        "key": "その他",
+        "location": {
+          "startingColumn": 66,
+          "startingLine": 630
         }
       },
       {
@@ -263,7 +279,7 @@
         "key": "CSVファイルをロードしてください",
         "location": {
           "startingColumn": 34,
-          "startingLine": 652
+          "startingLine": 675
         }
       },
       {
@@ -271,7 +287,7 @@
         "key": "左のパネルから「CSVをロード」ボタンでファイルを選択してください",
         "location": {
           "startingColumn": 34,
-          "startingLine": 655
+          "startingLine": 678
         }
       },
       {
@@ -279,63 +295,159 @@
         "key": "分析結果",
         "location": {
           "startingColumn": 39,
-          "startingLine": 669
+          "startingLine": 692
         }
       },
       {
         "comment": "",
-        "key": "処理結果",
+        "key": "結果タイプ",
         "location": {
-          "startingColumn": 38,
-          "startingLine": 679
+          "startingColumn": 40,
+          "startingLine": 705
         }
       },
       {
         "comment": "",
-        "key": "図表プレビュー",
+        "key": "概要",
         "location": {
-          "startingColumn": 38,
-          "startingLine": 694
+          "startingColumn": 46,
+          "startingLine": 707
         }
       },
       {
         "comment": "",
-        "key": "データ可視化\n（R結果）",
+        "key": "図表",
         "location": {
-          "startingColumn": 42,
-          "startingLine": 713
+          "startingColumn": 46,
+          "startingLine": 710
         }
       },
       {
         "comment": "",
         "key": "統計値",
         "location": {
-          "startingColumn": 38,
-          "startingLine": 725
+          "startingColumn": 46,
+          "startingLine": 713
         }
       },
       {
         "comment": "",
-        "key": "項目",
+        "key": "警告",
         "location": {
           "startingColumn": 46,
-          "startingLine": 731
+          "startingLine": 716
         }
       },
       {
         "comment": "",
-        "key": "値",
+        "key": "主要結果",
         "location": {
-          "startingColumn": 46,
-          "startingLine": 732
+          "startingColumn": 54,
+          "startingLine": 726
+        }
+      },
+      {
+        "comment": "",
+        "key": "使用した方法",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 740
+        }
+      },
+      {
+        "comment": "",
+        "key": "主要指標",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 754
+        }
+      },
+      {
+        "comment": "",
+        "key": "データがありません",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 872
         }
       },
       {
         "comment": "",
         "key": "--",
         "location": {
-          "startingColumn": 50,
-          "startingLine": 741
+          "startingColumn": 74,
+          "startingLine": 858
+        }
+      },
+      {
+        "comment": "",
+        "key": "エラーが発生しました",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 922
+        }
+      },
+      {
+        "comment": "",
+        "key": "エラーメッセージ:",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 930
+        }
+      },
+      {
+        "comment": "",
+        "key": "解決方法:",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 945
+        }
+      },
+      {
+        "comment": "",
+        "key": "CSV ファイルが正しく読み込まれているか確認",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 951
+        }
+      },
+      {
+        "comment": "",
+        "key": "パラメータの選択が完了しているか確認",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 955
+        }
+      },
+      {
+        "comment": "",
+        "key": "R とすべての必須パッケージがインストールされているか確認",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 959
+        }
+      },
+      {
+        "comment": "",
+        "key": "別のレシピを選択して再度試す",
+        "location": {
+          "startingColumn": 43,
+          "startingLine": 963
+        }
+      },
+      {
+        "comment": "",
+        "key": "リセット",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 971
+        }
+      },
+      {
+        "comment": "",
+        "key": "別のレシピ",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 980
         }
       },
       {
@@ -343,7 +455,7 @@
         "key": "分析を実行",
         "location": {
           "startingColumn": 34,
-          "startingLine": 768
+          "startingLine": 1006
         }
       },
       {
@@ -351,7 +463,7 @@
         "key": "サンプル値",
         "location": {
           "startingColumn": 26,
-          "startingLine": 1001
+          "startingLine": 1256
         }
       },
       {
@@ -359,47 +471,55 @@
         "key": "完全性",
         "location": {
           "startingColumn": 26,
-          "startingLine": 1012
+          "startingLine": 1267
         }
       },
       {
         "comment": "",
-        "key": "Rパッケージ管理",
+        "key": "タブ",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 1324
+        }
+      },
+      {
+        "comment": "",
+        "key": "R パッケージ管理",
         "location": {
           "startingColumn": 22,
-          "startingLine": 1040
+          "startingLine": 1306
         }
       },
       {
         "comment": "",
-        "key": "R環境",
+        "key": "R 環境",
         "location": {
-          "startingColumn": 30,
-          "startingLine": 1060
+          "startingColumn": 22,
+          "startingLine": 1325
         }
       },
       {
         "comment": "",
-        "key": "R",
+        "key": "必須パッケージ",
         "location": {
-          "startingColumn": 38,
-          "startingLine": 1069
+          "startingColumn": 22,
+          "startingLine": 1326
         }
       },
       {
         "comment": "",
-        "key": "バージョン: %@",
+        "key": "オプション",
         "location": {
-          "startingColumn": 42,
-          "startingLine": 1072
+          "startingColumn": 22,
+          "startingLine": 1327
         }
       },
       {
         "comment": "",
-        "key": "オプショナルパッケージ",
+        "key": "インストール状態",
         "location": {
-          "startingColumn": 30,
-          "startingLine": 1089
+          "startingColumn": 35,
+          "startingLine": 1355
         }
       },
       {
@@ -407,15 +527,175 @@
         "key": "閉じる",
         "location": {
           "startingColumn": 26,
-          "startingLine": 1113
+          "startingLine": 1375
         }
       },
       {
         "comment": "",
-        "key": "すべてインストール",
+        "key": "不足分をインストール",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 1384
+        }
+      },
+      {
+        "comment": "",
+        "key": "インストール中...",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1396
+        }
+      },
+      {
+        "comment": "",
+        "key": "R",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 1465
+        }
+      },
+      {
+        "comment": "",
+        "key": "バージョン: %@",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1470
+        }
+      },
+      {
+        "comment": "",
+        "key": "バージョン情報を取得中...",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1474
+        }
+      },
+      {
+        "comment": "",
+        "key": "インストール: 必須",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1478
+        }
+      },
+      {
+        "comment": "",
+        "key": "インストール",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1488
+        }
+      },
+      {
+        "comment": "",
+        "key": "📋 インストール方法",
         "location": {
           "startingColumn": 26,
-          "startingLine": 1121
+          "startingLine": 1508
+        }
+      },
+      {
+        "comment": "",
+        "key": "【Homebrew を使う（推奨）】",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 1513
+        }
+      },
+      {
+        "comment": "",
+        "key": "ターミナルで以下を実行してください：",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 1516
+        }
+      },
+      {
+        "comment": "",
+        "key": "brew install r",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 1519
+        }
+      },
+      {
+        "comment": "",
+        "key": "【CRAN から直接インストール】",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 1528
+        }
+      },
+      {
+        "comment": "",
+        "key": "https://cran.r-project.org",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 1532
+        }
+      },
+      {
+        "comment": "",
+        "key": "📊 システム情報",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 1554
+        }
+      },
+      {
+        "comment": "",
+        "key": "R 実行パス:",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 1559
+        }
+      },
+      {
+        "comment": "",
+        "key": "/usr/local/bin/Rscript",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 1563
+        }
+      },
+      {
+        "comment": "",
+        "key": "未検出",
+        "location": {
+          "startingColumn": 80,
+          "startingLine": 1563
+        }
+      },
+      {
+        "comment": "",
+        "key": "パッケージライブラリ:",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 1572
+        }
+      },
+      {
+        "comment": "",
+        "key": "システムデフォルト",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 1576
+        }
+      },
+      {
+        "comment": "",
+        "key": "パッケージがありません",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 1605
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld 個のパッケージ",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 1610
         }
       },
       {
@@ -423,103 +703,7 @@
         "key": "インストール",
         "location": {
           "startingColumn": 26,
-          "startingLine": 1218
-        }
-      },
-      {
-        "comment": "",
-        "key": "Rが見つかりません",
-        "location": {
-          "startingColumn": 22,
-          "startingLine": 1247
-        }
-      },
-      {
-        "comment": "",
-        "key": "このアプリケーションを使用するには、Rの統計処理環境をインストールする必要があります。",
-        "location": {
-          "startingColumn": 22,
-          "startingLine": 1251
-        }
-      },
-      {
-        "comment": "",
-        "key": "インストール方法",
-        "location": {
-          "startingColumn": 22,
-          "startingLine": 1260
-        }
-      },
-      {
-        "comment": "",
-        "key": "アプリから自動でインストールできます。",
-        "location": {
-          "startingColumn": 26,
-          "startingLine": 1269
-        }
-      },
-      {
-        "comment": "",
-        "key": "推奨: Homebrewを使用（自動）",
-        "location": {
-          "startingColumn": 27,
-          "startingLine": 1265
-        }
-      },
-      {
-        "comment": "",
-        "key": "https://www.r-project.org",
-        "location": {
-          "startingColumn": 26,
-          "startingLine": 1280
-        }
-      },
-      {
-        "comment": "",
-        "key": "手動: 公式サイトからダウンロード",
-        "location": {
-          "startingColumn": 27,
-          "startingLine": 1276
-        }
-      },
-      {
-        "comment": "",
-        "key": "注記: ネットワーク接続が必須",
-        "location": {
-          "startingColumn": 27,
-          "startingLine": 1287
-        }
-      },
-      {
-        "comment": "",
-        "key": "ステータス:",
-        "location": {
-          "startingColumn": 26,
-          "startingLine": 1301
-        }
-      },
-      {
-        "comment": "",
-        "key": "後で",
-        "location": {
-          "startingColumn": 26,
-          "startingLine": 1321
-        }
-      },
-      {
-        "comment": "",
-        "key": "インストール中...",
-        "location": {
-          "startingColumn": 59,
-          "startingLine": 1338
-        }
-      },
-      {
-        "comment": "",
-        "key": "今すぐインストール",
-        "location": {
-          "startingColumn": 88,
-          "startingLine": 1338
+          "startingLine": 1654
         }
       }
     ]

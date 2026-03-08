@@ -1,5 +1,12 @@
 # recipes/logistic_regression.R
 
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
+
 run_recipe_impl <- function(request, data) {
 
   # ---- dependencies (optional) ----
@@ -229,6 +236,7 @@ run_recipe_impl <- function(request, data) {
       list(
         id = "forest",
         title = "Odds Ratio Forest Plot",
+        type = "forest_plot",
         path = forest_file
       )
     ) else list(),

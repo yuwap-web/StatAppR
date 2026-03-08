@@ -3,7 +3,26 @@ import Foundation
 class RecipeRunner {
     static let shared = RecipeRunner()
 
-    let rScriptPath = "/usr/local/bin/Rscript"
+    // Determine Rscript path - support both Intel and Apple Silicon Macs
+    let rScriptPath: String = {
+        let possiblePaths = [
+            "/opt/homebrew/bin/Rscript",      // Apple Silicon homebrew (default)
+            "/usr/local/bin/Rscript",          // Intel homebrew or direct installation
+            "/usr/bin/Rscript"                 // System installation
+        ]
+
+        for path in possiblePaths {
+            if FileManager.default.fileExists(atPath: path) {
+                print("✅ Found Rscript at: \(path)")
+                return path
+            }
+        }
+
+        // Fallback to homebrew Apple Silicon location
+        print("⚠️ Rscript not found in standard locations. Using fallback: /opt/homebrew/bin/Rscript")
+        return "/opt/homebrew/bin/Rscript"
+    }()
+
     let recipesDirectory = "/Users/uts/StatAppR/Engine/recipes"
 
     // MARK: - Recipe Execution
@@ -196,6 +215,7 @@ struct RecipeOutput: Codable {
         let id: String
         let title: String
         let type: String
+        let path: String?  // Path to the figure file
     }
 
     struct WarningInfo: Codable {

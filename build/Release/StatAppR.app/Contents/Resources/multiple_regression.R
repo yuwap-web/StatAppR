@@ -1,5 +1,12 @@
 # recipes/multiple_regression.R
 
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
+
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (length(a) == 0) return(b)
@@ -9,14 +16,14 @@
 
 run_recipe_impl <- function(request, data) {
 
-  ycol <- request$variables$y
-  xraw <- request$variables$x   # vector or comma-separated string
+  ycol <- request$variables$outcome_column
+  xraw <- request$variables$predictor_columns   # vector or comma-separated string
 
   # optional (advanced)
   compute_vif <- request$variables$compute_vif %||% FALSE
 
-  if (is.null(ycol) || ycol == "") stop("variables.y が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x（説明変数）が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$predictor_columns（説明変数）が必要です")
 
   # x normalization
   xs <- NULL
@@ -190,6 +197,37 @@ run_recipe_impl <- function(request, data) {
 
   }
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    # Create diagnostic plot (residuals vs fitted)
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("multiple_regression_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    plot(fit, which = 1)  # Residuals vs Fitted
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "residuals_plot",
+        title = "Residuals vs Fitted Values",
+        type = "plot",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("重回帰: adj R² = ", signif(sm$adj.r.squared, 3)),
@@ -206,8 +244,9 @@ run_recipe_impl <- function(request, data) {
       )
     ),
     tables = tables_out,
-    figures = list(),
-    warnings = warnings_out
+    figures = figures,
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

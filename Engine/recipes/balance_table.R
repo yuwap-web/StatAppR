@@ -1,5 +1,11 @@
 # recipes/balance_table.R
 
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 `%||%` <- function(a, b) {
   if (is.null(a)) return(b)
   if (length(a) == 0) return(b)
@@ -278,6 +284,7 @@ run_recipe_impl <- function(request, data) {
     figures_out <- list(list(
       id = "balance_plot",
       title = "Covariate Balance (SMD Love plot)",
+      type = "plot",
       path = balance_plot_file
     ))
   }

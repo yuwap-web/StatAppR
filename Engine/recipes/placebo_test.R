@@ -239,7 +239,7 @@ run_recipe_impl <- function(request, data) {
       }, error = function(e) NULL)
     }
     if (!is.null(plot_file)) {
-      figures_out <- list(list(id = "placebo_event_study", title = "Placebo event study plot", path = plot_file))
+      figures_out <- list(list(id = "placebo_event_study", title = "Placebo event study plot", type = "plot", path = plot_file))
     }
 
     metrics <- data.frame(
@@ -396,7 +396,7 @@ run_recipe_impl <- function(request, data) {
       }, error = function(e) NULL)
     }
     if (!is.null(plot_file)) {
-      figures_out <- list(list(id = "placebo_perm", title = "Permutation placebo distribution", path = plot_file))
+      figures_out <- list(list(id = "placebo_perm", title = "Permutation placebo distribution", type = "plot", path = plot_file))
     }
 
     headline <- paste0("Placebo test（permute）: p = ", signif(p_perm, 3), "（", stat, "）")

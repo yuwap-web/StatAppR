@@ -1,0 +1,16 @@
+study_id,author,study_type,year,effect_size,standard_error,sample_size,sample_size_control
+RCT_1,Smith et al.,RCT,2015,0.45,0.08,120,110
+RCT_2,Jones et al.,RCT,2016,0.52,0.09,95,100
+RCT_3,Brown et al.,RCT,2017,0.38,0.10,140,135
+RCT_4,Wilson et al.,RCT,2018,0.61,0.07,110,115
+RCT_5,Miller et al.,RCT,2019,0.44,0.11,130,120
+OBS_1,Davis et al.,Observational,2015,0.28,0.12,200,180
+OBS_2,Anderson et al.,Observational,2016,0.35,0.11,250,240
+OBS_3,Taylor et al.,Observational,2017,0.31,0.10,180,170
+OBS_4,Thomas et al.,Observational,2018,0.42,0.13,220,200
+OBS_5,Moore et al.,Observational,2019,0.25,0.14,150,140
+COHORT_1,Jackson et al.,Cohort,2015,0.55,0.09,160,150
+COHORT_2,Martin et al.,Cohort,2016,0.58,0.08,175,168
+COHORT_3,Lee et al.,Cohort,2017,0.49,0.10,140,135
+COHORT_4,Walker et al.,Cohort,2018,0.62,0.07,195,190
+COHORT_5,Hall et al.,Cohort,2019,0.51,0.09,170,165

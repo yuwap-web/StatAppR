@@ -4,6 +4,10 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Resources/Models.swift.backup</key>
+		<data>
+		Td9z9PIU5+6xJFFVXK7h9k6McIs=
+		</data>
 		<key>Resources/Sample_Data/1_BasicStats_patient_demographics.csv</key>
 		<data>
 		rZ1e0YqVV+isH/hVUlcxO++HrNY=
@@ -36,125 +40,129 @@
 		<data>
 		390K3VSD7af6N1h/tQLQwkd/JnU=
 		</data>
+		<key>Resources/Sample_Data/9_SubgroupMetaAnalysis_study_results.csv</key>
+		<data>
+		sS05E2s9ffzeq3WKX9Fk5GHau/s=
+		</data>
 		<key>Resources/Sample_Data/CSV_FORMAT_GUIDE.md</key>
 		<data>
 		oc/yZOUw61/DNK2z6ymhS4zUHYA=
 		</data>
 		<key>Resources/aipw_ate.R</key>
 		<data>
-		cMxlUshLZfwF2EVdmbasnNgIm/w=
+		MQMXAGhMMoOkFka8rk0o0tUkngY=
 		</data>
 		<key>Resources/anova_continuous.R</key>
 		<data>
-		fIzyaY5PUfNd2VQPCiJYMsfz6ZQ=
+		5Q31TWSGHPLPQ0O8lSCA4p5P2AI=
 		</data>
 		<key>Resources/balance_plot.R</key>
 		<data>
-		5cjKU/TGX7ZC7BCW+7p1D3J4vto=
+		40sk/gMWafumvjycoiADXN/Cmg4=
 		</data>
 		<key>Resources/balance_table.R</key>
 		<data>
-		hWMDzii+ft6uowAJFaLdNKpuYqA=
+		Kbt/b2nAWLIWTHHvcjG5J3gzKM0=
 		</data>
 		<key>Resources/bayesian_regression.R</key>
 		<data>
-		Lsizddydq4b0OlFG8hHmB22H8Ao=
+		ium7WtpFGCTXoLRRBwNjLs7+vkg=
 		</data>
 		<key>Resources/case_crossover.R</key>
 		<data>
-		+oqByKjUE1FSrsZtViaUerrBgTo=
+		/fcuTej0aKviqqSzX4tjb7eImkE=
 		</data>
 		<key>Resources/causal_forest.R</key>
 		<data>
-		nknLt7aXegVLORNxzKlY55GeQNs=
+		cvaFoNwUzP7YvB2BLuyG18WxshI=
 		</data>
 		<key>Resources/conditional_logistic_regression.R</key>
 		<data>
-		k/saKfABitVYT6Z9JqymbYxwE2M=
+		9O3LBp/o8TkAB31fkqWo4o5no8o=
 		</data>
 		<key>Resources/cox_regression.R</key>
 		<data>
-		yEcuqqZbqqOxnocdwcNrbnhUZMk=
+		yLVOhunsBVDUmLpzZRlffbISGIY=
 		</data>
 		<key>Resources/difference_in_differences.R</key>
 		<data>
-		sgawjCACUCF1j1lFtXmPUUUEac0=
+		NNKZjVqij7qH/JP4hTlVIjYPr2M=
 		</data>
 		<key>Resources/double_ml_ate.R</key>
 		<data>
-		0gtv3BppM0iuSlGhkhlnZYh4ZVI=
+		6As816DCcM8VKiFKRQeooaJS09I=
 		</data>
 		<key>Resources/event_study.R</key>
 		<data>
-		Ooe3sIcW4otZUNWfhs2JmFwolFw=
+		J2ub00vkXQTR0fs1XnBn445sEFM=
 		</data>
 		<key>Resources/forest_plot.R</key>
 		<data>
-		yYwU3QxKgW7Rv0v6Mea2jsrt0E4=
+		ooMHX9BM99n6UH7wtbFHp5pFecw=
 		</data>
 		<key>Resources/instrumental_variable.R</key>
 		<data>
-		EDTMJJF3ecjZrrG2Cpf0VyH/lSI=
+		iFE094cKqANl2v/URxbOVLgIo48=
 		</data>
 		<key>Resources/iptw_ate.R</key>
 		<data>
-		wS+vknMQB+PFJsGydT7MCa3n9Mo=
+		UXqWrPh2sMhMMOxlad/7IVemWWw=
 		</data>
 		<key>Resources/iptw_km_survival.R</key>
 		<data>
-		iS+BbPU9ZMS9Gn/gpsRaI391J8g=
+		j5Uz7ArAcF5Alhi1rPIVBfg7VRM=
 		</data>
 		<key>Resources/iv_2sls.R</key>
 		<data>
-		cpLDjqGOwtWF1oRZFZsMVTQiDuY=
+		st5vj6f7hdFyKyJrBEEhGEBeGsY=
 		</data>
 		<key>Resources/km_plot.R</key>
 		<data>
-		4Z21WA24iy84cnuVOi5vtqCxxbk=
+		QxTkaG+ngSjUqE5fejIMXTslz0M=
 		</data>
 		<key>Resources/linear_regression.R</key>
 		<data>
-		yykfhWMoA9LiHpPDbbdIcH8RM9E=
+		T//tNFrNiqUkqY/hAxBlDwPY1Mc=
 		</data>
 		<key>Resources/logistic_regression.R</key>
 		<data>
-		rEcITKu6AGWZEDj3T+DCGZYzP/E=
+		rNRsnaA9NqZ6UVZB+EkHWQ/2ULc=
 		</data>
 		<key>Resources/meta_analysis.R</key>
 		<data>
-		9LA4UVJk5k0ey8vnza8qaZVRhek=
+		aKbMYVvDyVG8yvaz4aeFvugs1xM=
 		</data>
 		<key>Resources/mixed_model.R</key>
 		<data>
-		oD5X67kjow9bqpq6Ns9FP+mKTW8=
+		jGS4wpxSu3Hr8eXrdUVmm8lVBHI=
 		</data>
 		<key>Resources/multiple_regression.R</key>
 		<data>
-		YO5jXzTFvuXdIlyCzVfkMDFyyr8=
+		80O6UgRoOEto6cOW5Nt30g4Ov1E=
 		</data>
 		<key>Resources/pca_analysis.R</key>
 		<data>
-		ls3WhUBia/k/ingUCe7ouI0ADvA=
+		hEC3jsYBsHLlL65jT/H1sNYNu0M=
 		</data>
 		<key>Resources/placebo_test.R</key>
 		<data>
-		Qb7DSmYjtDy6PPetludbR0MIVYo=
+		SJBKV1u/rObTZXtkaTQDM/FdXLc=
 		</data>
 		<key>Resources/plot_utils.R</key>
 		<data>
-		o9AUky+ya7tUWquoXxbpKJLio3c=
+		mTcw6Eu1m6sJKtYs13zo2cPCw6c=
 		</data>
 		<key>Resources/pls_regression.R</key>
 		<data>
-		qdbKa2VcL3XKIRbnZ+GhSF6aewM=
+		rz+kw/554a259uxp7qqK5kiZv2I=
 		</data>
 		<key>Resources/propensity_score.R</key>
 		<data>
-		d4/dprK6kBCwtKmkRRuHaeCK/kk=
+		m8+iaMzR+RO/evQ0BskNMRehGvw=
 		</data>
 		<key>Resources/ps_matching.R</key>
 		<data>
-		5Vr5PT28O8hvYAh9Jpj/KnjbWZg=
+		d6LnJwcrq2QkgWfRPfGXCiJQWuA=
 		</data>
 		<key>Resources/recipes.json</key>
 		<data>
@@ -162,27 +170,34 @@
 		</data>
 		<key>Resources/survival_km.R</key>
 		<data>
-		kbxEPPvh1X2dk11TcNV+qkj6+Jo=
+		dQ+iFOESb8pjv9fsVJkdx82afak=
 		</data>
 		<key>Resources/synthetic_control.R</key>
 		<data>
-		Qx5lnemABBEpVBuEaWHPrT/pTIg=
+		NRW/fC3bsmnmPJQ8q8rDtnPD8y4=
 		</data>
 		<key>Resources/target_trial_emulation.R</key>
 		<data>
-		p9K/c9+kQFZsKdocg5mjEAxvezI=
+		R1JvuVZdvUQD1roc7STduGoBcRE=
 		</data>
 		<key>Resources/two_group_categorical.R</key>
 		<data>
-		pSekS/XMxacZraTZByGn5B8ufkY=
+		uwqLrcptYS+VWXCOxzhp8QGRkqM=
 		</data>
 		<key>Resources/two_group_continuous.R</key>
 		<data>
-		7lZcDKafmIguBvxdXdfy+Fgq8Ng=
+		HeOlxjL+l6ASt4QUN1oGE4iyKBM=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Resources/Models.swift.backup</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			zMQyr09vm6O3xyAwQQHqc/1Pxwat+fPncpwW3dfL/Es=
+			</data>
+		</dict>
 		<key>Resources/Sample_Data/1_BasicStats_patient_demographics.csv</key>
 		<dict>
 			<key>hash2</key>
@@ -239,6 +254,13 @@
 			wRb3VjxIxaHd/ZABVq5d0QKDfQKH5+NQQ8S48YA9ZV0=
 			</data>
 		</dict>
+		<key>Resources/Sample_Data/9_SubgroupMetaAnalysis_study_results.csv</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			aKWKRbe21bzViI7aYt9XwtdfZ7pv2Nb5XZhSN25s+5Y=
+			</data>
+		</dict>
 		<key>Resources/Sample_Data/CSV_FORMAT_GUIDE.md</key>
 		<dict>
 			<key>hash2</key>
@@ -250,203 +272,203 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			MXttDF6bNWLPO1tXs4fs7rN6mEKr+TXrYQq6nS5k2y0=
+			t/puYL1jA5yFV2yEvEGjwuiRPrF6QrWQif+BXq7e23A=
 			</data>
 		</dict>
 		<key>Resources/anova_continuous.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			aOPhWBEGutmporbUl+8+0qNPiFHAAeSMYEF74zF0OnI=
+			WNC5i3wqQFzOKuQA8fnG6Y1BBPQMXmmCZOyF6tSq4/k=
 			</data>
 		</dict>
 		<key>Resources/balance_plot.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Y9OeVFEjPQiCnY/F6Pi+2IwyFtqjBiODEoujvjZTa4Q=
+			61ufLyj88Nm1Ez1egk0tWBpvmTSYV0u/Cq/ZhBqRcNI=
 			</data>
 		</dict>
 		<key>Resources/balance_table.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			EUJX1K9Cfw6Ca0r4k4NaUUUOZv+SEdLOnxy/cJ4KUVY=
+			yZw31u7fTX3njPrqAXXDCaLv/sc0B5yVMkRQV+FRREo=
 			</data>
 		</dict>
 		<key>Resources/bayesian_regression.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			xIccAdgkgx9jRuzt+FdGPSo0sFmcHO9/qEyHcVKM+50=
+			UgKeKh8eGGfsarD0o2Pb4aapMJVP+futwse2JO1XCzU=
 			</data>
 		</dict>
 		<key>Resources/case_crossover.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			XSr8tdsLrji4EaCtu6vF0eEsVlgzHAuq8LLNz/f21YQ=
+			27po/Mpavt/EESy0QHJJlD794Hjl5K0otN0ZRU6PfO4=
 			</data>
 		</dict>
 		<key>Resources/causal_forest.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			iHjIgCzvUIR16c7maJt116s+F9ZlV1drMZUNuOozM+Y=
+			FeMWwKtUy2dyyeNdInu8dFYsEVvhxZ5OVnBLRdyaHoY=
 			</data>
 		</dict>
 		<key>Resources/conditional_logistic_regression.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			9+WPq5vilAUL2/Mpitmicqzv1JBN7VOQ9Dn2dXETMFM=
+			cxymSb/aXx1Fd44piRbHnkZuW102pYxgm+RR8JKiqP8=
 			</data>
 		</dict>
 		<key>Resources/cox_regression.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Bck6YOE0UF6LzEJe4e7/XXYGfy+EjKUEmW1rdRrfm8c=
+			uEHAwdMhm8si172FW2lJV2VufqtmHAuJXlyq0cS3n+I=
 			</data>
 		</dict>
 		<key>Resources/difference_in_differences.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			40I9dhOLQuaH6/ZHtW2gmSNJvPp+ruDangrFrd5AaZs=
+			SkzwaSqfmPoviEvyGebRAvNo+hELHDh1kbEv2jQ4MsQ=
 			</data>
 		</dict>
 		<key>Resources/double_ml_ate.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			NWjKl1A+RasxPFjy0WE14oz7zChdlrNr4Yim/tHvsAc=
+			Xsx8wzay4wfB2FWqHIo6Im+87WAfAzLuRT2kUyZT1Pw=
 			</data>
 		</dict>
 		<key>Resources/event_study.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			uKqBhm5L7Cz62xSAxfQnXGPS7PoSxU+iWpm7s9B80xs=
+			1tazt03K6RBDtTe/y4zg5iIFT1CgaeKir2OeYclKMrI=
 			</data>
 		</dict>
 		<key>Resources/forest_plot.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			f5EM4sZ3viutbb4RDSynBTt3hJI7oDM0QTGTMdREbY4=
+			AqqlQLw2RNEAJOWjq+giR1uP20IQ7r3/Kbo0g5j/MzQ=
 			</data>
 		</dict>
 		<key>Resources/instrumental_variable.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/P1uZMZ/7gp92EVG17DcDNQ1VQ6kFju9rwcSmWjXLGU=
+			IKU/uoVhsXGQaOLw5J1d2ixKxfxMtoM3e4Dbax1VHwc=
 			</data>
 		</dict>
 		<key>Resources/iptw_ate.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			YSfTnJBFdaLuoIlKiZI7MFTUw9uLOyyxiy/p2zwoLAY=
+			lefUL1gQGlz0nItGa6tmi2LVzvZ1cgyPpfQWrE634vU=
 			</data>
 		</dict>
 		<key>Resources/iptw_km_survival.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			2x1UpOLOLXHFUjeACecfzseILAgJZUAQFUAoyxY6Uqg=
+			xd3qfLWQyicSFo7QLlDdL2VaR7UklxffNz4oFMMgXyQ=
 			</data>
 		</dict>
 		<key>Resources/iv_2sls.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			RZCwtk5oUithqGelmkA55g7A0frRNze2Rf5Faw7Ib7w=
+			LdeJW/x4+yyB3/bPPpy+famSOU/A+lWfpqiZ/ntryeE=
 			</data>
 		</dict>
 		<key>Resources/km_plot.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			TaJAXpxwm8h5nm3rjpd2Q8Z7o1etopQrqP4ur4ScSn0=
+			U6l478Q1Uvms39I9DMos2IoAfelUXTVeeE8r5YFGDqI=
 			</data>
 		</dict>
 		<key>Resources/linear_regression.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vQeuu2qVyh/o9W7MiQ6C+p9fV7Ud9HSMHLZXBUg64z8=
+			fNSrekZIWk7f5RrwNJo7ZQfdK58sRRYZU1hDXgxReIQ=
 			</data>
 		</dict>
 		<key>Resources/logistic_regression.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			0QwJPBL4LNvhqDpzx3kQrKUawzoZa4oVcpMPhvIMOxo=
+			4D0Un8gRJoyBB+lzT1zrGGmiao1QhUrVu0G+e/thWEg=
 			</data>
 		</dict>
 		<key>Resources/meta_analysis.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			IVPqaiYv+8k5SUprvl8ora3fsvs8WyWzEJZmN4rC2KQ=
+			mc8AmwnjTFa6LghvHpXNcuzRJF1h0xsFTy0iBNP6GO4=
 			</data>
 		</dict>
 		<key>Resources/mixed_model.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			5lDykoaBUsXVqKGosPdTHj04q+d8vnDoJIlBFTkTaUU=
+			eS9HVYDTl6H5Oll9BCO/GYDO6VSr5Mjof5tleeR7hYo=
 			</data>
 		</dict>
 		<key>Resources/multiple_regression.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			2oD+NblUylgcW0QjnYOZBoKtKcJr/80lVKR/Zj5IDhI=
+			yP0DVn/ed8tvZSoegoPAMkGnaEjSSXQsPxaf7SzCH2c=
 			</data>
 		</dict>
 		<key>Resources/pca_analysis.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			wIGTPhu2Fl4pnc1VANeE03G8eV/z/9MFJeV3zqPUKtQ=
+			iqzwGUvTQr/sBGaOPlrmaHByX9f85cz7clfFz9f/ORc=
 			</data>
 		</dict>
 		<key>Resources/placebo_test.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			4R0rvwAZp1i3FHlg/uTolEx9hXfSNPdEHGui+87OQpk=
+			TNN7vmqz/Iqs8Y4takOzqmkSDeU0GRqGoVTjD0O3+Ac=
 			</data>
 		</dict>
 		<key>Resources/plot_utils.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			08ItEYKzh7v9w6TGL7IuRkmp2pItzqTgOAlDlIXRlWA=
+			sbyUvoDROoa5Uaxk/+bg8yA+W7CdztThBj7QT8MfhE0=
 			</data>
 		</dict>
 		<key>Resources/pls_regression.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			xEo1gDpOVtlVh/xb0RhKyRYnhlCVYlo3rHYIJ+2dzrg=
+			5YPzcIy9XHyzSLiNDgnANKuK17zDU5u58sOlSo/1k7Y=
 			</data>
 		</dict>
 		<key>Resources/propensity_score.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			hD+4uM/Fqe9uU9sb+Gua5bqaQhuyQKtGOIbEJyYeX6M=
+			tFlve5P09BZvA04HLJbIUgx+9LT6+YwXu6AZjlOhZCI=
 			</data>
 		</dict>
 		<key>Resources/ps_matching.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			plz8dWTleYG1ScG+ICxOBBuqGk3B2zhSNGm7XDlojDI=
+			QD+Sxt0FIVaUDXeZqIQd/xSsIBkswEWdYZbaaflnv/0=
 			</data>
 		</dict>
 		<key>Resources/recipes.json</key>
@@ -460,35 +482,35 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			mR7xSgUeaoUAsklcKXUJPWZkfebGc/iHwEfCK1vQq1A=
+			E3FiAcKwMycOzWP91D8+6opGnTBE1fZTFlNRybqEjF8=
 			</data>
 		</dict>
 		<key>Resources/synthetic_control.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			BY1Q4oYiVzfTnb+EhEHZWJynwO5jImr4/Un+UXwGYeM=
+			ArJ8AqAqoZJCDU+9wglusbp0guJRnKyEOyb/XP4emz0=
 			</data>
 		</dict>
 		<key>Resources/target_trial_emulation.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			hg/jqzxL/QylET7iJPP3EVLcsImHO8VvDzti1R6fZjA=
+			5vqXExvQyJv1JtbCkZuERxJlSGXdl7KMT6WWyVnmsOo=
 			</data>
 		</dict>
 		<key>Resources/two_group_categorical.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			XhHI8TTfM+3AdZwBuUChb/Snpav8/8v579bL8WiGfbw=
+			XI0V8u+wBsg6YFDQUfm5IgfC/u3fqXQuskHry7dBWi8=
 			</data>
 		</dict>
 		<key>Resources/two_group_continuous.R</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			OL+ILFh3dHBVCXv1Q+yfM9RVWJ4UhiEwbgh/a8ld1jo=
+			OIcunJpp6oHjRywJQqN5+BfLBZJgMrFCusAuOCDimVI=
 			</data>
 		</dict>
 	</dict>

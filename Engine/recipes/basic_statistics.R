@@ -3,7 +3,11 @@
 # 記述統計量と相関分析を実行
 
 # Source plot utilities
-source("Engine/utils/plot_utils.R", local = TRUE)
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 
 run_recipe_impl <- function(request, data) {
 

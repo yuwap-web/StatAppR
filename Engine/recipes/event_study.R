@@ -270,6 +270,7 @@ run_recipe_impl <- function(request, data) {
     figures_out <- list(list(
       id = "event_study",
       title = "Event study plot",
+      type = "plot",
       path = plot_file
     ))
   }

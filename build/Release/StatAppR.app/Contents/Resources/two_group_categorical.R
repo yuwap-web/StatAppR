@@ -2,11 +2,19 @@
 
 run_recipe_impl <- function(request, data) {
 
-  gcol <- request$variables$group
-  ycol <- request$variables$y
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 
-  if (is.null(gcol) || gcol == "") stop("variables.group が必要です")
-  if (is.null(ycol) || ycol == "") stop("variables.y（カテゴリ列）が必要です")
+
+  gcol <- request$variables$group_column
+  ycol <- request$variables$outcome_column
+
+  if (is.null(gcol) || gcol == "") stop("request$variables$group_column が必要です")
+  if (is.null(ycol) || ycol == "") stop("request$variables$outcome_column（カテゴリ列）が必要です")
 
   if (!(gcol %in% names(data))) stop(paste0("group column not found: ", gcol))
   if (!(ycol %in% names(data))) stop(paste0("y column not found: ", ycol))
@@ -123,6 +131,37 @@ run_recipe_impl <- function(request, data) {
   names(prop_long) <- c("group", "category", "proportion")
   prop_long$proportion <- round(prop_long$proportion, 4)
 
+  # ---- 図表生成 ----
+  figures <- list()
+
+  tryCatch({
+    # Create mosaic plot
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("two_group_categorical_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    mosaicplot(tab, main = paste("Mosaic Plot:", gcol, "vs", ycol), shade = TRUE)
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figures <- c(figures, list(list(
+        id = "mosaic",
+        title = "Mosaic Plot",
+        type = "plot",
+        path = plot_file
+      )))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   list(
     summary = list(
       headline = paste0("2群比較（カテゴリ）: p = ", signif(p, 3)),
@@ -144,8 +183,9 @@ run_recipe_impl <- function(request, data) {
       list(id = "proportions_long", title = "分割表（比率・long）", data = prop_long),
       list(id = "test", title = "検定結果", data = test_tbl)
     ),
-    figures = list(),
-    warnings = warnings_out
+    figures = figures,
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

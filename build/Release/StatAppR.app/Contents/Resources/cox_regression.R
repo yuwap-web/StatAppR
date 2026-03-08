@@ -1,7 +1,11 @@
 # recipes/cox_regression.R
 
-source(file.path(runner_dir, "utils", "plot_utils.R"))
-
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 run_recipe_impl <- function(request, data) {
 
   if (!requireNamespace("survival", quietly = TRUE)) {
@@ -9,18 +13,18 @@ run_recipe_impl <- function(request, data) {
   }
 
   # --- params ---
-  time_col   <- request$variables$time
-  status_col <- request$variables$status
-  xraw       <- request$variables$x
+  time_col   <- request$variables$time_column
+  status_col <- request$variables$event_column
+  xraw       <- request$variables$covariates
 
   # optional (advanced)
   check_ph  <- request$variables$check_ph %||% FALSE     # TRUEでcox.zph
   robust_se <- request$variables$robust_se %||% TRUE     # robust variance
   ties_meth <- request$variables$ties %||% "efron"       # "efron" / "breslow" / "exact"
 
-  if (is.null(time_col) || time_col == "") stop("variables.time が必要です")
-  if (is.null(status_col) || status_col == "") stop("variables.status が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x（共変量）が必要です")
+  if (is.null(time_col) || time_col == "") stop("request$variables$time_column が必要です")
+  if (is.null(status_col) || status_col == "") stop("request$variables$event_column が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$covariates（共変量）が必要です")
 
   # ---- normalize x columns (array or "a,b") ----
   xvars <- NULL
@@ -39,7 +43,7 @@ run_recipe_impl <- function(request, data) {
   # accident guard: remove time/status if mixed
   xvars <- setdiff(xvars, c(time_col, status_col))
 
-  if (length(xvars) < 1) stop("variables.x（共変量）の指定が不正です（空）")
+  if (length(xvars) < 1) stop("request$variables$covariates（共変量）の指定が不正です（空）")
 
   # column existence checks
   for (cname in c(time_col, status_col, xvars)) {
@@ -165,6 +169,7 @@ run_recipe_impl <- function(request, data) {
       list(
         id = "hr_forest",
         title = "Hazard Ratio Forest Plot",
+        type = "forest_plot",
         path = forest_file
       )
     ))
@@ -254,7 +259,8 @@ run_recipe_impl <- function(request, data) {
     ),
     tables = tables_out,
     figures = figures_out,
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

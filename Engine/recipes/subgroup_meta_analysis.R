@@ -1,5 +1,11 @@
 # recipes/subgroup_meta_analysis.R
 # Subgroup Meta-Analysis: Stratified analysis of multiple studies by categorical grouping variable
+# Source plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/plot_utils.R"), local = TRUE)
+}, error = function(e) {
+  # plot_utils failed to load - continue without plots
+})
 
 # Create persistent results directory (respects STATAPPR_RESULTS_FOLDER env var)
 .ensure_results_dir <- function() {
@@ -740,6 +746,7 @@ run_recipe_impl <- function(request, data) {
       figures_list[[length(figures_list) + 1]] <- list(
         id = paste0("forest_subgroup_", gsub(" ", "_", subg)),
         title = paste0("Forest plot: ", subg),
+        type = "forest_plot",
         path = res$forest_file
       )
     }
@@ -750,6 +757,7 @@ run_recipe_impl <- function(request, data) {
     figures_list[[length(figures_list) + 1]] <- list(
       id = "forest_overall",
       title = "Forest plot: 全体（全研究）",
+      type = "forest_plot",
       path = forest_overall_file
     )
   }

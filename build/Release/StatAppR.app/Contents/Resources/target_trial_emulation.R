@@ -34,11 +34,11 @@ run_recipe_impl <- function(request, data) {
   }
 
   id_col     <- request$variables$id
-  start_col  <- request$variables$start
+  start_col  <- request$variables$time_column %||% request$variables$start %||% request$variables$time
   stop_col   <- request$variables$stop
-  status_col <- request$variables$status
+  status_col <- request$variables$outcome_column %||% request$variables$status %||% request$variables$y
   a_col      <- request$variables$a
-  xraw       <- request$variables$x
+  xraw       <- request$variables$covariates %||% request$variables$x
 
   # optional (advanced)
   stabilize   <- request$variables$stabilized %||% TRUE
@@ -46,11 +46,11 @@ run_recipe_impl <- function(request, data) {
   use_ggplot  <- request$variables$plot %||% TRUE
 
   if (is.null(id_col) || id_col == "") stop("variables.id が必要です")
-  if (is.null(start_col) || start_col == "") stop("variables.start が必要です")
+  if (is.null(start_col) || start_col == "") stop("request$variables$time_column が必要です")
   if (is.null(stop_col) || stop_col == "") stop("variables.stop が必要です")
-  if (is.null(status_col) || status_col == "") stop("variables.status が必要です")
+  if (is.null(status_col) || status_col == "") stop("request$variables$outcome_column が必要です")
   if (is.null(a_col) || a_col == "") stop("variables.a（区間治療 0/1）が必要です")
-  if (is.null(xraw) || length(xraw) == 0) stop("variables.x（共変量）が必要です")
+  if (is.null(xraw) || length(xraw) == 0) stop("request$variables$covariates（共変量）が必要です")
 
   # x normalization
   if (is.character(xraw) && length(xraw) == 1) {
@@ -66,7 +66,7 @@ run_recipe_impl <- function(request, data) {
   xvars <- xvars[xvars != ""]
   xvars <- setdiff(xvars, c(id_col, start_col, stop_col, status_col, a_col))
 
-  if (length(xvars) < 1) stop("variables.x が空です")
+  if (length(xvars) < 1) stop("request$variables$covariates が空です")
 
   # column checks
   for (cname in c(id_col, start_col, stop_col, status_col, a_col, xvars)) {
@@ -268,19 +268,41 @@ run_recipe_impl <- function(request, data) {
   figs <- list()
   warnings_out <- list()
 
+  # Generate weight distribution plot
+  tryCatch({
+    results_dir <- Sys.getenv("STATAPPR_RESULTS_FOLDER", unset = "/tmp/StatAppR_results")
+    if (!dir.exists(results_dir)) {
+      dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
+    }
+    plot_file <- file.path(results_dir, sprintf("tte_weights_%s.png", format(Sys.time(), "%Y%m%d_%H%M%S_%N")))
+
+    png(plot_file, width = 800, height = 600)
+    hist(w, main = "IPCW Weight Distribution", xlab = "Weight", col = "steelblue", breaks = 20)
+    dev.off()
+
+    if (file.exists(plot_file)) {
+      figs <- list(list(
+        id = "weights_dist",
+        title = "IPCW Weight Distribution",
+        type = "histogram",
+        path = plot_file
+      ))
+    }
+  }, error = function(e) {
+    warnings_out <<- c(warnings_out, list(list(
+      code = "PLOT_GENERATION_FAILED",
+      severity = "info",
+      message = paste("図表生成に失敗しました:", e$message)
+    )))
+  })
+
   if (isTRUE(use_ggplot)) {
     # Only if ggplot2 exists; otherwise warn
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       warnings_out <- c(warnings_out, list(list(
         code = "GGPLOT2_NOT_INSTALLED",
         severity = "info",
-        message = "ggplot2 が無いため図はスキップしました。"
-      )))
-    } else {
-      warnings_out <- c(warnings_out, list(list(
-        code = "PLOT_SKIPPED",
-        severity = "info",
-        message = "TTEの重み付きstart-stopデータの論文品質プロットは次段で実装します（まず推定の安定性優先）。"
+        message = "ggplot2 が無いため詳細図はスキップしました。"
       )))
     }
   }
@@ -309,7 +331,8 @@ run_recipe_impl <- function(request, data) {
       list(id="censor_model_coef", title="打ち切りモデル（logistic）係数", data=ctbl)
     ),
     figures = figs,
-    warnings = warnings_out
+    warnings = warnings_out,
+    errors = list()
   )
 }
 

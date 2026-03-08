@@ -30,7 +30,7 @@ struct RecipeParameterMatcher {
 
         // ===== Event/Outcome Parameters =====
         "event_column": ["event_column", "event", "status", "outcome_event", "event_occurred", "censor", "censored"],
-        "outcome_column": ["outcome_column", "outcome", "y", "result", "event", "disease_status", "measurement"],
+        "outcome_column": ["outcome_column", "outcome", "y", "result", "event", "disease_status", "measurement", "treatment"],
 
         // ===== Group/Stratum Parameters =====
         "group_column": ["group_column", "group", "arm", "condition", "strata", "stratification"],
@@ -39,7 +39,7 @@ struct RecipeParameterMatcher {
 
         // ===== Variable Selection =====
         "variables": ["variables", "vars", "variable", "numeric_vars", "columns"],
-        "predictor_columns": ["predictor_columns", "predictors", "features", "independent"],
+        "predictor_columns": ["predictor_columns", "predictors", "features", "independent", "age", "gender", "bmi", "score", "baseline", "height", "weight"],
         "predictor_column": ["predictor_column", "predictor", "feature"],
         "covariates": ["covariates", "covariate", "confounders", "x", "control_vars"],
 
@@ -90,7 +90,7 @@ struct RecipeParameterMatcher {
     /// - Returns: Dictionary mapping parameter keys to matched column names
     func matchParametersForRecipe(_ recipe: RecipeInfo?, csvColumns: [CSVColumn]) -> [String: Set<String>] {
         var result: [String: Set<String>] = [:]
-        let DEBUG = false  // Set to true to enable detailed logging
+        let DEBUG = true  // Set to true to enable detailed logging
 
         guard let recipe = recipe else {
             return result
@@ -109,6 +109,33 @@ struct RecipeParameterMatcher {
                     result[param.parameterKey] = Set(numericColumns.map { $0.name })
                     if DEBUG {
                         print("🔍 Parameter 'variables': Auto-selected numeric columns: \(numericColumns.map { $0.name })")
+                    }
+                    continue
+                }
+            }
+
+            // Special handling for "outcome_column" in logistic_regression: prefer binary categorical
+            if param.parameterKey == "outcome_column" && param.type == .singleColumn && recipe.recipeName == "logistic_regression" {
+                // Look for columns that could be binary outcome
+                // Priority: "treatment" column name, then any categorical column
+                if let treatmentCol = csvColumns.first(where: { $0.name.lowercased() == "treatment" }) {
+                    result[param.parameterKey] = [treatmentCol.name]
+                    if DEBUG {
+                        print("🔍 Parameter 'outcome_column' (logistic_regression): Auto-selected 'treatment' column")
+                    }
+                    continue
+                }
+            }
+
+            // Special handling for "predictor_columns" in logistic_regression: auto-select numeric columns except outcome
+            if param.parameterKey == "predictor_columns" && param.type == .multipleColumns && recipe.recipeName == "logistic_regression" {
+                // Get the already-matched outcome_column
+                let outcomeColumns = result["outcome_column"] ?? Set()
+                let numericColumns = csvColumns.filter { $0.dataType == "数値" && !outcomeColumns.contains($0.name) }
+                if !numericColumns.isEmpty {
+                    result[param.parameterKey] = Set(numericColumns.map { $0.name })
+                    if DEBUG {
+                        print("🔍 Parameter 'predictor_columns' (logistic_regression): Auto-selected numeric columns: \(numericColumns.map { $0.name })")
                     }
                     continue
                 }

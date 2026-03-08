@@ -116,6 +116,7 @@ struct ContentView: View {
                             dataType: selectedDataType!,
                             onSelectRecipe: { recipe in
                                 selectedRecipe = recipe
+                                selectedCSVPath = nil  // Reset CSV path when switching recipes
                             }
                         )
                     } else {
@@ -567,9 +568,17 @@ struct RecipeExecutionView: View {
                                                     .cornerRadius(4)
 
                                                     // Grouped columns by type
-                                                    let numericColumns = csvColumns.filter { $0.dataType == "numeric" && $0.name.localizedCaseInsensitiveContains(columnSearchText) }
-                                                    let categoricalColumns = csvColumns.filter { $0.dataType == "categorical" && $0.name.localizedCaseInsensitiveContains(columnSearchText) }
-                                                    let otherColumns = csvColumns.filter { !["numeric", "categorical"].contains($0.dataType) && $0.name.localizedCaseInsensitiveContains(columnSearchText) }
+                                                    // Apply search filter only if columnSearchText is not empty
+                                                    let searchFilter = columnSearchText.trimmingCharacters(in: .whitespaces)
+                                                    let numericColumns = csvColumns.filter { column in
+                                                        column.dataType == "numeric" && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
+                                                    }
+                                                    let categoricalColumns = csvColumns.filter { column in
+                                                        column.dataType == "categorical" && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
+                                                    }
+                                                    let otherColumns = csvColumns.filter { column in
+                                                        !["numeric", "categorical"].contains(column.dataType) && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
+                                                    }
 
                                                     // Numeric columns group
                                                     if !numericColumns.isEmpty {
@@ -786,6 +795,17 @@ struct RecipeExecutionView: View {
                                                 Text(figure.id)
                                                     .font(.caption2)
                                                     .foregroundColor(.secondary)
+
+                                                // Display figure image if path exists
+                                                if let path = figure.path, FileManager.default.fileExists(atPath: path) {
+                                                    if let nsImage = NSImage(contentsOfFile: path) {
+                                                        Image(nsImage: nsImage)
+                                                            .resizable()
+                                                            .scaledToFit()
+                                                            .frame(maxWidth: .infinity)
+                                                            .border(Color.gray.opacity(0.3))
+                                                    }
+                                                }
                                             }
                                             .frame(maxWidth: .infinity, alignment: .leading)
                                             .padding(12)
@@ -1005,7 +1025,12 @@ struct RecipeExecutionView: View {
             loadCSVColumns()
         }
         .onChange(of: recipe.name) {
-            // When recipe changes, re-run auto-matching for the new recipe
+            // When recipe changes, reset CSV path and re-run auto-matching
+            csvPath = nil  // Reset CSV to prevent mismatched data
+            selectedColumnsByParameter = [:]
+            csvColumns = []
+
+            // Re-run auto-matching for the new recipe (will trigger when CSV is loaded)
             let matcher = RecipeParameterMatcher()
             selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
         }
