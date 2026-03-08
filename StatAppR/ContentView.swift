@@ -1854,6 +1854,102 @@ struct REnvironmentStatusView: View {
                 .background(Color(.windowBackgroundColor))
                 .cornerRadius(4)
             }
+
+            // Work Directory Information
+            VStack(alignment: .leading, spacing: 12) {
+                Text("📁 ワークディレクトリ")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("保存場所:")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+
+                    HStack(spacing: 8) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(NSTemporaryDirectory())
+                                .font(.caption)
+                                .monospaced()
+                                .lineLimit(nil)
+                                .textSelection(.enabled)
+                                .foregroundColor(.secondary)
+
+                            Text("(macOS 一時ファイルディレクトリ)")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Spacer()
+
+                        Button(action: {
+                            NSWorkspace.shared.open(URL(fileURLWithPath: NSTemporaryDirectory()))
+                        }) {
+                            Image(systemName: "folder.fill")
+                                .font(.caption)
+                                .foregroundColor(.blue)
+                        }
+                        .buttonStyle(.plain)
+                        .help("フォルダを開く")
+                    }
+                    .padding(8)
+                    .background(Color(.windowBackgroundColor))
+                    .cornerRadius(4)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("保存されるもの:")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "circle.fill")
+                                .font(.system(size: 3))
+                                .foregroundColor(.secondary)
+                            Text("図表・グラフ（PNG形式）")
+                                .font(.caption)
+                        }
+
+                        HStack(spacing: 6) {
+                            Image(systemName: "circle.fill")
+                                .font(.system(size: 3))
+                                .foregroundColor(.secondary)
+                            Text("解析結果データ（JSON形式）")
+                                .font(.caption)
+                        }
+
+                        HStack(spacing: 6) {
+                            Image(systemName: "circle.fill")
+                                .font(.system(size: 3))
+                                .foregroundColor(.secondary)
+                            Text("統計値・テーブル")
+                                .font(.caption)
+                        }
+                    }
+                    .foregroundColor(.secondary)
+                    .padding(8)
+                    .background(Color.blue.opacity(0.05))
+                    .cornerRadius(4)
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("💡 注記")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.blue)
+
+                    Text("分析実行時に自動的にワークディレクトリが作成され、結果ファイルが保存されます。上記のフォルダアイコンをクリックして、Finderで保存先を確認できます。")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .lineLimit(nil)
+                }
+                .padding(8)
+                .background(Color.blue.opacity(0.05))
+                .cornerRadius(4)
+            }
         }
     }
 
