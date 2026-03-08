@@ -104,3 +104,4 @@ Contributing
 Issues and feature requests are welcome.
 
 Please open an issue on GitHub if you encounter problems or have suggestions.
+<img width="1024" height="1024" alt="icon" src="https://github.com/user-attachments/assets/4a7ed1e5-1b28-4e7d-8a2f-1c7d1d8f5985" />
