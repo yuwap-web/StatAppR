@@ -1589,8 +1589,28 @@ class REnvironment: ObservableObject {
     @Published var rInstallationMessage = ""
 
     func detectR() {
-        // Detect R installation
-        // This would actually execute: which Rscript
+        // Detect R installation using multiple methods
+        // Method 1: Check known installation paths
+        let possiblePaths = [
+            "/opt/homebrew/bin/Rscript",      // Apple Silicon homebrew (preferred)
+            "/usr/local/bin/Rscript",          // Intel homebrew
+            "/usr/bin/Rscript",                // System installation
+            "/opt/local/bin/Rscript"           // MacPorts
+        ]
+
+        // Try known paths first
+        for path in possiblePaths {
+            if FileManager.default.fileExists(atPath: path) {
+                DispatchQueue.main.async {
+                    self.isInstalled = true
+                    self.rScriptPath = path
+                    self.detectRVersion()
+                }
+                return
+            }
+        }
+
+        // Method 2: Fallback to which command if known paths don't work
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
         process.arguments = ["Rscript"]
