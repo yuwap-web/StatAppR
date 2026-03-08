@@ -184,16 +184,28 @@ struct ContentView: View {
     // MARK: - Apply Recommended Parameters
 
     private func applyRecommendedParameters() {
-        guard let recipe = selectedRecipe else { return }
-
-        // Load the recommended CSV file
-        let sampleDataFileName = getRecommendedSampleDataFile(for: recipe.recipeName)
-        guard let sampleDataURL = findSampleDataFile(sampleDataFileName) else {
-            print("⚠️ Sample data file not found: \(sampleDataFileName)")
+        print("🔍 [DEBUG] applyRecommendedParameters() called")
+        guard let recipe = selectedRecipe else {
+            print("❌ [DEBUG] selectedRecipe is nil")
             return
         }
 
+        print("✅ [DEBUG] selectedRecipe: \(recipe.recipeName)")
+
+        // Load the recommended CSV file
+        let sampleDataFileName = getRecommendedSampleDataFile(for: recipe.recipeName)
+        print("🔍 [DEBUG] Looking for sample data file: \(sampleDataFileName)")
+
+        guard let sampleDataURL = findSampleDataFile(sampleDataFileName) else {
+            print("❌ [DEBUG] Sample data file not found at: \(sampleDataFileName)")
+            print("📁 [DEBUG] Searched in: /Users/uts/StatAppR/Sample_Data/")
+            return
+        }
+
+        print("✅ [DEBUG] Found sample data file at: \(sampleDataURL.path)")
+
         // Set the CSV path
+        print("📄 [DEBUG] Setting selectedCSVPath to: \(sampleDataURL.lastPathComponent)")
         selectedCSVPath = sampleDataURL
 
         // Apply recommended parameters after a short delay to allow CSV to load
@@ -203,7 +215,26 @@ struct ContentView: View {
     }
 
     private func getRecommendedSampleDataFile(for recipeName: String) -> String {
+        // First, try to read from recipes.json (source of truth)
+        let recipesPath = "/Users/uts/StatAppR/Engine/recipes/recipes.json"
+
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: recipesPath))
+            if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                // Find recipe by ID
+                if let recipe = json.first(where: { ($0["id"] as? String) == recipeName }),
+                   let sampleDataFile = recipe["sampleDataFile"] as? String {
+                    print("📋 [RecipeLoad] Found sampleDataFile from recipes.json: \(sampleDataFile) for \(recipeName)")
+                    return sampleDataFile
+                }
+            }
+        } catch {
+            print("⚠️ [RecipeLoad] Error reading recipes.json: \(error)")
+        }
+
+        // Fallback: Use hardcoded map for backward compatibility
         let fileMap: [String: String] = [
+            "basic_statistics": "1_BasicStats_patient_demographics.csv",
             "two_group_continuous": "2_GroupComparison_treatment_vs_control.csv",
             "two_group_categorical": "2_GroupComparison_treatment_vs_control.csv",
             "anova_continuous": "2_GroupComparison_treatment_vs_control.csv",
@@ -217,6 +248,7 @@ struct ContentView: View {
             "survival_km": "5_Survival_patient_followup.csv",
             "iptw_km_survival": "5_Survival_patient_followup.csv",
             "meta_analysis": "8_MetaAnalysis_study_results.csv",
+            "subgroup_meta_analysis": "8_MetaAnalysis_study_results.csv",
             "propensity_score": "6_CausalInference_policy_evaluation.csv",
             "ps_matching": "6_CausalInference_policy_evaluation.csv",
             "iptw_ate": "6_CausalInference_policy_evaluation.csv",
@@ -235,7 +267,10 @@ struct ContentView: View {
             "conditional_logistic_regression": "2_GroupComparison_treatment_vs_control.csv",
             "case_crossover": "5_Survival_patient_followup.csv"
         ]
-        return fileMap[recipeName] ?? "1_BasicStats_patient_demographics.csv"
+
+        let result = fileMap[recipeName] ?? "1_BasicStats_patient_demographics.csv"
+        print("📋 [RecipeLoad] Using fallback map for \(recipeName): \(result)")
+        return result
     }
 
     private func findSampleDataFile(_ fileName: String) -> URL? {
@@ -1161,11 +1196,14 @@ struct RecipeExecutionView: View {
 
     private func loadCSVColumns() {
         guard let csvPath = csvPath else {
+            print("🔍 [RecipeExecution] csvPath is nil")
             csvColumns = []
             selectedColumnsByParameter = [:]
             recommendedParametersApplied = false
             return
         }
+
+        print("📂 [RecipeExecution] Loading CSV: \(csvPath.lastPathComponent)")
 
         do {
             let (headers, data) = try CSVManager.shared.parseCSV(at: csvPath)
@@ -1173,19 +1211,25 @@ struct RecipeExecutionView: View {
             let types = CSVManager.shared.detectColumnTypes(headers: headers, data: data)
             csvColumns = CSVManager.shared.extractColumnInfo(headers: headers, data: data, types: types)
 
+            print("✅ [RecipeExecution] CSV loaded: \(headers.count) columns, \(data.count) rows")
+
             // Check if this is a recommended sample data file and apply recommended parameters
             let isRecommendedSample = isLoadingRecommendedSampleData(csvPath: csvPath)
+            print("🔍 [RecipeExecution] Is recommended sample data: \(isRecommendedSample)")
 
             if isRecommendedSample {
                 // Apply recommended parameters from recipe
+                print("✨ [RecipeExecution] Applying recommended parameters for: \(recipe.recipeName)")
                 applyRecommendedParametersForRecipe()
             } else {
                 // Auto-match parameters using RecipeParameterMatcher
+                print("🔄 [RecipeExecution] Using auto-matching for: \(recipe.recipeName)")
                 let matcher = RecipeParameterMatcher()
                 selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
                 recommendedParametersApplied = false
             }
         } catch {
+            print("❌ [RecipeExecution] Error loading CSV: \(error.localizedDescription)")
             csvColumns = []
             selectedColumnsByParameter = [:]
             recommendedParametersApplied = false
@@ -1213,26 +1257,44 @@ struct RecipeExecutionView: View {
         // Load recipes.json to get recommended parameters
         let recipesPath = "/Users/uts/StatAppR/Engine/recipes/recipes.json"
 
+        print("🔍 [RecipeExecution] Looking for recipes.json at: \(recipesPath)")
+
         do {
             let data = try Data(contentsOf: URL(fileURLWithPath: recipesPath))
+            print("✅ [RecipeExecution] recipes.json found and loaded")
+
             let json = try JSONSerialization.jsonObject(with: data, options: [])
             if let recipes = json as? [[String: Any]] {
+                print("✅ [RecipeExecution] Parsed \(recipes.count) recipes from JSON")
+
                 // Find the current recipe in the JSON
                 if let recipeDict = recipes.first(where: { ($0["id"] as? String) == recipe.recipeName }) {
+                    print("✅ [RecipeExecution] Found recipe definition: \(recipe.recipeName)")
+
                     // Get recommended parameters
                     if let recommendedParams = recipeDict["recommendedParameters"] as? [String: Any] {
+                        print("✅ [RecipeExecution] Found recommendedParameters: \(recommendedParams.keys.joined(separator: ", "))")
+
                         selectedColumnsByParameter = convertRecommendedParamsToSelection(recommendedParams)
                         recommendedParametersApplied = true
-                        print("✨ Applied recommended parameters for \(recipe.recipeName)")
+                        print("✨ [RecipeExecution] ✅ Applied recommended parameters for \(recipe.recipeName)")
+                        print("📋 [RecipeExecution] Selected parameters: \(selectedColumnsByParameter)")
                         return
+                    } else {
+                        print("⚠️ [RecipeExecution] No recommendedParameters found in recipe definition")
                     }
+                } else {
+                    print("❌ [RecipeExecution] Recipe not found: \(recipe.recipeName)")
                 }
+            } else {
+                print("❌ [RecipeExecution] Failed to parse recipes.json as array")
             }
         } catch {
-            print("⚠️ Failed to load recommended parameters: \(error)")
+            print("❌ [RecipeExecution] Failed to load recipes.json: \(error)")
         }
 
         // Fallback to auto-matching if recipes.json not found or doesn't have recommended params
+        print("🔄 [RecipeExecution] Falling back to auto-matching")
         let matcher = RecipeParameterMatcher()
         selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
         recommendedParametersApplied = false
