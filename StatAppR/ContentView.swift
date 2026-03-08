@@ -693,10 +693,20 @@ struct RecipeExecutionView: View {
                                     // Display parameters based on recipe requirements
                                     ForEach(recipe.parameters) { param in
                                         VStack(alignment: .leading, spacing: 8) {
-                                            HStack {
-                                                Text(param.name)
-                                                    .font(.body)
-                                                    .fontWeight(.semibold)
+                                            HStack(spacing: 6) {
+                                                HStack(spacing: 4) {
+                                                    Text(param.name)
+                                                        .font(.body)
+                                                        .fontWeight(.semibold)
+
+                                                    Button(action: {}) {
+                                                        Image(systemName: "questionmark.circle")
+                                                            .font(.caption)
+                                                            .foregroundColor(.blue)
+                                                    }
+                                                    .buttonStyle(.plain)
+                                                    .help(ParameterGlossary.getExplanationOrDefault(for: param.parameterKey))
+                                                }
 
                                                 if param.required {
                                                     Text("※必須")
