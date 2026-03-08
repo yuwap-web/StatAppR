@@ -390,32 +390,32 @@ struct WelcomeView: View {
             }
             .multilineTextAlignment(.center)
 
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {
                     Label("7つのデータタイプに対応", systemImage: "checkmark.circle.fill")
-                        .font(.subheadline)
+                        .font(.headline)
                     Text("基本統計からAI応用まで、幅広い分析に対応")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     Label("複数の分析手法", systemImage: "checkmark.circle.fill")
-                        .font(.subheadline)
+                        .font(.headline)
                     Text("各データタイプに複数の統計手法を用意")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
                     Label("サンプルデータ付き", systemImage: "checkmark.circle.fill")
-                        .font(.subheadline)
+                        .font(.headline)
                     Text("すぐに試せるサンプルCSVファイルを用意")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
             }
-            .padding(20)
+            .padding(28)
             .background(Color(.controlBackgroundColor))
             .cornerRadius(8)
 
@@ -423,7 +423,7 @@ struct WelcomeView: View {
 
             VStack(spacing: 12) {
                 Text("左のパネルからデータタイプを選択して開始してください")
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -440,9 +440,9 @@ struct RecipeSelectionView: View {
     let onSelectRecipe: (RecipeInfo) -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             // Header
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .center, spacing: 8) {
                 HStack(spacing: 12) {
                     Text(dataType.emoji)
                         .font(.title)
@@ -450,31 +450,33 @@ struct RecipeSelectionView: View {
                         .font(.title2)
                         .fontWeight(.bold)
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
                 Text(dataType.description)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
             }
             .padding(20)
             .background(Color(.controlBackgroundColor))
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
 
             Divider()
 
             // Recipe List
             ScrollView {
-                VStack(spacing: 12) {
+                VStack(spacing: 16) {
                     // Detailed Information Section
                     VStack(alignment: .leading, spacing: 12) {
                         Text("📋 詳細情報")
-                            .font(.headline)
+                            .font(.title3)
 
                         Text(dataType.detailedDescription)
-                            .font(.caption)
+                            .font(.body)
                             .foregroundColor(.secondary)
                             .lineLimit(nil)
                             .textSelection(.enabled)
                     }
-                    .padding(12)
+                    .padding(20)
                     .background(Color(.controlBackgroundColor).opacity(0.5))
                     .cornerRadius(8)
                     .padding(.horizontal, 20)
@@ -513,19 +515,19 @@ struct RecipeCardView: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 14) {
                 Text(recipe.name)
-                    .font(.headline)
+                    .font(.title3)
                     .fontWeight(.semibold)
 
                 Text(recipe.description)
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("必要な列:")
-                        .font(.caption)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.primary)
 
@@ -535,7 +537,7 @@ struct RecipeCardView: View {
                                 Image(systemName: "circle.fill")
                                     .font(.system(size: 4))
                                 Text(column)
-                                    .font(.caption2)
+                                    .font(.caption)
                             }
                             .foregroundColor(.secondary)
                         }
@@ -547,7 +549,7 @@ struct RecipeCardView: View {
 
                 HStack {
                     Text("例: \(recipe.example)")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                         .lineLimit(1)
 
@@ -558,7 +560,7 @@ struct RecipeCardView: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(14)
+            .padding(18)
             .background(Color(.windowBackgroundColor))
             .border(Color(.separatorColor), width: 1)
             .cornerRadius(8)
@@ -596,17 +598,17 @@ struct RecipeExecutionView: View {
                         Image(systemName: "chevron.left")
                         Text("戻る")
                     }
-                    .font(.subheadline)
+                    .font(.body)
                 }
 
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 2) {
                     Text(recipe.name)
-                        .font(.headline)
+                        .font(.title2)
                         .fontWeight(.semibold)
                     Text("レシピ: \(recipe.recipeName)")
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
 
@@ -617,7 +619,7 @@ struct RecipeExecutionView: View {
                         Image(systemName: "arrow.triangle.2.circlepath")
                         Text("別のレシピ")
                     }
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundColor(.blue)
                 }
             }
@@ -644,20 +646,20 @@ struct RecipeExecutionView: View {
 
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(csvPath.lastPathComponent)
-                                    .font(.subheadline)
+                                    .font(.body)
                                     .fontWeight(.semibold)
 
                                 HStack(spacing: 16) {
                                     Label("\(csvColumns.count) 列", systemImage: "square.split.2x1")
-                                        .font(.caption)
+                                        .font(.subheadline)
                                         .foregroundColor(.secondary)
 
                                     Label("データ準備完了", systemImage: "checkmark.circle")
-                                        .font(.caption)
+                                        .font(.subheadline)
                                         .foregroundColor(.green)
                                 }
                             }
-                            .padding(12)
+                            .padding(16)
                             .background(Color(.controlBackgroundColor))
                             .cornerRadius(6)
 
@@ -669,15 +671,15 @@ struct RecipeExecutionView: View {
 
                                     HStack {
                                         Text("分析パラメータ（必須\(requiredCount)/\(totalCount)）")
-                                            .font(.subheadline)
+                                            .font(.body)
                                             .fontWeight(.semibold)
 
                                         if recommendedParametersApplied {
                                             HStack(spacing: 4) {
                                                 Image(systemName: "sparkles")
-                                                    .font(.caption2)
+                                                    .font(.caption)
                                                 Text("推奨設定適用済み")
-                                                    .font(.caption2)
+                                                    .font(.caption)
                                             }
                                             .foregroundColor(.purple)
                                             .padding(4)
@@ -693,12 +695,12 @@ struct RecipeExecutionView: View {
                                         VStack(alignment: .leading, spacing: 8) {
                                             HStack {
                                                 Text(param.name)
-                                                    .font(.subheadline)
+                                                    .font(.body)
                                                     .fontWeight(.semibold)
 
                                                 if param.required {
                                                     Text("※必須")
-                                                        .font(.caption2)
+                                                        .font(.caption)
                                                         .foregroundColor(.red)
                                                 }
 
@@ -706,7 +708,7 @@ struct RecipeExecutionView: View {
                                             }
 
                                             Text(param.description)
-                                                .font(.caption)
+                                                .font(.subheadline)
                                                 .foregroundColor(.secondary)
 
                                             // Parameter Selection UI based on type
@@ -739,9 +741,9 @@ struct RecipeExecutionView: View {
 
                                                     // Numeric columns group
                                                     if !numericColumns.isEmpty {
-                                                        VStack(alignment: .leading, spacing: 6) {
+                                                        VStack(alignment: .leading, spacing: 8) {
                                                             Text("数値列")
-                                                                .font(.caption2)
+                                                                .font(.subheadline)
                                                                 .fontWeight(.semibold)
                                                                 .foregroundColor(.secondary)
 
@@ -761,9 +763,9 @@ struct RecipeExecutionView: View {
 
                                                     // Categorical columns group
                                                     if !categoricalColumns.isEmpty {
-                                                        VStack(alignment: .leading, spacing: 6) {
+                                                        VStack(alignment: .leading, spacing: 8) {
                                                             Text("カテゴリ列")
-                                                                .font(.caption2)
+                                                                .font(.subheadline)
                                                                 .fontWeight(.semibold)
                                                                 .foregroundColor(.secondary)
 
@@ -783,9 +785,9 @@ struct RecipeExecutionView: View {
 
                                                     // Other columns group
                                                     if !otherColumns.isEmpty {
-                                                        VStack(alignment: .leading, spacing: 6) {
+                                                        VStack(alignment: .leading, spacing: 8) {
                                                             Text("その他")
-                                                                .font(.caption2)
+                                                                .font(.subheadline)
                                                                 .fontWeight(.semibold)
                                                                 .foregroundColor(.secondary)
 
@@ -812,7 +814,7 @@ struct RecipeExecutionView: View {
                                                 }
                                             }
                                         }
-                                        .padding(12)
+                                        .padding(16)
                                         .background(Color(.controlBackgroundColor))
                                         .cornerRadius(6)
                                     }
@@ -1442,18 +1444,18 @@ struct ColumnSelectionRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(column.name)
-                    .font(.caption)
+                    .font(.body)
                     .fontWeight(.semibold)
 
                 HStack(spacing: 8) {
                     Text(column.dataType)
-                        .font(.caption2)
+                        .font(.caption)
                         .padding(2)
                         .background(Color.blue.opacity(0.2))
                         .cornerRadius(3)
 
                     Text(column.sampleValue)
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
             }
@@ -1461,10 +1463,10 @@ struct ColumnSelectionRow: View {
             Spacer()
 
             Text(String(format: "%.0f%%", column.completeness * 100))
-                .font(.caption2)
+                .font(.caption)
                 .foregroundColor(.secondary)
         }
-        .padding(8)
+        .padding(12)
         .background(Color(.controlBackgroundColor).opacity(0.5))
         .cornerRadius(4)
         .onTapGesture {

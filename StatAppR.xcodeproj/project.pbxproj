@@ -50,6 +50,7 @@
 				recipes/pls_regression.R = text;
 				recipes/propensity_score.R = text;
 				recipes/ps_matching.R = text;
+				recipes/subgroup_meta_analysis.R = text;
 				recipes/survival_km.R = text;
 				recipes/synthetic_control.R = text;
 				recipes/target_trial_emulation.R = text;
