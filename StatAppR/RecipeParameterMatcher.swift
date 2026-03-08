@@ -141,6 +141,36 @@ struct RecipeParameterMatcher {
                 }
             }
 
+            // Special handling for linear_regression:
+            // - outcome_column: first numeric column
+            // - predictor_columns: SINGLE numeric column (linear regression only supports simple regression)
+            if recipe.recipeName == "linear_regression" {
+                if param.parameterKey == "outcome_column" && param.type == .singleColumn {
+                    let numericColumns = csvColumns.filter { $0.dataType == "数値" }
+                    if !numericColumns.isEmpty {
+                        result[param.parameterKey] = [numericColumns[0].name]
+                        if DEBUG {
+                            print("🔍 Parameter 'outcome_column' (linear_regression): Auto-selected '\(numericColumns[0].name)'")
+                        }
+                        continue
+                    }
+                }
+
+                if param.parameterKey == "predictor_columns" && param.type == .multipleColumns {
+                    // For linear_regression, select ONLY THE FIRST numeric column (single regression)
+                    let outcomeColumns = result["outcome_column"] ?? Set()
+                    let numericColumns = csvColumns.filter { $0.dataType == "数値" && !outcomeColumns.contains($0.name) }
+                    if !numericColumns.isEmpty {
+                        // Select only the first numeric column
+                        result[param.parameterKey] = Set([numericColumns[0].name])
+                        if DEBUG {
+                            print("🔍 Parameter 'predictor_columns' (linear_regression): Auto-selected only '\(numericColumns[0].name)' (single regression)")
+                        }
+                        continue
+                    }
+                }
+            }
+
             guard let keywords = keywordMappings[param.parameterKey] else {
                 if DEBUG {
                     print("⚠️ No keywords found for parameter '\(param.parameterKey)'")

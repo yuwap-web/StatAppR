@@ -9,6 +9,13 @@ tryCatch({
   # plot_utils failed to load - continue without plots
 })
 
+# Source Kaplan-Meier plot utilities
+tryCatch({
+  source(file.path(runner_dir, "utils/km_plot.R"), local = TRUE)
+}, error = function(e) {
+  # km_plot failed to load - continue without plots
+})
+
 
   if (!requireNamespace("survival", quietly = TRUE)) {
     stop("survival パッケージが必要です")
