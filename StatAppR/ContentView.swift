@@ -1419,7 +1419,8 @@ struct RecipeExecutionView: View {
         RecipeExecutionEngine.shared.executeRecipe(
             recipe: recipe,
             csvPath: csvPath,
-            selectedColumns: selectedColumnsByParameter
+            selectedColumns: selectedColumnsByParameter,
+            workDirectory: rEnvironment.workDirectory
         ) { result in
             isRunning = false
 
@@ -1725,6 +1726,7 @@ struct PackageManagerView: View {
 struct REnvironmentStatusView: View {
     let rEnvironment: REnvironment
     @State private var isInstallingR = false
+    @State private var isSelectingWorkDirectory = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -1869,29 +1871,56 @@ struct REnvironmentStatusView: View {
 
                     HStack(spacing: 8) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(NSTemporaryDirectory())
+                            Text(rEnvironment.workDirectory)
                                 .font(.caption)
                                 .monospaced()
                                 .lineLimit(nil)
                                 .textSelection(.enabled)
                                 .foregroundColor(.secondary)
 
-                            Text("(macOS 一時ファイルディレクトリ)")
-                                .font(.caption2)
-                                .foregroundColor(.secondary)
+                            let defaultPath = FileManager.default.homeDirectoryForCurrentUser
+                                .appendingPathComponent("Documents")
+                                .appendingPathComponent("StatAppR")
+                                .path
+
+                            if rEnvironment.workDirectory == defaultPath {
+                                Text("(デフォルト位置)")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text("(カスタム位置)")
+                                    .font(.caption2)
+                                    .foregroundColor(.orange)
+                            }
                         }
 
                         Spacer()
 
-                        Button(action: {
-                            NSWorkspace.shared.open(URL(fileURLWithPath: NSTemporaryDirectory()))
-                        }) {
-                            Image(systemName: "folder.fill")
-                                .font(.caption)
-                                .foregroundColor(.blue)
+                        VStack(spacing: 6) {
+                            Button(action: {
+                                NSWorkspace.shared.open(URL(fileURLWithPath: rEnvironment.workDirectory))
+                            }) {
+                                Image(systemName: "folder.fill")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                            }
+                            .buttonStyle(.plain)
+                            .help("フォルダを開く")
+
+                            Button(action: {
+                                isSelectingWorkDirectory = true
+                            }) {
+                                Text("変更")
+                                    .font(.caption)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.blue.opacity(0.2))
+                                    .foregroundColor(.blue)
+                                    .cornerRadius(3)
+                            }
+                            .buttonStyle(.plain)
+                            .help("ワークディレクトリを変更")
                         }
-                        .buttonStyle(.plain)
-                        .help("フォルダを開く")
                     }
                     .padding(8)
                     .background(Color(.windowBackgroundColor))
@@ -1950,6 +1979,17 @@ struct REnvironmentStatusView: View {
                 .background(Color.blue.opacity(0.05))
                 .cornerRadius(4)
             }
+            .fileImporter(
+                isPresented: $isSelectingWorkDirectory,
+                allowedContentTypes: [.folder],
+                allowsMultipleSelection: false,
+                onCompletion: { result in
+                    if case .success(let urls) = result, let url = urls.first {
+                        rEnvironment.setWorkDirectory(url.path)
+                    }
+                    isSelectingWorkDirectory = false
+                }
+            )
         }
     }
 

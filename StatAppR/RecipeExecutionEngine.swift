@@ -34,11 +34,13 @@ class RecipeExecutionEngine {
     ///   - recipe: The recipe to execute
     ///   - csvPath: Path to the CSV data file
     ///   - selectedColumns: Dictionary mapping parameter keys to selected column names
+    ///   - workDirectory: Directory where output files will be saved
     ///   - completion: Callback with result (success or failure)
     func executeRecipe(
         recipe: RecipeInfo,
         csvPath: URL,
         selectedColumns: [String: Set<String>],
+        workDirectory: String = NSTemporaryDirectory(),
         completion: @escaping (Result<RecipeOutput, RecipeExecutionError>) -> Void
     ) {
         // Validate inputs
@@ -59,7 +61,8 @@ class RecipeExecutionEngine {
                 let result = self.recipeRunner.executeRecipe(
                     name: recipe.recipeName,
                     csvPath: csvPath.path,
-                    parameters: parameters
+                    parameters: parameters,
+                    workDirectory: workDirectory
                 )
 
                 // Return result on main thread

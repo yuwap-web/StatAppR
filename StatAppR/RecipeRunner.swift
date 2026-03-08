@@ -30,7 +30,8 @@ class RecipeRunner {
     func executeRecipe(
         name: String,
         csvPath: String,
-        parameters: [String: Any]
+        parameters: [String: Any],
+        workDirectory: String = NSTemporaryDirectory()
     ) -> Result<RecipeOutput, RecipeError> {
         let recipePath = "\(recipesDirectory)/\(name).R"
 
@@ -39,9 +40,8 @@ class RecipeRunner {
             return .failure(.recipeNotFound(name))
         }
 
-        // Create temporary working directory
-        let tempDir = NSTemporaryDirectory()
-        let outputFile = "\(tempDir)/recipe_output_\(UUID().uuidString).json"
+        // Use provided work directory
+        let outputFile = "\(workDirectory)/recipe_output_\(UUID().uuidString).json"
 
         // Build R command
         let rCommand = buildRCommand(

@@ -1587,6 +1587,13 @@ class REnvironment: ObservableObject {
     @Published var showRInstallationNeeded = false
     @Published var isInstallingR = false
     @Published var rInstallationMessage = ""
+    @Published var workDirectory: String = ""
+
+    init() {
+        // Initialize work directory on app startup
+        initializeWorkDirectory()
+        detectR()
+    }
 
     func detectR() {
         // Detect R installation using multiple methods
@@ -1824,6 +1831,58 @@ class REnvironment: ObservableObject {
                 self.rInstallationMessage = "エラーが発生しました: \(error.localizedDescription)"
                 self.isInstallingR = false
             }
+        }
+    }
+
+    func initializeWorkDirectory() {
+        let defaults = UserDefaults.standard
+
+        // Check if user has set a custom work directory
+        if let savedPath = defaults.string(forKey: "StatAppRWorkDirectory") {
+            self.workDirectory = savedPath
+            // Ensure directory exists
+            createDirectoryIfNeeded(at: savedPath)
+        } else {
+            // Use default: ~/Documents/StatAppR/
+            let defaultPath = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Documents")
+                .appendingPathComponent("StatAppR")
+                .path
+
+            self.workDirectory = defaultPath
+            defaults.set(defaultPath, forKey: "StatAppRWorkDirectory")
+
+            // Create the directory if it doesn't exist
+            createDirectoryIfNeeded(at: defaultPath)
+        }
+    }
+
+    func setWorkDirectory(_ path: String) {
+        let defaults = UserDefaults.standard
+
+        // Verify directory exists or can be created
+        if createDirectoryIfNeeded(at: path) {
+            self.workDirectory = path
+            defaults.set(path, forKey: "StatAppRWorkDirectory")
+        }
+    }
+
+    private func createDirectoryIfNeeded(at path: String) -> Bool {
+        let fileManager = FileManager.default
+
+        // If directory already exists, return success
+        var isDirectory: ObjCBool = false
+        if fileManager.fileExists(atPath: path, isDirectory: &isDirectory), isDirectory.boolValue {
+            return true
+        }
+
+        // Try to create the directory
+        do {
+            try fileManager.createDirectory(atPath: path, withIntermediateDirectories: true, attributes: nil)
+            return true
+        } catch {
+            print("Failed to create work directory at \(path): \(error)")
+            return false
         }
     }
 
