@@ -27,6 +27,7 @@
 				recipes/aipw_ate.R = text;
 				recipes/anova_continuous.R = text;
 				recipes/balance_table.R = text;
+				recipes/basic_statistics.R = text;
 				recipes/bayesian_regression.R = text;
 				recipes/case_crossover.R = text;
 				recipes/causal_forest.R = text;

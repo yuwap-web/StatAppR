@@ -200,6 +200,7 @@ tryCatch({
         list(
           id="km_curve",
           title="Kaplan-Meier Survival Curve",
+          type="survival_plot",
           path=km_file$curve
         )
       )

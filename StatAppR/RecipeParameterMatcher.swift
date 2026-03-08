@@ -143,7 +143,7 @@ struct RecipeParameterMatcher {
 
             // Special handling for linear_regression:
             // - outcome_column: first numeric column
-            // - predictor_columns: SINGLE numeric column (linear regression only supports simple regression)
+            // - predictor_column: SINGLE numeric column (linear regression only supports simple regression)
             if recipe.recipeName == "linear_regression" {
                 if param.parameterKey == "outcome_column" && param.type == .singleColumn {
                     let numericColumns = csvColumns.filter { $0.dataType == "数値" }
@@ -156,15 +156,15 @@ struct RecipeParameterMatcher {
                     }
                 }
 
-                if param.parameterKey == "predictor_columns" && param.type == .multipleColumns {
-                    // For linear_regression, select ONLY THE FIRST numeric column (single regression)
+                if param.parameterKey == "predictor_column" && param.type == .singleColumn {
+                    // For linear_regression, select ONLY ONE numeric column (single regression)
                     let outcomeColumns = result["outcome_column"] ?? Set()
                     let numericColumns = csvColumns.filter { $0.dataType == "数値" && !outcomeColumns.contains($0.name) }
                     if !numericColumns.isEmpty {
                         // Select only the first numeric column
-                        result[param.parameterKey] = Set([numericColumns[0].name])
+                        result[param.parameterKey] = [numericColumns[0].name]
                         if DEBUG {
-                            print("🔍 Parameter 'predictor_columns' (linear_regression): Auto-selected only '\(numericColumns[0].name)' (single regression)")
+                            print("🔍 Parameter 'predictor_column' (linear_regression): Auto-selected only '\(numericColumns[0].name)' (single regression)")
                         }
                         continue
                     }
