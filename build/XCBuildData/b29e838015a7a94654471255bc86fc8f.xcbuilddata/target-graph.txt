@@ -1,2 +1,0 @@
-Target dependency graph (1 target)
-Target 'StatAppR' in project 'StatAppR' (no dependencies)

@@ -52,7 +52,8 @@ save_plot <- function(p, filename, width = 7, height = 5) {
 # ============================================================
 
 if (!requireNamespace("ggplot2", quietly = TRUE)) {
-  stop("ggplot2 package required")
+  cat("📦 Installing ggplot2 package...\n")
+  install.packages("ggplot2", repos = "https://cran.r-project.org", quiet = TRUE)
 }
 
 library(ggplot2)

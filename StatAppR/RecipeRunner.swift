@@ -90,11 +90,12 @@ class RecipeRunner {
 
         let commandLines = [
             "runner_dir <- '\(runnerDir)'",
+            // Auto-install jsonlite if not available
+            "if (!requireNamespace('jsonlite', quietly = TRUE)) { install.packages('jsonlite', repos = 'https://cran.r-project.org'); library(jsonlite) } else { library(jsonlite) }",
             "source('\(escapedRecipePath)')",
             "df <- read.csv('\(escapedCsvPath)', stringsAsFactors = FALSE)",
             buildParametersList(parameters),
             "result <- run(request, df)",
-            "library(jsonlite)",
             "result_json <- toJSON(result, pretty = TRUE, auto_unbox = TRUE)",
             "write(result_json, '\(escapedOutputFile)')",
             "cat('SUCCESS')"

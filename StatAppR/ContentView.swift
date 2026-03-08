@@ -1560,7 +1560,7 @@ struct REnvironmentStatusView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     Spacer()
-                    Text(rEnvironment.isInstalled ? "/usr/local/bin/Rscript" : "未検出")
+                    Text(rEnvironment.rScriptPath)
                         .font(.caption)
                         .monospaced()
                 }

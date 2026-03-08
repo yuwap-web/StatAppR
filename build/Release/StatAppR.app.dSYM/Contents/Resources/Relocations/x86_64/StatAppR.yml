@@ -1,5 +1,0 @@
----
-triple:          'x86_64-apple-darwin'
-binary-path:     '/Users/uts/StatAppR/build/Release/StatAppR.app/Contents/MacOS/StatAppR'
-relocations:     []
-...

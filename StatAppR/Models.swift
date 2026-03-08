@@ -1582,6 +1582,7 @@ struct CSVColumn: Identifiable {
 class REnvironment: ObservableObject {
     @Published var isInstalled = false
     @Published var version: String?
+    @Published var rScriptPath: String = "未検出"
     @Published var installedPackages: Set<String> = []
     @Published var showRInstallationNeeded = false
     @Published var isInstallingR = false
@@ -1602,20 +1603,24 @@ class REnvironment: ObservableObject {
             process.waitUntilExit()
 
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            if !data.isEmpty {
+            if !data.isEmpty, let pathStr = String(data: data, encoding: .utf8) {
+                let trimmedPath = pathStr.trimmingCharacters(in: .whitespacesAndNewlines)
                 DispatchQueue.main.async {
                     self.isInstalled = true
+                    self.rScriptPath = trimmedPath
                     self.detectRVersion()
                 }
             } else {
                 DispatchQueue.main.async {
                     self.isInstalled = false
+                    self.rScriptPath = "未検出"
                     self.showRInstallationNeeded = true
                 }
             }
         } catch {
             DispatchQueue.main.async {
                 self.isInstalled = false
+                self.rScriptPath = "未検出"
                 self.showRInstallationNeeded = true
             }
         }
