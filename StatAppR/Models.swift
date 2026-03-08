@@ -1648,7 +1648,8 @@ class REnvironment: ObservableObject {
 
     private func detectRVersion() {
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/Rscript")
+        // Use the detected Rscript path instead of hardcoded path
+        process.executableURL = URL(fileURLWithPath: self.rScriptPath)
         process.arguments = ["-e", "cat(R.version$version.string)"]
 
         let pipe = Pipe()
@@ -1659,14 +1660,20 @@ class REnvironment: ObservableObject {
             process.waitUntilExit()
 
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            if let output = String(data: data, encoding: .utf8) {
+            if let output = String(data: data, encoding: .utf8), !output.isEmpty {
                 DispatchQueue.main.async {
                     self.version = output.trimmingCharacters(in: .whitespaces)
+                }
+            } else {
+                // If no output, still mark as successful with unknown version
+                DispatchQueue.main.async {
+                    self.version = "不明"
                 }
             }
         } catch {
             DispatchQueue.main.async {
-                self.version = nil
+                // Set a default version instead of nil to show it was checked
+                self.version = "取得失敗"
             }
         }
     }
