@@ -1,5 +1,20 @@
 [
   {
+    "id": "basic_statistics",
+    "title": "記述統計",
+    "category": "基礎統計",
+    "order": 1,
+    "implemented": true,
+    "description": "平均値、標準偏差、相関などの記述統計量",
+    "sampleDataFile": "1_BasicStats_patient_demographics.csv",
+    "recommendedParameters": {
+      "variables": ["age", "weight_kg", "height_cm", "systolic_bp"]
+    },
+    "variables": [
+      { "key": "variables", "type": "columns", "label": "分析対象の列", "required": true }
+    ]
+  },
+  {
     "id": "two_group_continuous",
     "title": "2群比較（連続）",
     "category": "基礎統計",
@@ -238,6 +253,27 @@
       { "key": "effect", "type": "column", "label": "効果量", "required": true },
       { "key": "se", "type": "column", "label": "標準誤差", "required": true },
       { "key": "label", "type": "column", "label": "研究ラベル（任意）", "required": false, "advanced": true }
+    ]
+  },
+  {
+    "id": "subgroup_meta_analysis",
+    "title": "サブグループメタアナリシス",
+    "category": "統合解析",
+    "order": 20,
+    "implemented": true,
+    "description": "層別分析により複数グループの効果を比較",
+    "sampleDataFile": "8_MetaAnalysis_study_results.csv",
+    "recommendedParameters": {
+      "effect": "effect_size",
+      "se": "standard_error",
+      "label": "author",
+      "subgroup_column": "year"
+    },
+    "variables": [
+      { "key": "effect", "type": "column", "label": "効果サイズ", "required": true },
+      { "key": "se", "type": "column", "label": "標準誤差", "required": true },
+      { "key": "label", "type": "column", "label": "研究ラベル（任意）", "required": false },
+      { "key": "subgroup_column", "type": "column", "label": "サブグループ列", "required": true }
     ]
   },
 
