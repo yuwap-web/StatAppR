@@ -466,20 +466,22 @@ struct RecipeSelectionView: View {
             ScrollView {
                 VStack(spacing: 16) {
                     // Detailed Information Section
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 14) {
                         Text("📋 詳細情報")
-                            .font(.title3)
+                            .font(.title2)
+                            .fontWeight(.semibold)
 
                         Text(dataType.detailedDescription)
-                            .font(.body)
+                            .font(.title3)
                             .foregroundColor(.secondary)
                             .lineLimit(nil)
                             .textSelection(.enabled)
                     }
-                    .padding(20)
+                    .padding(24)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color(.controlBackgroundColor).opacity(0.5))
                     .cornerRadius(8)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 16)
                     .padding(.top, 20)
 
                     Divider()
