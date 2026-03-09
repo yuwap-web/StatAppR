@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var isRunningAnalysis = false
     @State private var analysisResults: [AnalysisResult] = []
     @State private var rEnvironment = REnvironment()
+    @State private var expandedParameterKey: String? = nil
 
     var body: some View {
         ZStack {
@@ -590,6 +591,7 @@ struct RecipeExecutionView: View {
     @State private var selectedResultTab: String = "summary"
     @State private var columnSearchText: String = ""
     @State private var recommendedParametersApplied: Bool = false
+    @State private var expandedParameterKey: String? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -701,13 +703,18 @@ struct RecipeExecutionView: View {
                                                         .font(.body)
                                                         .fontWeight(.semibold)
 
-                                                    Button(action: {}) {
-                                                        Image(systemName: "questionmark.circle")
+                                                    Button(action: {
+                                                        if expandedParameterKey == param.parameterKey {
+                                                            expandedParameterKey = nil
+                                                        } else {
+                                                            expandedParameterKey = param.parameterKey
+                                                        }
+                                                    }) {
+                                                        Image(systemName: expandedParameterKey == param.parameterKey ? "questionmark.circle.fill" : "questionmark.circle")
                                                             .font(.caption)
                                                             .foregroundColor(.blue)
                                                     }
                                                     .buttonStyle(.plain)
-                                                    .help(ParameterGlossary.getExplanationOrDefault(for: param.parameterKey))
                                                 }
 
                                                 if param.required {
@@ -717,6 +724,23 @@ struct RecipeExecutionView: View {
                                                 }
 
                                                 Spacer()
+                                            }
+
+                                            if expandedParameterKey == param.parameterKey {
+                                                VStack(alignment: .leading, spacing: 4) {
+                                                    Text("📖 用語説明")
+                                                        .font(.caption)
+                                                        .fontWeight(.semibold)
+                                                        .foregroundColor(.blue)
+
+                                                    Text(ParameterGlossary.getExplanationOrDefault(for: param.parameterKey))
+                                                        .font(.caption)
+                                                        .lineLimit(nil)
+                                                        .padding(8)
+                                                        .background(Color(.controlBackgroundColor))
+                                                        .cornerRadius(4)
+                                                }
+                                                .padding(.top, 4)
                                             }
 
                                             Text(param.description)
