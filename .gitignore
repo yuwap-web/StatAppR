@@ -1,0 +1,45 @@
+# Xcode
+*.xcarchive
+build/
+DerivedData/
+*.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace/xcuserdata/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+.idea/
+
+# Build artifacts
+*.app
+*.dmg
+*.ipa
+*.xcarchive
+build/
+dist/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Temporary files
+*.tmp
+*.temp
+.swiftlint.yml.bak
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
