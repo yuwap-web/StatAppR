@@ -3,6 +3,32 @@ import Foundation
 class CSVManager {
     static let shared = CSVManager()
 
+    // MARK: - Encoding Detection
+
+    func detectEncoding(at url: URL) -> String {
+        // Try to detect file encoding
+        // Returns "UTF-8" or "shift-jis"
+        guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else {
+            return "UTF-8"  // Default
+        }
+
+        // Try UTF-8 first
+        if String(data: data, encoding: .utf8) != nil {
+            print("🔍 [CSVManager] Detected encoding: UTF-8")
+            return "UTF-8"
+        }
+
+        // Try Shift-JIS
+        if String(data: data, encoding: .shiftJIS) != nil {
+            print("🔍 [CSVManager] Detected encoding: shift-jis")
+            return "shift-jis"
+        }
+
+        // Default
+        print("🔍 [CSVManager] Encoding detection failed, using UTF-8 as default")
+        return "UTF-8"
+    }
+
     // MARK: - CSV Parsing
 
     func parseCSV(at url: URL, maxRows: Int? = nil) throws -> (headers: [String], data: [[String]]) {
@@ -18,9 +44,16 @@ class CSVManager {
             content = try readFileInChunks(at: url, maxRows: maxRows ?? 500)
             print("📊 [CSVManager] Large file mode (> 100MB): Reading in chunks")
         } else {
-            // 小さいファイル：全行を読み込む
-            content = try String(contentsOf: url, encoding: .utf8)
-            print("📊 [CSVManager] Normal file mode (< 100MB): Reading entire file")
+            // 小さいファイル：全行を読み込む（エンコーディング自動検出）
+            if let contentUTF8 = try? String(contentsOf: url, encoding: .utf8) {
+                content = contentUTF8
+                print("📊 [CSVManager] Normal file mode (< 100MB): Reading entire file (UTF-8)")
+            } else if let contentShiftJIS = try? String(contentsOf: url, encoding: .shiftJIS) {
+                content = contentShiftJIS
+                print("📊 [CSVManager] Normal file mode (< 100MB): Reading entire file (Shift-JIS)")
+            } else {
+                throw CSVError.emptyFile
+            }
         }
 
         var rows = content.components(separatedBy: .newlines)
@@ -57,8 +90,19 @@ class CSVManager {
             let chunk = try fileHandle.readData(ofLength: chunkSize)
             guard !chunk.isEmpty else { break }
 
-            guard let chunkString = String(data: chunk, encoding: .utf8) else {
-                print("❌ [CSVManager] Failed to decode chunk as UTF-8")
+            // Try UTF-8 first, then fall back to Shift-JIS
+            var chunkString = String(data: chunk, encoding: .utf8)
+
+            if chunkString == nil {
+                // Try Shift-JIS (common for Japanese CSV files)
+                chunkString = String(data: chunk, encoding: .shiftJIS)
+                if chunkString != nil {
+                    print("ℹ️  [CSVManager] Decoded chunk as Shift-JIS (UTF-8 failed)")
+                }
+            }
+
+            guard let chunkString = chunkString else {
+                print("❌ [CSVManager] Failed to decode chunk as UTF-8 or Shift-JIS")
                 break
             }
 

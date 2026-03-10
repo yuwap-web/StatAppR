@@ -91,19 +91,32 @@ class RecipeRunner {
         // Load recipe source
         let runnerDir = "/Users/uts/StatAppR/Engine"
 
+        // Create figures output directory
+        let resultsDir = URL(fileURLWithPath: outputFile).deletingLastPathComponent().path
+        let figuresDir = (resultsDir as NSString).appendingPathComponent("figures")
+
+        // Ensure figures directory exists
+        try? FileManager.default.createDirectory(atPath: figuresDir, withIntermediateDirectories: true, attributes: nil)
+
+        // Detect CSV file encoding
+        let csvURL = URL(fileURLWithPath: csvPath)
+        let detectedEncoding = CSVManager.shared.detectEncoding(at: csvURL)
+
         // Escape paths for R (handle quotes in paths)
         let escapedRecipePath = recipePath.replacingOccurrences(of: "'", with: "\\'")
         let escapedCsvPath = csvPath.replacingOccurrences(of: "'", with: "\\'")
         let escapedOutputFile = outputFile.replacingOccurrences(of: "'", with: "\\'")
+        let escapedFiguresDir = figuresDir.replacingOccurrences(of: "'", with: "\\'")
 
         let commandLines = [
             "runner_dir <- '\(runnerDir)'",
+            "figures_dir <- '\(escapedFiguresDir)'",
             // Auto-install required packages if not available
             "if (!requireNamespace('jsonlite', quietly = TRUE)) { install.packages('jsonlite', repos = 'https://cran.r-project.org'); library(jsonlite) } else { library(jsonlite) }",
             // Auto-install grf and ranger for causal forest analysis
             "if (!requireNamespace('grf', quietly = TRUE) && !requireNamespace('ranger', quietly = TRUE)) { install.packages(c('grf', 'ranger'), repos = 'https://cran.r-project.org', quiet = TRUE) }",
             "source('\(escapedRecipePath)')",
-            "df <- read.csv('\(escapedCsvPath)', stringsAsFactors = FALSE)",
+            "df <- read.csv('\(escapedCsvPath)', stringsAsFactors = FALSE, fileEncoding = '\(detectedEncoding)', check.names = FALSE)",
             buildParametersList(parameters),
             "result <- run(request, df)",
             "result_json <- toJSON(result, pretty = TRUE, auto_unbox = TRUE)",

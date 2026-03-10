@@ -58,6 +58,16 @@ if (!requireNamespace("ggplot2", quietly = TRUE)) {
 
 library(ggplot2)
 
+# Optional: ragg for better Japanese text rendering in PNG output
+if (!requireNamespace("ragg", quietly = TRUE)) {
+  cat("📦 Installing ragg package for improved Japanese text support...\n")
+  tryCatch({
+    install.packages("ragg", repos = "https://cran.r-project.org", quiet = TRUE)
+  }, error = function(e) {
+    cat("⚠️  ragg installation skipped (will use standard PNG device)\n")
+  })
+}
+
 # safe persistent file (not temp)
 make_plot_file <- function(prefix="plot") {
   results_dir <- .ensure_results_dir()
@@ -66,46 +76,107 @@ make_plot_file <- function(prefix="plot") {
 }
 
 # ------------------------------------------------------------
-# FOREST PLOT
-# used by logistic / cox / meta
+# FOREST PLOT (ggplot2版 - 日本語対応)
+# used by logistic / cox / other regression recipes
+# Japanese text rendering: supported via ggplot2::ggsave()
 # ------------------------------------------------------------
 
-make_forest_plot <- function(df, est_col, low_col, high_col, label_col) {
+make_forest_plot <- function(df,
+                             est_col,
+                             low_col,
+                             high_col,
+                             label_col,
+                             ref_line = 1,
+                             title = "Forest Plot") {
 
+  # ---- Validation ----
+  if (!is.data.frame(df) || nrow(df) == 0) {
+    stop("df must be a non-empty data.frame")
+  }
+
+  if (!all(c(est_col, low_col, high_col, label_col) %in% names(df))) {
+    missing_cols <- setdiff(c(est_col, low_col, high_col, label_col), names(df))
+    stop(paste("Required columns missing:", paste(missing_cols, collapse=", ")))
+  }
+
+  # ---- Prepare output file ----
   file <- make_plot_file("forest")
 
+  # ---- Sort by estimate value ----
   df <- df[order(df[[est_col]]), ]
 
-  # Create temporary columns for ggplot compatibility
+  # ---- Rename columns for ggplot ----
   df_plot <- df
   names(df_plot)[names(df_plot) == est_col] <- "est"
   names(df_plot)[names(df_plot) == low_col] <- "ci_low"
   names(df_plot)[names(df_plot) == high_col] <- "ci_high"
   names(df_plot)[names(df_plot) == label_col] <- "label"
 
-  p <- ggplot(
+  # ---- Create ggplot object ----
+  p <- ggplot2::ggplot(
     df_plot,
-    aes(
+    ggplot2::aes(
       x = est,
       y = reorder(label, est)
     )
   ) +
-    geom_point(size=3) +
-    geom_errorbarh(
-      aes(
+    ggplot2::geom_point(size = 3, color = "steelblue") +
+    ggplot2::geom_errorbar(
+      ggplot2::aes(
         xmin = ci_low,
         xmax = ci_high
       ),
-      height = 0.2
+      orientation = "y",
+      width = 0.2,
+      color = "steelblue"
     ) +
-    geom_vline(xintercept = 1, linetype="dashed") +
-    theme_minimal() +
-    xlab("Effect Size") +
-    ylab("")
+    ggplot2::geom_vline(
+      xintercept = ref_line,
+      linetype = "dashed",
+      color = "gray50",
+      alpha = 0.7
+    ) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 10),
+      axis.text.x = ggplot2::element_text(size = 9),
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 12, face = "bold"),
+      panel.grid.minor = ggplot2::element_blank()
+    ) +
+    ggplot2::xlab("Effect Size") +
+    ggplot2::ylab("") +
+    ggplot2::ggtitle(title)
 
-  ggsave(file, p, width=6, height=4, dpi=300)
+  # ---- Save plot (with ragg for better UTF-8/Japanese support) ----
+  tryCatch({
+    # Dynamic height based on number of rows
+    n_rows <- nrow(df_plot)
+    height <- max(4, 2 + n_rows * 0.2)
 
-  file
+    # Try to use ragg device if available (better UTF-8 support for Japanese)
+    # Fallback to standard png device if ragg not installed
+    device_fn <- "png"
+
+    if (requireNamespace("ragg", quietly = TRUE)) {
+      device_fn <- ragg::agg_png
+    }
+
+    ggplot2::ggsave(
+      file,
+      p,
+      width = 7,
+      height = height,
+      dpi = 300,
+      device = device_fn
+    )
+
+    cat("✅ Forest plot saved:", file, "\n")
+    return(file)
+
+  }, error = function(e) {
+    warning(paste("❌ Failed to save forest plot:", e$message))
+    return(NULL)
+  })
 
 }
 

@@ -635,558 +635,8 @@ struct RecipeExecutionView: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
-                    // CSV Information Section & Status Indicator
-                    if let csvPath = csvPath {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Label("データファイル", systemImage: "checkmark.circle.fill")
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-                                Spacer()
-                                Image(systemName: "checkmark.circle")
-                                    .foregroundColor(.green)
-                                    .font(.title3)
-                            }
-
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(csvPath.lastPathComponent)
-                                    .font(.body)
-                                    .fontWeight(.semibold)
-
-                                HStack(spacing: 16) {
-                                    Label("\(csvColumns.count) 列", systemImage: "square.split.2x1")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-
-                                    Label("データ準備完了", systemImage: "checkmark.circle")
-                                        .font(.subheadline)
-                                        .foregroundColor(.green)
-                                }
-                            }
-                            .padding(16)
-                            .background(Color(.controlBackgroundColor))
-                            .cornerRadius(6)
-
-                            // Parameter Settings (レシピごとのパラメータ設定)
-                            if !recipe.parameters.isEmpty && !csvColumns.isEmpty {
-                                VStack(alignment: .leading, spacing: 16) {
-                                    let requiredCount = recipe.parameters.filter { $0.required }.count
-                                    let totalCount = recipe.parameters.count
-
-                                    HStack {
-                                        Text("分析パラメータ（必須\(requiredCount)/\(totalCount)）")
-                                            .font(.body)
-                                            .fontWeight(.semibold)
-
-                                        if recommendedParametersApplied {
-                                            HStack(spacing: 4) {
-                                                Image(systemName: "sparkles")
-                                                    .font(.caption)
-                                                Text("推奨設定適用済み")
-                                                    .font(.caption)
-                                            }
-                                            .foregroundColor(.purple)
-                                            .padding(4)
-                                            .background(Color.purple.opacity(0.1))
-                                            .cornerRadius(3)
-                                        }
-
-                                        Spacer()
-                                    }
-
-                                    // Display parameters based on recipe requirements
-                                    ForEach(recipe.parameters) { param in
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            HStack(spacing: 6) {
-                                                HStack(spacing: 4) {
-                                                    Text(param.name)
-                                                        .font(.body)
-                                                        .fontWeight(.semibold)
-
-                                                    Button(action: {
-                                                        if expandedParameterKey == param.parameterKey {
-                                                            expandedParameterKey = nil
-                                                        } else {
-                                                            expandedParameterKey = param.parameterKey
-                                                        }
-                                                    }) {
-                                                        Image(systemName: expandedParameterKey == param.parameterKey ? "questionmark.circle.fill" : "questionmark.circle")
-                                                            .font(.caption)
-                                                            .foregroundColor(.blue)
-                                                    }
-                                                    .buttonStyle(.plain)
-                                                }
-
-                                                if param.required {
-                                                    Text("※必須")
-                                                        .font(.caption)
-                                                        .foregroundColor(.red)
-                                                }
-
-                                                Spacer()
-                                            }
-
-                                            if expandedParameterKey == param.parameterKey {
-                                                VStack(alignment: .leading, spacing: 4) {
-                                                    Text("📖 用語説明")
-                                                        .font(.caption)
-                                                        .fontWeight(.semibold)
-                                                        .foregroundColor(.blue)
-
-                                                    Text(ParameterGlossary.getExplanationOrDefault(for: param.parameterKey))
-                                                        .font(.caption)
-                                                        .lineLimit(nil)
-                                                        .padding(8)
-                                                        .background(Color(.controlBackgroundColor))
-                                                        .cornerRadius(4)
-                                                }
-                                                .padding(.top, 4)
-                                            }
-
-                                            Text(param.description)
-                                                .font(.subheadline)
-                                                .foregroundColor(.secondary)
-
-                                            // Parameter Selection UI based on type
-                                            if param.type == .singleColumn || param.type == .multipleColumns {
-                                                VStack(alignment: .leading, spacing: 10) {
-                                                    // Search field
-                                                    HStack {
-                                                        Image(systemName: "magnifyingglass")
-                                                            .foregroundColor(.gray)
-                                                        TextField("列を検索", text: $columnSearchText)
-                                                            .textFieldStyle(.roundedBorder)
-                                                            .font(.caption)
-                                                    }
-                                                    .padding(8)
-                                                    .background(Color(.windowBackgroundColor))
-                                                    .cornerRadius(4)
-
-                                                    // Grouped columns by type
-                                                    // Apply search filter only if columnSearchText is not empty
-                                                    let searchFilter = columnSearchText.trimmingCharacters(in: .whitespaces)
-                                                    let numericColumns = csvColumns.filter { column in
-                                                        column.dataType == "numeric" && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
-                                                    }
-                                                    let categoricalColumns = csvColumns.filter { column in
-                                                        column.dataType == "categorical" && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
-                                                    }
-                                                    let otherColumns = csvColumns.filter { column in
-                                                        !["numeric", "categorical"].contains(column.dataType) && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
-                                                    }
-
-                                                    // Numeric columns group
-                                                    if !numericColumns.isEmpty {
-                                                        VStack(alignment: .leading, spacing: 8) {
-                                                            Text("数値列")
-                                                                .font(.subheadline)
-                                                                .fontWeight(.semibold)
-                                                                .foregroundColor(.secondary)
-
-                                                            ForEach(numericColumns) { column in
-                                                                ColumnSelectionRow(
-                                                                    column: column,
-                                                                    parameterKey: param.parameterKey,
-                                                                    isSingleSelection: param.type == .singleColumn,
-                                                                    selectedColumns: $selectedColumnsByParameter
-                                                                )
-                                                            }
-                                                        }
-                                                        .padding(8)
-                                                        .background(Color(.windowBackgroundColor))
-                                                        .cornerRadius(4)
-                                                    }
-
-                                                    // Categorical columns group
-                                                    if !categoricalColumns.isEmpty {
-                                                        VStack(alignment: .leading, spacing: 8) {
-                                                            Text("カテゴリ列")
-                                                                .font(.subheadline)
-                                                                .fontWeight(.semibold)
-                                                                .foregroundColor(.secondary)
-
-                                                            ForEach(categoricalColumns) { column in
-                                                                ColumnSelectionRow(
-                                                                    column: column,
-                                                                    parameterKey: param.parameterKey,
-                                                                    isSingleSelection: param.type == .singleColumn,
-                                                                    selectedColumns: $selectedColumnsByParameter
-                                                                )
-                                                            }
-                                                        }
-                                                        .padding(8)
-                                                        .background(Color(.windowBackgroundColor))
-                                                        .cornerRadius(4)
-                                                    }
-
-                                                    // Other columns group
-                                                    if !otherColumns.isEmpty {
-                                                        VStack(alignment: .leading, spacing: 8) {
-                                                            Text("その他")
-                                                                .font(.subheadline)
-                                                                .fontWeight(.semibold)
-                                                                .foregroundColor(.secondary)
-
-                                                            ForEach(otherColumns) { column in
-                                                                ColumnSelectionRow(
-                                                                    column: column,
-                                                                    parameterKey: param.parameterKey,
-                                                                    isSingleSelection: param.type == .singleColumn,
-                                                                    selectedColumns: $selectedColumnsByParameter
-                                                                )
-                                                            }
-                                                        }
-                                                        .padding(8)
-                                                        .background(Color(.windowBackgroundColor))
-                                                        .cornerRadius(4)
-                                                    }
-
-                                                    if numericColumns.isEmpty && categoricalColumns.isEmpty && otherColumns.isEmpty {
-                                                        Text("該当する列がありません")
-                                                            .font(.caption)
-                                                            .foregroundColor(.secondary)
-                                                            .padding(8)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        .padding(16)
-                                        .background(Color(.controlBackgroundColor))
-                                        .cornerRadius(6)
-                                    }
-                                }
-                            }
-
-                        }
-                        .padding(20)
-                        .background(Color(.controlBackgroundColor).opacity(0.5))
-                        .cornerRadius(8)
-                    } else {
-                        VStack(spacing: 12) {
-                            Image(systemName: "folder.badge.questionmark")
-                                .font(.system(size: 48))
-                                .foregroundColor(.gray)
-
-                            Text("CSVファイルをロードしてください")
-                                .font(.headline)
-
-                            Text("左のパネルから「CSVをロード」ボタンでファイルを選択してください")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(40)
-                    }
-
-                    // Execution Results
-                    if let output = recipeOutput {
-                        VStack(alignment: .leading, spacing: 12) {
-                            // Results Header
-                            HStack {
-                                Label("分析結果", systemImage: "chart.bar.fill")
-                                    .font(.headline)
-                                    .fontWeight(.semibold)
-                                Spacer()
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                                    .font(.title3)
-                            }
-
-                            Divider()
-
-                            // Results Tab Selection
-                            VStack(alignment: .leading, spacing: 12) {
-                                Picker("結果タイプ", selection: $selectedResultTab) {
-                                    if output.summary != nil {
-                                        Text("概要").tag("summary")
-                                    }
-                                    if output.figures != nil && !(output.figures?.isEmpty ?? true) {
-                                        Text("図表").tag("figures")
-                                    }
-                                    if output.tables != nil && !(output.tables?.isEmpty ?? true) {
-                                        Text("統計値").tag("tables")
-                                    }
-                                    if output.warnings != nil && !(output.warnings?.isEmpty ?? true) {
-                                        Text("警告").tag("warnings")
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-
-                                // Summary Tab
-                                if selectedResultTab == "summary", let summary = output.summary {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        if let headline = summary.headline {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                Text("主要結果")
-                                                    .font(.caption)
-                                                    .fontWeight(.semibold)
-                                                Text(headline)
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                                    .padding(12)
-                                                    .background(Color(.controlBackgroundColor))
-                                                    .cornerRadius(6)
-                                            }
-                                        }
-
-                                        if let methodUsed = summary.method_used {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                Text("使用した方法")
-                                                    .font(.caption)
-                                                    .fontWeight(.semibold)
-                                                Text(methodUsed)
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                                    .padding(12)
-                                                    .background(Color(.controlBackgroundColor))
-                                                    .cornerRadius(6)
-                                            }
-                                        }
-
-                                        if let keyMetrics = summary.key_metrics, !keyMetrics.isEmpty {
-                                            VStack(alignment: .leading, spacing: 8) {
-                                                Text("主要指標")
-                                                    .font(.caption)
-                                                    .fontWeight(.semibold)
-
-                                                VStack(alignment: .leading, spacing: 4) {
-                                                    ForEach(Array(keyMetrics), id: \.key) { key, value in
-                                                        HStack {
-                                                            Text(key)
-                                                                .font(.caption)
-                                                                .foregroundColor(.secondary)
-                                                            Spacer()
-                                                            Text(formatTableValue(value.value))
-                                                                .font(.caption)
-                                                                .fontWeight(.semibold)
-                                                        }
-                                                    }
-                                                }
-                                                .padding(12)
-                                                .background(Color(.controlBackgroundColor))
-                                                .cornerRadius(6)
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Figures Tab
-                                if selectedResultTab == "figures", let figures = output.figures, !figures.isEmpty {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        ForEach(figures, id: \.id) { figure in
-                                            VStack(alignment: .leading, spacing: 6) {
-                                                HStack {
-                                                    Text(figure.title)
-                                                        .font(.caption)
-                                                        .fontWeight(.semibold)
-                                                    Spacer()
-                                                    Text(figure.type)
-                                                        .font(.caption2)
-                                                        .padding(4)
-                                                        .background(Color.blue.opacity(0.2))
-                                                        .cornerRadius(3)
-                                                }
-                                                Text(figure.id)
-                                                    .font(.caption2)
-                                                    .foregroundColor(.secondary)
-
-                                                // Display figure image if path exists
-                                                if let path = figure.path, FileManager.default.fileExists(atPath: path) {
-                                                    if let nsImage = NSImage(contentsOfFile: path) {
-                                                        Image(nsImage: nsImage)
-                                                            .resizable()
-                                                            .scaledToFit()
-                                                            .frame(maxWidth: .infinity)
-                                                            .border(Color.gray.opacity(0.3))
-                                                    }
-                                                }
-                                            }
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .padding(12)
-                                            .background(Color(.controlBackgroundColor))
-                                            .cornerRadius(6)
-                                        }
-                                    }
-                                }
-
-                                // Tables Tab
-                                if selectedResultTab == "tables", let tables = output.tables, !tables.isEmpty {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        ForEach(tables, id: \.id) { table in
-                                        VStack(alignment: .leading, spacing: 8) {
-                                            Text(table.title)
-                                                .font(.caption)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.primary)
-
-                                            // Dynamic table rendering
-                                            if !table.data.isEmpty {
-                                                VStack(spacing: 0) {
-                                                    // Header row
-                                                    let firstRow = table.data[0]
-                                                    let keys = Array(firstRow.keys).sorted()
-
-                                                    HStack(spacing: 8) {
-                                                        ForEach(keys, id: \.self) { key in
-                                                            Text(key)
-                                                                .fontWeight(.semibold)
-                                                                .font(.caption2)
-                                                                .frame(maxWidth: .infinity, alignment: .leading)
-                                                        }
-                                                    }
-                                                    .padding(8)
-                                                    .background(Color(.controlBackgroundColor))
-
-                                                    Divider()
-
-                                                    // Data rows
-                                                    ForEach(Array(table.data.enumerated()), id: \.offset) { _, row in
-                                                        HStack(spacing: 8) {
-                                                            ForEach(keys, id: \.self) { key in
-                                                                if let value = row[key] {
-                                                                    Text(formatTableValue(value.value))
-                                                                        .font(.caption)
-                                                                        .foregroundColor(.secondary)
-                                                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                                                } else {
-                                                                    Text("--")
-                                                                        .font(.caption)
-                                                                        .foregroundColor(.secondary)
-                                                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                                                }
-                                                            }
-                                                        }
-                                                        .padding(8)
-                                                        .background(Color(.windowBackgroundColor))
-                                                    }
-                                                }
-                                                .cornerRadius(6)
-                                                .border(Color(.controlBackgroundColor), width: 1)
-                                            } else {
-                                                Text("データがありません")
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                                    .padding(12)
-                                                    .background(Color(.windowBackgroundColor))
-                                                    .cornerRadius(6)
-                                            }
-                                        }
-                                        .padding(12)
-                                        .background(Color(.controlBackgroundColor))
-                                        .cornerRadius(6)
-                                        }
-                                    }
-                                }
-
-                                // Warnings Tab
-                                if selectedResultTab == "warnings", let warnings = output.warnings, !warnings.isEmpty {
-                                    VStack(alignment: .leading, spacing: 12) {
-                                        ForEach(warnings, id: \.code) { warning in
-                                            VStack(alignment: .leading, spacing: 6) {
-                                                HStack {
-                                                    Text(warning.code)
-                                                        .font(.caption)
-                                                        .fontWeight(.semibold)
-                                                    Spacer()
-                                                    Text(warning.severity)
-                                                        .font(.caption2)
-                                                        .padding(4)
-                                                        .background(Color.orange.opacity(0.2))
-                                                        .cornerRadius(3)
-                                                }
-                                                Text(warning.message)
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                            }
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .padding(12)
-                                            .background(Color.orange.opacity(0.05))
-                                            .cornerRadius(6)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .padding(20)
-                        .background(Color(.controlBackgroundColor).opacity(0.5))
-                        .cornerRadius(8)
-                    } else if let error = executionError {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Label("エラーが発生しました", systemImage: "exclamationmark.triangle.fill")
-                                    .font(.headline)
-                                    .foregroundColor(.red)
-                                    .fontWeight(.semibold)
-                                Spacer()
-                            }
-
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("エラーメッセージ:")
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-
-                                Text(error)
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(nil)
-                                    .padding(10)
-                                    .background(Color.red.opacity(0.1))
-                                    .cornerRadius(4)
-                            }
-
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("解決方法:")
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Label("CSV ファイルが正しく読み込まれているか確認", systemImage: "checkmark")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-
-                                    Label("パラメータの選択が完了しているか確認", systemImage: "checkmark")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-
-                                    Label("R とすべての必須パッケージがインストールされているか確認", systemImage: "checkmark")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-
-                                    Label("別のレシピを選択して再度試す", systemImage: "checkmark")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-
-                            HStack(spacing: 12) {
-                                Button(action: { executionError = nil; recipeOutput = nil }) {
-                                    Text("リセット")
-                                        .frame(maxWidth: .infinity)
-                                        .padding(8)
-                                        .background(Color.orange)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(4)
-                                }
-
-                                Button(action: { onBack() }) {
-                                    Text("別のレシピ")
-                                        .frame(maxWidth: .infinity)
-                                        .padding(8)
-                                        .background(Color.blue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(4)
-                                }
-                            }
-                        }
-                        .padding(16)
-                        .background(Color.red.opacity(0.05))
-                        .border(Color.red.opacity(0.3), width: 1)
-                        .cornerRadius(8)
-                    }
-
+                    csvInfoSection
+                    executionResultsSection
                     Spacer()
                 }
                 .padding(20)
@@ -1217,18 +667,511 @@ struct RecipeExecutionView: View {
             loadCSVColumns()
         }
         .onChange(of: csvPath) {
-            recommendedParametersApplied = false  // Reset when CSV changes
+            recommendedParametersApplied = false
             loadCSVColumns()
         }
         .onChange(of: recipe.name) {
-            // When recipe changes, reset CSV path and re-run auto-matching
-            csvPath = nil  // Reset CSV to prevent mismatched data
+            csvPath = nil
             selectedColumnsByParameter = [:]
             csvColumns = []
 
-            // Re-run auto-matching for the new recipe (will trigger when CSV is loaded)
             let matcher = RecipeParameterMatcher()
             selectedColumnsByParameter = matcher.matchParametersForRecipe(recipe, csvColumns: csvColumns)
+        }
+    }
+
+    // MARK: - Computed View Properties
+
+    private var csvInfoSection: some View {
+        Group {
+        if let csvPath = csvPath {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Label("データファイル", systemImage: "checkmark.circle.fill")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                    Spacer()
+                    Image(systemName: "checkmark.circle")
+                        .foregroundColor(.green)
+                        .font(.title3)
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(csvPath.lastPathComponent)
+                        .font(.body)
+                        .fontWeight(.semibold)
+
+                    HStack(spacing: 16) {
+                        Label("\(csvColumns.count) 列", systemImage: "square.split.2x1")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+
+                        Label("データ準備完了", systemImage: "checkmark.circle")
+                            .font(.subheadline)
+                            .foregroundColor(.green)
+                    }
+                }
+                .padding(16)
+                .background(Color(.controlBackgroundColor))
+                .cornerRadius(6)
+
+                // Parameter Settings (レシピごとのパラメータ設定)
+                if !recipe.parameters.isEmpty && !csvColumns.isEmpty {
+                    VStack(alignment: .leading, spacing: 16) {
+                        let requiredCount = recipe.parameters.filter { $0.required }.count
+                        let totalCount = recipe.parameters.count
+
+                        HStack {
+                            Text("分析パラメータ（必須\(requiredCount)/\(totalCount)）")
+                                .font(.body)
+                                .fontWeight(.semibold)
+
+                            if recommendedParametersApplied {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "sparkles")
+                                        .font(.caption)
+                                    Text("推奨設定適用済み")
+                                        .font(.caption)
+                                }
+                                .foregroundColor(.purple)
+                                .padding(4)
+                                .background(Color.purple.opacity(0.1))
+                                .cornerRadius(3)
+                            }
+
+                            Spacer()
+                        }
+
+                        // Display parameters based on recipe requirements
+                        ForEach(recipe.parameters) { param in
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack(spacing: 6) {
+                                    HStack(spacing: 4) {
+                                        Text(param.name)
+                                            .font(.body)
+                                            .fontWeight(.semibold)
+
+                                        Button(action: {
+                                            if expandedParameterKey == param.parameterKey {
+                                                expandedParameterKey = nil
+                                            } else {
+                                                expandedParameterKey = param.parameterKey
+                                            }
+                                        }) {
+                                            Image(systemName: expandedParameterKey == param.parameterKey ? "questionmark.circle.fill" : "questionmark.circle")
+                                                .font(.caption)
+                                                .foregroundColor(.blue)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+
+                                    if param.required {
+                                        Text("※必須")
+                                            .font(.caption)
+                                            .foregroundColor(.red)
+                                    }
+
+                                    Spacer()
+                                }
+
+                                if expandedParameterKey == param.parameterKey {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("📖 用語説明")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundColor(.blue)
+
+                                        Text(ParameterGlossary.getExplanationOrDefault(for: param.parameterKey))
+                                            .font(.caption)
+                                            .lineLimit(nil)
+                                            .padding(8)
+                                            .background(Color(.controlBackgroundColor))
+                                            .cornerRadius(4)
+                                    }
+                                    .padding(.top, 4)
+                                }
+
+                                Text(param.description)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+
+                                // Parameter Selection UI based on type
+                                if param.type == .singleColumn || param.type == .multipleColumns {
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        // Search field
+                                        HStack {
+                                            Image(systemName: "magnifyingglass")
+                                                .foregroundColor(.gray)
+                                            TextField("列を検索", text: $columnSearchText)
+                                                .textFieldStyle(.roundedBorder)
+                                                .font(.caption)
+                                        }
+                                        .padding(8)
+                                        .background(Color(.windowBackgroundColor))
+                                        .cornerRadius(4)
+
+                                        // Grouped columns by type
+                                        // Apply search filter only if columnSearchText is not empty
+                                        let searchFilter = columnSearchText.trimmingCharacters(in: .whitespaces)
+                                        let numericColumns = csvColumns.filter { column in
+                                            column.dataType == "numeric" && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
+                                        }
+                                        let categoricalColumns = csvColumns.filter { column in
+                                            column.dataType == "categorical" && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
+                                        }
+                                        let otherColumns = csvColumns.filter { column in
+                                            !["numeric", "categorical"].contains(column.dataType) && (searchFilter.isEmpty || column.name.localizedCaseInsensitiveContains(searchFilter))
+                                        }
+
+                                        // Numeric columns group
+                                        if !numericColumns.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("数値列")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(.secondary)
+
+                                                ForEach(numericColumns) { column in
+                                                    ColumnSelectionRow(
+                                                        column: column,
+                                                        parameterKey: param.parameterKey,
+                                                        isSingleSelection: param.type == .singleColumn,
+                                                        selectedColumns: $selectedColumnsByParameter
+                                                    )
+                                                }
+                                            }
+                                            .padding(8)
+                                            .background(Color(.windowBackgroundColor))
+                                            .cornerRadius(4)
+                                        }
+
+                                        // Categorical columns group
+                                        if !categoricalColumns.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("カテゴリ列")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(.secondary)
+
+                                                ForEach(categoricalColumns) { column in
+                                                    ColumnSelectionRow(
+                                                        column: column,
+                                                        parameterKey: param.parameterKey,
+                                                        isSingleSelection: param.type == .singleColumn,
+                                                        selectedColumns: $selectedColumnsByParameter
+                                                    )
+                                                }
+                                            }
+                                            .padding(8)
+                                            .background(Color(.windowBackgroundColor))
+                                            .cornerRadius(4)
+                                        }
+
+                                        // Other columns group
+                                        if !otherColumns.isEmpty {
+                                            VStack(alignment: .leading, spacing: 8) {
+                                                Text("その他")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.semibold)
+                                                    .foregroundColor(.secondary)
+
+                                                ForEach(otherColumns) { column in
+                                                    ColumnSelectionRow(
+                                                        column: column,
+                                                        parameterKey: param.parameterKey,
+                                                        isSingleSelection: param.type == .singleColumn,
+                                                        selectedColumns: $selectedColumnsByParameter
+                                                    )
+                                                }
+                                            }
+                                            .padding(8)
+                                            .background(Color(.windowBackgroundColor))
+                                            .cornerRadius(4)
+                                        }
+
+                                        if numericColumns.isEmpty && categoricalColumns.isEmpty && otherColumns.isEmpty {
+                                            Text("該当する列がありません")
+                                                .font(.caption)
+                                                .foregroundColor(.secondary)
+                                                .padding(8)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(16)
+                            .background(Color(.controlBackgroundColor))
+                            .cornerRadius(6)
+                        }
+                    }
+                }
+
+            }
+            .padding(20)
+            .background(Color(.controlBackgroundColor).opacity(0.5))
+            .cornerRadius(8)
+        } else {
+            VStack(spacing: 12) {
+                Image(systemName: "folder.badge.questionmark")
+                    .font(.system(size: 48))
+                    .foregroundColor(.gray)
+
+                Text("CSVファイルをロードしてください")
+                    .font(.headline)
+
+                Text("左のパネルから「CSVをロード」ボタンでファイルを選択してください")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(40)
+        }
+
+        }
+    }
+
+    private var executionResultsSection: some View {
+        Group {
+            if let output = recipeOutput {
+                successResultsSection(output)
+            } else if executionError != nil {
+                errorResultsSection()
+            }
+        }
+    }
+
+    private func successResultsSection(_ output: RecipeOutput) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Label("分析結果", systemImage: "chart.bar.fill")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                Spacer()
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                    .font(.title3)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                Picker("結果タイプ", selection: $selectedResultTab) {
+                    if output.summary != nil {
+                        Text("概要").tag("summary")
+                    }
+                    if output.figures != nil && !(output.figures?.isEmpty ?? true) {
+                        Text("図表").tag("figures")
+                    }
+                    if output.tables != nil && !(output.tables?.isEmpty ?? true) {
+                        Text("統計値").tag("tables")
+                    }
+                    if output.warnings != nil && !(output.warnings?.isEmpty ?? true) {
+                        Text("警告").tag("warnings")
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                if selectedResultTab == "summary" {
+                    summaryTab(output)
+                } else if selectedResultTab == "figures" {
+                    figuresTab(output)
+                } else if selectedResultTab == "tables" {
+                    tablesTab(output)
+                } else if selectedResultTab == "warnings" {
+                    warningsTab(output)
+                }
+            }
+        }
+        .padding(20)
+        .background(Color(.controlBackgroundColor).opacity(0.5))
+        .cornerRadius(8)
+    }
+
+    private func summaryTab(_ output: RecipeOutput) -> some View {
+        if let summary = output.summary {
+            return AnyView(
+                VStack(alignment: .leading, spacing: 12) {
+                    if let headline = summary.headline {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("主要結果").font(.caption).fontWeight(.semibold)
+                            Text(headline).font(.caption).foregroundColor(.secondary)
+                                .padding(12).background(Color(.controlBackgroundColor)).cornerRadius(6)
+                        }
+                    }
+                    if let methodUsed = summary.method_used {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("使用した方法").font(.caption).fontWeight(.semibold)
+                            Text(methodUsed).font(.caption).foregroundColor(.secondary)
+                                .padding(12).background(Color(.controlBackgroundColor)).cornerRadius(6)
+                        }
+                    }
+                    if let keyMetrics = summary.key_metrics, !keyMetrics.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("主要指標").font(.caption).fontWeight(.semibold)
+                            VStack(alignment: .leading, spacing: 4) {
+                                ForEach(Array(keyMetrics), id: \.key) { key, value in
+                                    HStack {
+                                        Text(key).font(.caption).foregroundColor(.secondary)
+                                        Spacer()
+                                        Text(formatTableValue(value.value)).font(.caption).fontWeight(.semibold)
+                                    }
+                                }
+                            }
+                            .padding(12).background(Color(.controlBackgroundColor)).cornerRadius(6)
+                        }
+                    }
+                }
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+    }
+
+    private func figuresTab(_ output: RecipeOutput) -> some View {
+        if let figures = output.figures, !figures.isEmpty {
+            return AnyView(
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(figures, id: \.id) { figure in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(figure.title).font(.caption).fontWeight(.semibold)
+                                Spacer()
+                                Text(figure.type ?? "").font(.caption2).padding(4)
+                                    .background(Color.blue.opacity(0.2)).cornerRadius(3)
+                            }
+                            Text(figure.id).font(.caption2).foregroundColor(.secondary)
+                            if let path = figure.path, FileManager.default.fileExists(atPath: path),
+                               let nsImage = NSImage(contentsOfFile: path) {
+                                Image(nsImage: nsImage).resizable().scaledToFit()
+                                    .frame(maxWidth: .infinity).border(Color.gray.opacity(0.3))
+                            }
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12).background(Color(.controlBackgroundColor)).cornerRadius(6)
+                    }
+                }
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+    }
+
+    private func tablesTab(_ output: RecipeOutput) -> some View {
+        if let tables = output.tables, !tables.isEmpty {
+            return AnyView(
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(tables, id: \.id) { table in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(table.title).font(.caption).fontWeight(.semibold).foregroundColor(.primary)
+                            tableDataView(table.data)
+                        }
+                        .padding(12).background(Color(.controlBackgroundColor)).cornerRadius(6)
+                    }
+                }
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+    }
+
+    private func tableDataView(_ tableData: [[String: AnyCodable]]) -> some View {
+        guard !tableData.isEmpty else {
+            return AnyView(Text("データがありません").font(.caption).foregroundColor(.secondary))
+        }
+        let firstRow = tableData[0]
+        let keys = Array(firstRow.keys).sorted()
+        return AnyView(
+            VStack(spacing: 0) {
+                HStack(spacing: 8) {
+                    ForEach(keys, id: \.self) { key in
+                        Text(key).fontWeight(.semibold).font(.caption2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(8).background(Color(.controlBackgroundColor))
+                Divider()
+                ForEach(Array(tableData.enumerated()), id: \.offset) { _, row in
+                    HStack(spacing: 8) {
+                        ForEach(keys, id: \.self) { key in
+                            Text(row[key].map { formatTableValue($0.value) } ?? "--")
+                                .font(.caption).foregroundColor(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                    .padding(8).background(Color(.windowBackgroundColor))
+                }
+            }
+            .cornerRadius(6).border(Color(.controlBackgroundColor), width: 1)
+        )
+    }
+
+    private func warningsTab(_ output: RecipeOutput) -> some View {
+        if let warnings = output.warnings, !warnings.isEmpty {
+            return AnyView(
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(warnings, id: \.code) { warning in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(warning.code).font(.caption).fontWeight(.semibold)
+                                Spacer()
+                                Text(warning.severity).font(.caption2).padding(4)
+                                    .background(Color.orange.opacity(0.2)).cornerRadius(3)
+                            }
+                            Text(warning.message).font(.caption).foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(12)
+                        .background(Color.orange.opacity(0.05)).cornerRadius(6)
+                    }
+                }
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
+    }
+
+    private func errorResultsSection() -> some View {
+        if let error = executionError {
+            return AnyView(
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Label("エラーが発生しました", systemImage: "exclamationmark.triangle.fill")
+                            .font(.headline).foregroundColor(.red).fontWeight(.semibold)
+                        Spacer()
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("エラーメッセージ:").font(.caption).fontWeight(.semibold).foregroundColor(.primary)
+                        Text(error).font(.caption).foregroundColor(.secondary).lineLimit(nil)
+                            .padding(10).background(Color.red.opacity(0.1)).cornerRadius(4)
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("解決方法:").font(.caption).fontWeight(.semibold).foregroundColor(.primary)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Label("CSV ファイルが正しく読み込まれているか確認", systemImage: "checkmark")
+                                .font(.caption).foregroundColor(.secondary)
+                            Label("パラメータの選択が完了しているか確認", systemImage: "checkmark")
+                                .font(.caption).foregroundColor(.secondary)
+                            Label("R とすべての必須パッケージがインストールされているか確認", systemImage: "checkmark")
+                                .font(.caption).foregroundColor(.secondary)
+                            Label("別のレシピを選択して再度試す", systemImage: "checkmark")
+                                .font(.caption).foregroundColor(.secondary)
+                        }
+                    }
+                    HStack(spacing: 12) {
+                        Button(action: { executionError = nil; recipeOutput = nil }) {
+                            Text("リセット").frame(maxWidth: .infinity).padding(8)
+                                .background(Color.orange).foregroundColor(.white).cornerRadius(4)
+                        }
+                        Button(action: { onBack() }) {
+                            Text("別のレシピ").frame(maxWidth: .infinity).padding(8)
+                                .background(Color.blue).foregroundColor(.white).cornerRadius(4)
+                        }
+                    }
+                }
+                .padding(16).background(Color.red.opacity(0.05))
+                .border(Color.red.opacity(0.3), width: 1).cornerRadius(8)
+            )
+        } else {
+            return AnyView(EmptyView())
         }
     }
 

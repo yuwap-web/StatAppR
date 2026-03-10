@@ -68,6 +68,11 @@ run_recipe_impl <- function(request, data) {
     suppressWarnings(as.numeric(gsub(",", "", as.character(v))))
   }
 
+  # ---- 型変換前のログ ----
+  cat(paste0("🔍 [CausalForest] 型変換前の値:\n"))
+  cat(paste0("   outcome ('", y_col, "'): ", paste(head(df[[y_col]], 5), collapse=", "), " ...\n"))
+  cat(paste0("   treatment ('", w_col, "'): ", paste(head(df[[w_col]], 5), collapse=", "), " ...\n"))
+
   # Convert outcome to numeric
   df[[y_col]] <- num_cast(df[[y_col]])
 
@@ -75,35 +80,51 @@ run_recipe_impl <- function(request, data) {
   if (is.character(df[[w_col]]) || is.factor(df[[w_col]])) {
     # Get unique non-empty values
     unique_vals <- unique(df[[w_col]][df[[w_col]] != "" & !is.na(df[[w_col]])])
+    cat(paste0("   treatment のユニーク値 (変換前): ", paste(unique_vals, collapse=", "), "\n"))
     if (length(unique_vals) >= 2) {
       # Binary categorical: first unique value → 1, others → 0
       treatment_val <- unique_vals[1]
       df[[w_col]] <- ifelse(df[[w_col]] == treatment_val, 1, 0)
-      cat(paste0("✓ Treatment '", w_col, "' converted to binary:\n"))
+      cat(paste0("✓ Treatment '", w_col, "' → binary:\n"))
       cat(paste0("  '", treatment_val, "' → 1 (n=", sum(df[[w_col]] == 1, na.rm=TRUE), ")\n"))
       cat(paste0("  Others → 0 (n=", sum(df[[w_col]] == 0, na.rm=TRUE), ")\n"))
     } else {
       # Single value, try numeric conversion
       df[[w_col]] <- num_cast(df[[w_col]])
+      cat(paste0("⚠️ treatment のユニーク値が1以下のため numeric に変換\n"))
     }
   } else {
     df[[w_col]] <- num_cast(df[[w_col]])
   }
+
+  # ---- 型変換後のチェック ----
+  cat(paste0("✓ 型変換後: outcome NA=", sum(is.na(df[[y_col]])), ", treatment NA=", sum(is.na(df[[w_col]])), "\n"))
 
   # Convert predictors to numeric
   for (x in xvars) {
     df[[x]] <- num_cast(df[[x]])
   }
 
+  # ---- データ品質チェック（詳細ログ） ----
+  cat(paste0("📊 [CausalForest] 初期データ: ", nrow(data), " 行\n"))
+  cat(paste0("   outcome列 ('", y_col, "'): NA数 = ", sum(is.na(data[[y_col]])), "\n"))
+  cat(paste0("   treatment列 ('", w_col, "'): NA数 = ", sum(is.na(data[[w_col]])), "\n"))
+
   # Handle missing values more flexibly
   # Remove rows with missing outcome or treatment, but allow missing in predictors
-  df <- df[!is.na(df[[y_col]]) & !is.na(df[[w_col]]), , drop = FALSE]
-
+  valid_idx <- !is.na(df[[y_col]]) & !is.na(df[[w_col]])
+  n_before <- nrow(df)
+  df <- df[valid_idx, , drop = FALSE]
   n <- nrow(df)
 
-  if (n < 50) {
-    cat(paste0("警告: データが少なさぎます。完全なケース（全列NA未満）: ", nrow(df[stats::complete.cases(df),]), " 行\n"))
-    stop("データが少なすぎます（outcome と treatment は必須, 最低50行以上推奨）")
+  cat(paste0("📊 [CausalForest] フィルタ後: ", n, " 行 (削除: ", n_before - n, " 行)\n"))
+
+  if (n < 15) {
+    cat(paste0("❌ エラー: outcome と treatment の両方が有効なデータが不足\n"))
+    cat(paste0("   outcome列のユニーク値: ", length(unique(data[[y_col]][!is.na(data[[y_col]])])), "\n"))
+    cat(paste0("   treatment列のユニーク値: ", length(unique(data[[w_col]][!is.na(data[[w_col]])])), "\n"))
+    cat(paste0("   最低15行のデータが必要です (現在: ", n, " 行)\n"))
+    stop("データが少なすぎます。outcome と treatment の両方に有効なデータが必要です")
   }
 
   # For predictors with missing values, use median/mode imputation

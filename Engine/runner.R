@@ -101,12 +101,8 @@ run_recipe <- function(recipe_id, request, data) {
   runner_dir <- dirname(normalizePath(runner_file, winslash = "/", mustWork = FALSE))
   recipes_dir <- normalizePath(file.path(runner_dir, "recipes"), winslash = "/", mustWork = FALSE)
 
-  # Try to source utility functions (non-fatal if missing)
-  tryCatch({
-    source(file.path(runner_dir, "utils", "forest_plot.R"), local = TRUE)
-  }, error = function(e) {
-    # Silently continue if forest_plot is not available
-  })
+  # Note: forest_plot utility functions are now provided by plot_utils.R (ggplot2-based)
+  # Base R forest_plot.R has been deprecated in favor of unified ggplot2 implementation
 
   candidates <- c(
     file.path(recipes_dir, paste0(recipe_id, ".R")),
