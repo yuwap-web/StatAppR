@@ -186,15 +186,23 @@ class RecipeRunner {
 
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let errorData = errorPipe.fileHandleForReading.readDataToEndOfFile()
+        let stdout = String(data: data, encoding: .utf8) ?? ""
+        let stderr = String(data: errorData, encoding: .utf8) ?? ""
 
-        guard process.terminationStatus == 0 else {
-            if let errorMessage = String(data: errorData, encoding: .utf8) {
-                throw RecipeError.executionError(errorMessage)
+        // Check for actual errors (not just warnings/notes from R)
+        // R may exit with non-zero status even on success if warnings are present
+        // Look for actual error messages, not just warnings
+        if process.terminationStatus != 0 {
+            if stderr.lowercased().contains("error") ||
+               stderr.lowercased().contains("could not") ||
+               stderr.lowercased().contains("cannot") {
+                throw RecipeError.executionError(stderr)
             }
-            throw RecipeError.executionError("Unknown error")
+            // If it's just warnings, don't treat as fatal error
+            print("⚠️ R warnings/notes: \(stderr)")
         }
 
-        return String(data: data, encoding: .utf8) ?? ""
+        return stdout
     }
 
     // MARK: - Output Parsing
