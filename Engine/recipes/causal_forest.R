@@ -61,16 +61,36 @@ run_recipe_impl <- function(request, data) {
 
   df <- data[, c(y_col, w_col, xvars), drop = FALSE]
 
-  # numeric coercion
+  # numeric coercion with categorical handling
 
   num_cast <- function(v) {
     if (is.numeric(v)) return(v)
     suppressWarnings(as.numeric(gsub(",", "", as.character(v))))
   }
 
+  # Convert outcome to numeric
   df[[y_col]] <- num_cast(df[[y_col]])
-  df[[w_col]] <- num_cast(df[[w_col]])
 
+  # Convert treatment: if text, convert to 0/1 (binary treatment)
+  if (is.character(df[[w_col]]) || is.factor(df[[w_col]])) {
+    # Get unique non-empty values
+    unique_vals <- unique(df[[w_col]][df[[w_col]] != "" & !is.na(df[[w_col]])])
+    if (length(unique_vals) >= 2) {
+      # Binary categorical: first unique value → 1, others → 0
+      treatment_val <- unique_vals[1]
+      df[[w_col]] <- ifelse(df[[w_col]] == treatment_val, 1, 0)
+      cat(paste0("✓ Treatment '", w_col, "' converted to binary:\n"))
+      cat(paste0("  '", treatment_val, "' → 1 (n=", sum(df[[w_col]] == 1, na.rm=TRUE), ")\n"))
+      cat(paste0("  Others → 0 (n=", sum(df[[w_col]] == 0, na.rm=TRUE), ")\n"))
+    } else {
+      # Single value, try numeric conversion
+      df[[w_col]] <- num_cast(df[[w_col]])
+    }
+  } else {
+    df[[w_col]] <- num_cast(df[[w_col]])
+  }
+
+  # Convert predictors to numeric
   for (x in xvars) {
     df[[x]] <- num_cast(df[[x]])
   }
