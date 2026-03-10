@@ -258,7 +258,7 @@ struct RecipeOutput: Codable {
     struct FigureInfo: Codable {
         let id: String
         let title: String
-        let type: String
+        let type: String?  // Optional: some recipes may not include type
         let path: String?  // Path to the figure file
     }
 
