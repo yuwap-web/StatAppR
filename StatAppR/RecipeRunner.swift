@@ -208,10 +208,28 @@ class RecipeRunner {
     // MARK: - Output Parsing
 
     private func parseRecipeOutput(at path: String) throws -> RecipeOutput? {
+        print("🔍 [RecipeRunner] Parsing output from: \(path)")
+
         let data = try Data(contentsOf: URL(fileURLWithPath: path))
+        print("📄 [RecipeRunner] File size: \(data.count) bytes")
+
+        // Debug: print first 500 chars of JSON
+        if let jsonString = String(data: data, encoding: .utf8) {
+            let preview = String(jsonString.prefix(500))
+            print("📋 [RecipeRunner] JSON preview: \(preview)")
+        }
+
         let decoder = JSONDecoder()
 
-        return try decoder.decode(RecipeOutput.self, from: data)
+        do {
+            let result = try decoder.decode(RecipeOutput.self, from: data)
+            print("✅ [RecipeRunner] Successfully parsed output")
+            return result
+        } catch {
+            print("❌ [RecipeRunner] JSON decode error: \(error)")
+            print("📊 [RecipeRunner] Error details: \(error.localizedDescription)")
+            throw error
+        }
     }
 }
 
