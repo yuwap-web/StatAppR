@@ -46,44 +46,46 @@ class CSVManager {
     // MARK: - Chunked File Reading for Large Files
 
     private func readFileInChunks(at url: URL, maxRows: Int) throws -> String {
-        let chunkSize = 1024 * 1024  // 1MB chunks
         let fileHandle = try FileHandle(forReadingFrom: url)
         defer { try? fileHandle.close() }
 
-        var content = ""
-        var lineCount = 0
+        var lines: [String] = []
         var buffer = ""
+        let chunkSize = 1024 * 1024  // 1MB chunks
 
-        while true {
+        while lines.count <= maxRows {
             let chunk = try fileHandle.readData(ofLength: chunkSize)
             guard !chunk.isEmpty else { break }
 
-            if let chunkString = String(data: chunk, encoding: .utf8) {
-                buffer += chunkString
-
-                // Process complete lines in buffer
-                let lines = buffer.split(separator: "\n", omittingEmptySubsequences: false)
-
-                for i in 0..<(lines.count - 1) {
-                    content += String(lines[i]) + "\n"
-                    lineCount += 1
-
-                    if lineCount > maxRows + 1 {
-                        print("📊 [CSVManager] Reached max rows limit: \(maxRows + 1)")
-                        return content
-                    }
-                }
-
-                buffer = String(lines.last ?? "")
+            guard let chunkString = String(data: chunk, encoding: .utf8) else {
+                print("❌ [CSVManager] Failed to decode chunk as UTF-8")
+                break
             }
+
+            buffer += chunkString
+
+            // Split and process complete lines
+            let parts = buffer.split(separator: "\n", omittingEmptySubsequences: false)
+
+            // Add all complete lines (keep last incomplete line in buffer)
+            for i in 0..<(parts.count - 1) {
+                lines.append(String(parts[i]))
+                if lines.count > maxRows {
+                    return lines.prefix(maxRows + 1).joined(separator: "\n")
+                }
+            }
+
+            // Keep incomplete last line in buffer
+            buffer = String(parts.last ?? "")
         }
 
-        // Add remaining buffer
+        // Add remaining buffer content
         if !buffer.isEmpty {
-            content += buffer
+            lines.append(buffer)
         }
 
-        return content
+        print("📊 [CSVManager] Successfully read \(lines.count) lines")
+        return lines.joined(separator: "\n")
     }
 
     private func parseRow(_ row: String) -> [String] {

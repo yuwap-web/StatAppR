@@ -75,12 +75,27 @@ run_recipe_impl <- function(request, data) {
     df[[x]] <- num_cast(df[[x]])
   }
 
-  df <- df[stats::complete.cases(df), , drop = FALSE]
+  # Handle missing values more flexibly
+  # Remove rows with missing outcome or treatment, but allow missing in predictors
+  df <- df[!is.na(df[[y_col]]) & !is.na(df[[w_col]]), , drop = FALSE]
 
   n <- nrow(df)
 
   if (n < 50) {
-    stop("データが少なすぎます（causal forestは最低50以上推奨）")
+    cat(paste0("警告: データが少なさぎます。完全なケース（全列NA未満）: ", nrow(df[stats::complete.cases(df),]), " 行\n"))
+    stop("データが少なすぎます（outcome と treatment は必須, 最低50行以上推奨）")
+  }
+
+  # For predictors with missing values, use median/mode imputation
+  for (x in xvars) {
+    if (any(is.na(df[[x]]))) {
+      if (is.numeric(df[[x]])) {
+        df[[x]][is.na(df[[x]])] <- median(df[[x]], na.rm = TRUE)
+      } else {
+        # For categorical, use mode
+        df[[x]][is.na(df[[x]])] <- names(sort(table(df[[x]])))[1]
+      }
+    }
   }
 
   Y <- df[[y_col]]
