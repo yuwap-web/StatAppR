@@ -6,7 +6,23 @@ class CSVManager {
     // MARK: - CSV Parsing
 
     func parseCSV(at url: URL, maxRows: Int? = nil) throws -> (headers: [String], data: [[String]]) {
-        let content = try String(contentsOf: url, encoding: .utf8)
+        // ファイル読み込み（大きなファイルはメモリ効率的に）
+        let fileAttributes = try FileManager.default.attributesOfItem(atPath: url.path)
+        let fileSize = fileAttributes[.size] as? Int ?? 0
+        let fileSizeMB = Double(fileSize) / (1024 * 1024)
+
+        // 大きなファイル（>100MB）の場合、段階的に読み込む
+        let content: String
+        if fileSizeMB > 100 {
+            // メモリ効率的な読み込み：必要な行数分だけ読む
+            content = try readFileInChunks(at: url, maxRows: maxRows ?? 500)
+            print("📊 [CSVManager] Large file mode (> 100MB): Reading in chunks")
+        } else {
+            // 小さいファイル：全行を読み込む
+            content = try String(contentsOf: url, encoding: .utf8)
+            print("📊 [CSVManager] Normal file mode (< 100MB): Reading entire file")
+        }
+
         var rows = content.components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
@@ -18,13 +34,56 @@ class CSVManager {
         // 大きなファイルの場合、先頭maxRows行のみ処理
         if let maxRows = maxRows, rows.count > maxRows + 1 {
             rows = Array(rows.prefix(maxRows + 1))  // ヘッダー + maxRows
-            print("📊 [CSVManager] Large file mode: Processing first \(maxRows) rows for column type detection")
+            print("📊 [CSVManager] Processing first \(maxRows) rows for column type detection (total rows available: \(rows.count))")
         }
 
         let headers = parseRow(headerRow)
         let data = rows.dropFirst().map { parseRow($0) }
 
         return (headers, Array(data))
+    }
+
+    // MARK: - Chunked File Reading for Large Files
+
+    private func readFileInChunks(at url: URL, maxRows: Int) throws -> String {
+        let chunkSize = 1024 * 1024  // 1MB chunks
+        let fileHandle = try FileHandle(forReadingFrom: url)
+        defer { try? fileHandle.close() }
+
+        var content = ""
+        var lineCount = 0
+        var buffer = ""
+
+        while true {
+            let chunk = try fileHandle.readData(ofLength: chunkSize)
+            guard !chunk.isEmpty else { break }
+
+            if let chunkString = String(data: chunk, encoding: .utf8) {
+                buffer += chunkString
+
+                // Process complete lines in buffer
+                let lines = buffer.split(separator: "\n", omittingEmptySubsequences: false)
+
+                for i in 0..<(lines.count - 1) {
+                    content += String(lines[i]) + "\n"
+                    lineCount += 1
+
+                    if lineCount > maxRows + 1 {
+                        print("📊 [CSVManager] Reached max rows limit: \(maxRows + 1)")
+                        return content
+                    }
+                }
+
+                buffer = String(lines.last ?? "")
+            }
+        }
+
+        // Add remaining buffer
+        if !buffer.isEmpty {
+            content += buffer
+        }
+
+        return content
     }
 
     private func parseRow(_ row: String) -> [String] {

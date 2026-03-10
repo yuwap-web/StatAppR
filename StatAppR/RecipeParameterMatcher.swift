@@ -24,27 +24,27 @@ struct RecipeParameterMatcher {
     /// Organized by parameter category for maintainability
     private let keywordMappings: [String: [String]] = [
         // ===== Time/Duration Parameters =====
-        "time_column": ["time_column", "time", "months", "days", "years", "followup", "followup_months", "time_months", "duration", "period"],
-        "start_column": ["start_column", "start", "start_time"],
-        "stop_column": ["stop_column", "stop", "stop_time"],
+        "time_column": ["time_column", "time", "months", "days", "years", "followup", "followup_months", "time_months", "duration", "period", "投与期間", "経過期間"],
+        "start_column": ["start_column", "start", "start_time", "開始日", "投与開始日"],
+        "stop_column": ["stop_column", "stop", "stop_time", "終了日", "投与終了日"],
 
         // ===== Event/Outcome Parameters =====
-        "event_column": ["event_column", "event", "status", "outcome_event", "event_occurred", "censor", "censored"],
-        "outcome_column": ["outcome_column", "outcome", "y", "result", "event", "disease_status", "measurement", "treatment"],
+        "event_column": ["event_column", "event", "status", "outcome_event", "event_occurred", "censor", "censored", "イベント", "発生"],
+        "outcome_column": ["outcome_column", "outcome", "y", "result", "event", "disease_status", "measurement", "treatment", "再発", "再投与による再発の有無"],
 
         // ===== Group/Stratum Parameters =====
-        "group_column": ["group_column", "group", "arm", "condition", "strata", "stratification"],
-        "subgroup_column": ["subgroup_column", "subgroup", "stratum", "author", "year", "category"],
-        "treatment_column": ["treatment_column", "treatment", "treat", "treatment_group"],
+        "group_column": ["group_column", "group", "arm", "condition", "strata", "stratification", "グループ", "群"],
+        "subgroup_column": ["subgroup_column", "subgroup", "stratum", "author", "year", "category", "報告回数"],
+        "treatment_column": ["treatment_column", "treatment", "treat", "treatment_group", "医薬品の関与", "治療群"],
 
         // ===== Variable Selection =====
         "variables": ["variables", "vars", "variable", "numeric_vars", "columns"],
-        "predictor_columns": ["predictor_columns", "predictors", "features", "independent", "age", "gender", "bmi", "score", "baseline", "height", "weight"],
+        "predictor_columns": ["predictor_columns", "predictors", "features", "independent", "age", "gender", "bmi", "score", "baseline", "height", "weight", "投与量", "分割投与回数", "経路"],
         "predictor_column": ["predictor_column", "predictor", "feature"],
-        "covariates": ["covariates", "covariate", "confounders", "x", "control_vars"],
+        "covariates": ["covariates", "covariate", "confounders", "x", "control_vars", "投与量", "分割投与回数", "経路"],
 
         // ===== ID Parameters =====
-        "id": ["id", "patient_id", "subject_id", "individual_id"],
+        "id": ["id", "patient_id", "subject_id", "individual_id", "識別番号", "患者ID"],
         "unit_id": ["unit_id", "unit", "entity_id", "firm_id", "country_id"],
 
         // ===== Exposure/Intervention =====
