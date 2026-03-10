@@ -98,8 +98,10 @@ class RecipeRunner {
 
         let commandLines = [
             "runner_dir <- '\(runnerDir)'",
-            // Auto-install jsonlite if not available
+            // Auto-install required packages if not available
             "if (!requireNamespace('jsonlite', quietly = TRUE)) { install.packages('jsonlite', repos = 'https://cran.r-project.org'); library(jsonlite) } else { library(jsonlite) }",
+            // Auto-install grf and ranger for causal forest analysis
+            "if (!requireNamespace('grf', quietly = TRUE) && !requireNamespace('ranger', quietly = TRUE)) { install.packages(c('grf', 'ranger'), repos = 'https://cran.r-project.org', quiet = TRUE) }",
             "source('\(escapedRecipePath)')",
             "df <- read.csv('\(escapedCsvPath)', stringsAsFactors = FALSE)",
             buildParametersList(parameters),
