@@ -1244,12 +1244,20 @@ struct RecipeExecutionView: View {
         print("📂 [RecipeExecution] Loading CSV: \(csvPath.lastPathComponent)")
 
         do {
-            let (headers, data) = try CSVManager.shared.parseCSV(at: csvPath)
+            // Check file size and use large file mode if necessary
+            let fileAttributes = try FileManager.default.attributesOfItem(atPath: csvPath.path)
+            let fileSize = fileAttributes[.size] as? Int ?? 0
+            let fileSizeMB = Double(fileSize) / (1024 * 1024)
+
+            // Use limited rows for large files (>50MB)
+            let maxRows = fileSizeMB > 50 ? 500 : nil
+
+            let (headers, data) = try CSVManager.shared.parseCSV(at: csvPath, maxRows: maxRows)
             try CSVManager.shared.validateCSV(headers: headers, data: data)
             let types = CSVManager.shared.detectColumnTypes(headers: headers, data: data)
             csvColumns = CSVManager.shared.extractColumnInfo(headers: headers, data: data, types: types)
 
-            print("✅ [RecipeExecution] CSV loaded: \(headers.count) columns, \(data.count) rows")
+            print("✅ [RecipeExecution] CSV loaded: \(headers.count) columns, \(data.count) rows (File size: \(String(format: "%.1f", fileSizeMB))MB)")
 
             // Check if this is a recommended sample data file and apply recommended parameters
             let isRecommendedSample = isLoadingRecommendedSampleData(csvPath: csvPath)

@@ -5,14 +5,20 @@ class CSVManager {
 
     // MARK: - CSV Parsing
 
-    func parseCSV(at url: URL) throws -> (headers: [String], data: [[String]]) {
+    func parseCSV(at url: URL, maxRows: Int? = nil) throws -> (headers: [String], data: [[String]]) {
         let content = try String(contentsOf: url, encoding: .utf8)
-        let rows = content.components(separatedBy: .newlines)
+        var rows = content.components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
 
         guard let headerRow = rows.first else {
             throw CSVError.emptyFile
+        }
+
+        // 大きなファイルの場合、先頭maxRows行のみ処理
+        if let maxRows = maxRows, rows.count > maxRows + 1 {
+            rows = Array(rows.prefix(maxRows + 1))  // ヘッダー + maxRows
+            print("📊 [CSVManager] Large file mode: Processing first \(maxRows) rows for column type detection")
         }
 
         let headers = parseRow(headerRow)
