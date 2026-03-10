@@ -40,6 +40,14 @@ class RecipeRunner {
             return .failure(.recipeNotFound(name))
         }
 
+        // Create results directory within work directory
+        let resultsFolder = "\(workDirectory)/results"
+        do {
+            try FileManager.default.createDirectory(atPath: resultsFolder, withIntermediateDirectories: true)
+        } catch {
+            return .failure(.executionError("Failed to create results directory: \(error.localizedDescription)"))
+        }
+
         // Use provided work directory
         let outputFile = "\(workDirectory)/recipe_output_\(UUID().uuidString).json"
 
@@ -59,7 +67,7 @@ class RecipeRunner {
 
         // Execute R command
         do {
-            _ = try executeRScript(rCommand)
+            _ = try executeRScript(rCommand, resultsFolder: resultsFolder)
 
             // Parse output
             if let result = try parseRecipeOutput(at: outputFile) {
@@ -153,10 +161,17 @@ class RecipeRunner {
 
     // MARK: - R Script Execution
 
-    private func executeRScript(_ command: String) throws -> String {
+    private func executeRScript(_ command: String, resultsFolder: String = "") throws -> String {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: rScriptPath)
         process.arguments = ["-e", command]
+
+        // Set environment variable for R to save plots in the results folder
+        var environment = ProcessInfo.processInfo.environment
+        if !resultsFolder.isEmpty {
+            environment["STATAPPR_RESULTS_FOLDER"] = resultsFolder
+        }
+        process.environment = environment
 
         let pipe = Pipe()
         let errorPipe = Pipe()
